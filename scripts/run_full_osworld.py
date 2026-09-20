@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full-Scale OSWorld Benchmark Runner for Solari Hybrid CUA (Phase 6).
+"""Full-Scale OSWorld Benchmark Runner for ARC (Phase 6).
 
 Coordinates the execution of the entire OSWorld desktop benchmark (369 tasks):
 1. Ingests full OSWorld dataset from local file or generates standard 369-task suite.
@@ -27,12 +27,12 @@ from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root / "src"))
 
-from solari_cua.eval.live_orchestrator import LiveOrchestrator
-from solari_cua.eval.osworld_env import OSWorldEnv
-from solari_cua.eval.osworld_mapper import map_osworld_task
-from solari_cua.eval.osworld_runner import OSWorldRunner
-from solari_cua.eval.schemas import EvalResult, EvalTask
-from solari_cua.eval.tasks_osworld import RAW_OSWORLD_SUBSET
+from arc_cua.eval.live_orchestrator import LiveOrchestrator
+from arc_cua.eval.osworld_env import OSWorldEnv
+from arc_cua.eval.osworld_mapper import map_osworld_task
+from arc_cua.eval.osworld_runner import OSWorldRunner
+from arc_cua.eval.schemas import EvalResult, EvalTask
+from arc_cua.eval.tasks_osworld import RAW_OSWORLD_SUBSET
 
 logging.basicConfig(
     level=logging.INFO,

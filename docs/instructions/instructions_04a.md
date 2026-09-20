@@ -6,16 +6,16 @@ Status: PASS
 
 Approved Phase 3B components:
 
-- `src/solari_cua/datasets/trajectory_collector.py`
-- `src/solari_cua/datasets/labeler.py`
+- `src/arc_cua/datasets/trajectory_collector.py`
+- `src/arc_cua/datasets/labeler.py`
 - `scripts/label_phase3.py`
-- `src/solari_cua/monitors/model_interface.py`
-- `src/solari_cua/monitors/heuristic_adapter.py`
-- `src/solari_cua/monitors/feature_builder.py`
-- `src/solari_cua/monitors/transformer_adapter.py`
+- `src/arc_cua/monitors/model_interface.py`
+- `src/arc_cua/monitors/heuristic_adapter.py`
+- `src/arc_cua/monitors/feature_builder.py`
+- `src/arc_cua/monitors/transformer_adapter.py`
 - `scripts/train_monitors.py`
-- `src/solari_cua/monitors/semantic_progress.py`
-- `src/solari_cua/cortex/http_cortex.py`
+- `src/arc_cua/monitors/semantic_progress.py`
+- `src/arc_cua/cortex/http_cortex.py`
 - `tests/test_phase3b_live.py`
 - `scripts/smoke_phase3b.py`
 - `scripts/benchmark_phase3b.py`
@@ -29,7 +29,7 @@ Review notes:
 4. Trajectory and labeling pipeline is approved.
 5. Learned monitor support is correctly optional.
 6. Training skip is accepted because heavy dependencies are not required.
-7. Real Cortex and Solari Cloud validation remain future work.
+7. Real Cortex and Arc Cloud validation remain future work.
 8. The project is ready for evaluation harness work.
 
 ---
@@ -52,7 +52,7 @@ Do not download or run full WebArena yet.
 
 Do not download or run full OSWorld yet.
 
-Do not require Solari Cloud credentials.
+Do not require Arc Cloud credentials.
 
 Do not require real Cortex credentials.
 
@@ -81,7 +81,7 @@ Not allowed:
 - external LLM calls
 - real Cortex calls
 - model training
-- Solari Cloud dependency
+- Arc Cloud dependency
 - private Playwright internals
 
 ---
@@ -99,8 +99,8 @@ Not allowed:
    - `StateVerifier`
    - `EscalationController`
    - `MockCortexClient`
-5. Keep final implementation inside `solari-hybrid-cua/`.
-6. Use `coldstart/solari-cookbook/` only as design reference.
+5. Keep final implementation inside `arc-hybrid-cua/`.
+6. Use `coldstart/arc-cookbook/` only as design reference.
 
 ---
 
@@ -109,15 +109,15 @@ Not allowed:
 Use these only as design references:
 
 ```text
-coldstart/solari-cookbook/src/scorecard/build.ts
-coldstart/solari-cookbook/src/scorecard/cost.ts
-coldstart/solari-cookbook/src/scorecard/curve.ts
-coldstart/solari-cookbook/src/scorecard/isolated.ts
-coldstart/solari-cookbook/src/verify/checks.ts
-coldstart/solari-cookbook/src/verify/verifier.ts
-coldstart/solari-cookbook/src/qa-framework/assertions.ts
-coldstart/solari-cookbook/reports/step-06-scorecard.md
-coldstart/solari-cookbook/reports/step-06b-isolated-scorecard.md
+coldstart/arc-cookbook/src/scorecard/build.ts
+coldstart/arc-cookbook/src/scorecard/cost.ts
+coldstart/arc-cookbook/src/scorecard/curve.ts
+coldstart/arc-cookbook/src/scorecard/isolated.ts
+coldstart/arc-cookbook/src/verify/checks.ts
+coldstart/arc-cookbook/src/verify/verifier.ts
+coldstart/arc-cookbook/src/qa-framework/assertions.ts
+coldstart/arc-cookbook/reports/step-06-scorecard.md
+coldstart/arc-cookbook/reports/step-06b-isolated-scorecard.md
 ```
 
 Rules:
@@ -133,8 +133,8 @@ Rules:
 Create:
 
 ```text
-src/solari_cua/eval/__init__.py
-src/solari_cua/eval/schemas.py
+src/arc_cua/eval/__init__.py
+src/arc_cua/eval/schemas.py
 ```
 
 Add:
@@ -227,7 +227,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/tasks_local.py
+src/arc_cua/eval/tasks_local.py
 ```
 
 Define at least 12 local tasks.
@@ -265,7 +265,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/assertions.py
+src/arc_cua/eval/assertions.py
 ```
 
 Implement assertion checks:
@@ -294,7 +294,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/runner.py
+src/arc_cua/eval/runner.py
 ```
 
 Purpose:
@@ -336,7 +336,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/cost.py
+src/arc_cua/eval/cost.py
 ```
 
 Purpose:
@@ -356,7 +356,7 @@ total_cost_usd:
 Requirements:
 
 1. Must support future real Cortex token pricing.
-2. Must support future Solari VM/browser time pricing.
+2. Must support future Arc VM/browser time pricing.
 3. Must not require real credentials.
 4. Must record cost in `EvalResult`.
 
@@ -367,7 +367,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/scorecard.py
+src/arc_cua/eval/scorecard.py
 ```
 
 Purpose:
@@ -628,7 +628,7 @@ Include p50/p95/p99 where relevant.
 
 ## 7. Cross-Repo Patterns Used
 
-List reused patterns from coldstart/solari-cookbook.
+List reused patterns from coldstart/arc-cookbook.
 
 ## 8. Remaining Blockers
 

@@ -23,13 +23,13 @@ from typing import Dict, List
 # Ensure src is in python path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from solari_cua.cortex.mock_cortex import MockCortexClient
-from solari_cua.cortex.recovery_compiler import RecoveryCompiler
-from solari_cua.hybrid_runner import HybridRunner
-from solari_cua.monitors.escalation_controller import EscalationController
-from solari_cua.monitors.milestone_monitor import MilestoneMonitor
-from solari_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor
-from solari_cua.schemas import (
+from arc_cua.cortex.mock_cortex import MockCortexClient
+from arc_cua.cortex.recovery_compiler import RecoveryCompiler
+from arc_cua.hybrid_runner import HybridRunner
+from arc_cua.monitors.escalation_controller import EscalationController
+from arc_cua.monitors.milestone_monitor import MilestoneMonitor
+from arc_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor
+from arc_cua.schemas import (
     ActionStep,
     EscalationPayload,
     EscalationReason,
@@ -38,7 +38,7 @@ from solari_cua.schemas import (
     RecoveryPlan,
     UIState,
 )
-from solari_cua.telemetry import compute_percentiles
+from arc_cua.telemetry import compute_percentiles
 
 
 def run_benchmarks(sample_size: int = 1000):
@@ -102,7 +102,7 @@ def run_benchmarks(sample_size: int = 1000):
             state_changed=True,
             hamming_distance=15,
             url_changed=(i % 10 == 0),
-            url="https://app.solari.local/done",
+            url="https://app.arc.local/done",
         )
         t0 = time.perf_counter()
         milestone_monitor.evaluate(step, goal="Complete submission", state_text_after="Done complete")

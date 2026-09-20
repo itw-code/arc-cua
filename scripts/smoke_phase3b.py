@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Live Browser Hybrid Smoke Test Script for Solari Hybrid CUA (Phase 3B Task 8).
+"""Live Browser Hybrid Smoke Test Script for ARC (Phase 3B Task 8).
 
 Validates HybridRunner on real headless Chromium:
 1. Opens interactive test page.

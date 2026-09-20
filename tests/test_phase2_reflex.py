@@ -25,22 +25,22 @@ import pytest
 # Ensure src is in python path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from solari_cua.cdp_extractor import AXNode, CDP_AXTree_Extractor, SanitizedAXTree
-from solari_cua.executor_interface import (
+from arc_cua.cdp_extractor import AXNode, CDP_AXTree_Extractor, SanitizedAXTree
+from arc_cua.executor_interface import (
     ActionPayload,
     ActionVerb,
     FORBIDDEN_PRIVATE_INTERNALS,
     audit_public_api_compliance,
 )
-from solari_cua.locator_resolver import (
+from arc_cua.locator_resolver import (
     LocatorResolutionError,
     LocatorResolver,
     ResolvedLocator,
     SelectorLRUCache,
 )
-from solari_cua.playwright_executor import PlaywrightExecutor
-from solari_cua.reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
-from solari_cua.schemas import (
+from arc_cua.playwright_executor import PlaywrightExecutor
+from arc_cua.reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
+from arc_cua.schemas import (
     ActionResult,
     ActionStep,
     EscalationPayload,
@@ -49,13 +49,13 @@ from solari_cua.schemas import (
     TelemetryRecord,
     UIState,
 )
-from solari_cua.session_guard import ReadinessResult, SessionGuard
-from solari_cua.state_verifier import (
+from arc_cua.session_guard import ReadinessResult, SessionGuard
+from arc_cua.state_verifier import (
     StateVerificationResult,
     StateVerifier,
     compute_hamming_distance,
 )
-from solari_cua.telemetry import (
+from arc_cua.telemetry import (
     MetricDistribution,
     TelemetryCollector,
     compute_percentiles,
@@ -150,7 +150,7 @@ class MockMouse:
 class MockPlaywrightPage:
     """Mock of Playwright Page exposing only public methods."""
 
-    def __init__(self, url: str = "https://app.solari.local/dashboard", default_present: bool = True):
+    def __init__(self, url: str = "https://app.arc.local/dashboard", default_present: bool = True):
         self.url = url
         self.keyboard = MockKeyboard()
         self.mouse = MockMouse()
@@ -199,7 +199,7 @@ class TestPublicAPICompliance:
 
     def test_static_source_code_scan_playwright_executor(self):
         """Parse playwright_executor.py AST to guarantee no forbidden private attributes are used."""
-        executor_path = pathlib.Path("src/solari_cua/playwright_executor.py")
+        executor_path = pathlib.Path("src/arc_cua/playwright_executor.py")
         assert executor_path.exists(), "playwright_executor.py must exist"
 
         source = executor_path.read_text(encoding="utf-8")
@@ -217,7 +217,7 @@ class TestPublicAPICompliance:
 
     def test_static_string_ban_in_source(self):
         """Direct string check for forbidden words."""
-        source = pathlib.Path("src/solari_cua/playwright_executor.py").read_text(encoding="utf-8")
+        source = pathlib.Path("src/arc_cua/playwright_executor.py").read_text(encoding="utf-8")
         for forbidden in FORBIDDEN_PRIVATE_INTERNALS:
             assert forbidden not in source, f"Forbidden attribute string '{forbidden}' found in source"
 
@@ -260,11 +260,11 @@ class TestPlaywrightExecutor:
         assert "click:#submit-button" in page.locators["#submit-button"].actions_log
 
         # Type text
-        res_type = executor.type_text(page, "input#email", "qa-test@solari.local")
+        res_type = executor.type_text(page, "input#email", "qa-test@arc.local")
         assert res_type.success is True
         assert res_type.verb == "TYPE"
-        assert res_type.value == "qa-test@solari.local"
-        assert "fill:input#email=qa-test@solari.local" in page.locators["input#email"].actions_log
+        assert res_type.value == "qa-test@arc.local"
+        assert "fill:input#email=qa-test@arc.local" in page.locators["input#email"].actions_log
 
     def test_executor_coordinate_click(self):
         page = MockPlaywrightPage()
@@ -513,7 +513,7 @@ class TestStateVerifier:
     def test_state_change_detected_on_url_change(self):
         verifier = StateVerifier()
         action_res = ActionResult(
-            success=True, verb="CLICK", target_selector="a#nav-invoices", resulting_url="https://app.solari.local/invoices"
+            success=True, verb="CLICK", target_selector="a#nav-invoices", resulting_url="https://app.arc.local/invoices"
         )
         state_text = "- page 'Dashboard'"
 
@@ -521,8 +521,8 @@ class TestStateVerifier:
             action_res,
             state_text,
             state_text,
-            url_before="https://app.solari.local/dashboard",
-            url_after="https://app.solari.local/invoices",
+            url_before="https://app.arc.local/dashboard",
+            url_after="https://app.arc.local/invoices",
         )
         assert res.state_changed is True
         assert res.url_changed is True
@@ -539,8 +539,8 @@ class TestStateVerifier:
             action_res,
             state_identical,
             state_identical,
-            url_before="https://app.solari.local/dashboard",
-            url_after="https://app.solari.local/dashboard",
+            url_before="https://app.arc.local/dashboard",
+            url_after="https://app.arc.local/dashboard",
         )
         assert res.state_changed is False
         assert res.hamming_distance == 0
@@ -570,10 +570,10 @@ class TestReflexRunner:
 
         steps = [
             ActionStep(step_number=1, verb="CLICK", target_selector="#nav-link", value=None, action_index=None, latency_ms=0, success=True),
-            ActionStep(step_number=2, verb="TYPE", target_selector="input#search", value="Solari 2026", action_index=None, latency_ms=0, success=True),
+            ActionStep(step_number=2, verb="TYPE", target_selector="input#search", value="Arc 2026", action_index=None, latency_ms=0, success=True),
         ]
 
-        result = runner.run_steps(page, steps, task_goal="Search for Solari records")
+        result = runner.run_steps(page, steps, task_goal="Search for Arc records")
         assert result.status == ReflexStatus.COMPLETED
         assert len(result.completed_steps) == 2
         assert result.escalation_payload is None
@@ -735,14 +735,14 @@ class TestLiveBrowserReflexExecution:
 
                 runner = ReflexRunner()
                 steps = [
-                    ActionStep(step_number=1, verb="TYPE", target_selector="input#input-name", value="Solari", action_index=None, latency_ms=0, success=True),
+                    ActionStep(step_number=1, verb="TYPE", target_selector="input#input-name", value="Arc", action_index=None, latency_ms=0, success=True),
                     ActionStep(step_number=2, verb="CLICK", target_selector="button#greet-btn", value=None, action_index=None, latency_ms=0, success=True),
                 ]
 
                 result = runner.run_steps(page, steps, task_goal="Type name and click greet button")
                 assert result.status == ReflexStatus.COMPLETED
                 assert len(result.completed_steps) == 2
-                assert page.locator("#greeting").inner_text() == "Hello Solari"
+                assert page.locator("#greeting").inner_text() == "Hello Arc"
 
                 browser.close()
         except Exception as e:

@@ -18,14 +18,14 @@
 
 ### Added:
 - `instructions_04a.md`: Phase 4A requirements specification.
-- `src/solari_cua/eval/__init__.py`: Package initialization and exports.
-- `src/solari_cua/eval/schemas.py`: Core evaluation schemas (`EvalTask`, `EvalAssertion`, `EvalAssertionResult`, `CostRecord`, `ScorecardSummary`, `EvalRunSummary`).
+- `src/arc_cua/eval/__init__.py`: Package initialization and exports.
+- `src/arc_cua/eval/schemas.py`: Core evaluation schemas (`EvalTask`, `EvalAssertion`, `EvalAssertionResult`, `CostRecord`, `ScorecardSummary`, `EvalRunSummary`).
 - `tests/fixtures/eval_site.html`: Offline HTML fixture site exposing 12 functional UI patterns and readiness trap elements.
-- `src/solari_cua/eval/tasks_local.py`: 13 synthetic evaluation tasks covering all required categories.
-- `src/solari_cua/eval/assertions.py`: Success assertion engine checking URL, visible text, element state, input value, page title, and SimHash divergence with Zero-Pixel Trap protection.
-- `src/solari_cua/eval/cost.py`: Cost ledger tracking reflex execution, mock cortex calls, and compute infrastructure time.
-- `src/solari_cua/eval/runner.py`: Evaluation runner coordinating `ReflexRunner` and `HybridRunner` with mock page and live Playwright browser support.
-- `src/solari_cua/eval/scorecard.py`: Scorecard builder aggregating run metrics, percentiles, and side-by-side comparison tables.
+- `src/arc_cua/eval/tasks_local.py`: 13 synthetic evaluation tasks covering all required categories.
+- `src/arc_cua/eval/assertions.py`: Success assertion engine checking URL, visible text, element state, input value, page title, and SimHash divergence with Zero-Pixel Trap protection.
+- `src/arc_cua/eval/cost.py`: Cost ledger tracking reflex execution, mock cortex calls, and compute infrastructure time.
+- `src/arc_cua/eval/runner.py`: Evaluation runner coordinating `ReflexRunner` and `HybridRunner` with mock page and live Playwright browser support.
+- `src/arc_cua/eval/scorecard.py`: Scorecard builder aggregating run metrics, percentiles, and side-by-side comparison tables.
 - `scripts/report_phase4a.py`: Artifact generator executing the suite and writing 5 evaluation artifacts.
 - `scripts/benchmark_phase4a.py`: Empirical microbenchmark measuring runner overhead, assertion latency, and scorecard build latency against target thresholds.
 - `tests/test_phase4a_eval.py`: 15 unit and integration tests validating schemas, suite integrity, assertion engine, runner, scorecard, and Playwright compliance.
@@ -37,7 +37,7 @@
 - `checkpoint_04a.md`: Phase 4A completion checkpoint.
 
 ### Updated:
-- `src/solari_cua/reflex_runner.py`: Supported `SELECT_OPTION` alongside `SELECT` in `_to_action_verb`.
+- `src/arc_cua/reflex_runner.py`: Supported `SELECT_OPTION` alongside `SELECT` in `_to_action_verb`.
 - `ARCHITECTURE.md`: Added Section 7 detailing the Phase 4A evaluation harness, assertion engine, cost ledger, and future Phase 4B/4C integration points.
 - `IMPLEMENTATION_PLAN.md`: Added Phase 4A completion entry, empirical benchmark results, and verification metrics.
 
@@ -96,14 +96,14 @@ Measured via `scripts/benchmark_phase4a.py` ($N=100$ iterations):
 
 ## 7. Cross-Repo Patterns Used
 
-Adapted from `coldstart/solari-cookbook/`:
-1. **Zero-Pixel Trap Prevention (`src/qa-framework/assertions.ts` -> `solari_cua/eval/assertions.py`)**:
+Adapted from `coldstart/arc-cookbook/`:
+1. **Zero-Pixel Trap Prevention (`src/qa-framework/assertions.ts` -> `arc_cua/eval/assertions.py`)**:
    - Validates that elements present in the DOM do not collapse to $0\times 0\,\text{px}$ due to CSS flex/grid clipping.
    - Requires positive bounding box dimensions (`width >= min_width`, `height >= min_height`) and active opacity (`opacity > 0`).
-2. **Scorecard & Curve Modeling (`src/scorecard/build.ts` -> `solari_cua/eval/scorecard.py`)**:
+2. **Scorecard & Curve Modeling (`src/scorecard/build.ts` -> `arc_cua/eval/scorecard.py`)**:
    - Structured scorecard aggregation producing both JSON and Markdown representations.
    - Side-by-side Reflex vs. Hybrid comparative reporting with delta calculations.
-3. **Execution Cost Modeling (`src/scorecard/cost.ts` -> `solari_cua/eval/cost.py`)**:
+3. **Execution Cost Modeling (`src/scorecard/cost.ts` -> `arc_cua/eval/cost.py`)**:
    - Separate accounting for routine local reflex steps, cloud reasoning model tokens, and browser VM runtime infrastructure.
 
 ## 8. Remaining Blockers

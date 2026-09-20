@@ -6,11 +6,11 @@ Status: PASS
 
 Approved Phase 4B components:
 
-- `src/solari_cua/eval/webarena_env.py`
-- `src/solari_cua/eval/webarena_mapper.py`
-- `src/solari_cua/eval/webarena_assertions.py`
-- `src/solari_cua/eval/tasks_webarena.py`
-- `src/solari_cua/eval/webarena_runner.py`
+- `src/arc_cua/eval/webarena_env.py`
+- `src/arc_cua/eval/webarena_mapper.py`
+- `src/arc_cua/eval/webarena_assertions.py`
+- `src/arc_cua/eval/tasks_webarena.py`
+- `src/arc_cua/eval/webarena_runner.py`
 - `tests/test_phase4b_webarena.py`
 
 Review notes:
@@ -29,7 +29,7 @@ Build the OSWorld Desktop Subset Integration.
 Work in:
 
 ```text
-solari-hybrid-cua/
+arc-hybrid-cua/
 ```
 
 Phase 4C connects the local evaluation harness to a subset of the OSWorld benchmark, focusing on desktop applications (LibreOffice, Terminal, VS Code, OS file system).
@@ -63,7 +63,7 @@ Not allowed:
 1. Default mode must remain offline/mock if a real Linux desktop/Xvfb environment is not running.
 2. Do not modify Phase 4A/4B schemas; extend them if necessary.
 3. Use existing `EvalRunner`, `ScorecardBuilder`, `HybridRunner`, and `AT_SPI_Bridge`.
-4. Keep final implementation inside `solari-hybrid-cua/`.
+4. Keep final implementation inside `arc-hybrid-cua/`.
 
 ---
 
@@ -72,7 +72,7 @@ Not allowed:
 Create:
 
 ```text
-src/solari_cua/eval/osworld_env.py
+src/arc_cua/eval/osworld_env.py
 ```
 
 Purpose:
@@ -84,7 +84,7 @@ Requirements:
 1. Support `live` mode (connecting to real X11/Xvfb, AT-SPI D-Bus, and real file system).
 2. Support `mock` mode (returning stubbed AT-SPI trees, in-memory file system, and mock terminal outputs).
 3. Provide methods to reset the environment state before a task (e.g., restore mock files, reset mock AT-SPI state).
-4. Integrate with `src/solari_cua/at_spi_bridge.py` for live mode.
+4. Integrate with `src/arc_cua/at_spi_bridge.py` for live mode.
 
 ---
 
@@ -93,7 +93,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/osworld_mapper.py
+src/arc_cua/eval/osworld_mapper.py
 ```
 
 Purpose:
@@ -114,7 +114,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/osworld_assertions.py
+src/arc_cua/eval/osworld_assertions.py
 ```
 
 Purpose:
@@ -136,7 +136,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/tasks_osworld.py
+src/arc_cua/eval/tasks_osworld.py
 ```
 
 Purpose:
@@ -157,7 +157,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/osworld_runner.py
+src/arc_cua/eval/osworld_runner.py
 ```
 
 Purpose:

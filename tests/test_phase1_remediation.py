@@ -1,7 +1,7 @@
 """Comprehensive Verification Suite for Phase 1 Remediation.
 
 Tests:
-1. Dynamic Kernel/RootFS Image Resolution (SolariImageProvider & SolariVMManager).
+1. Dynamic Kernel/RootFS Image Resolution (ArcImageProvider & ArcVMManager).
 2. Dynamic CDP Endpoint Discovery (CDPDiscovery & CDP_AXTree_Extractor).
 3. Rich AXTree Locator Metadata (CSS, XPath, backend DOM ID, text, aria label, bbox).
 4. AT-SPI Non-blocking Queue-based Event Dispatch & Real vs Mock separation.
@@ -21,19 +21,19 @@ import pytest
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from solari_cua.vm_manager import SolariVMManager
-from solari_cua.image_provider import SolariImageProvider, VMImageSpec
-from solari_cua.cdp_extractor import CDP_AXTree_Extractor
-from solari_cua.cdp_discovery import CDPDiscovery, CDPEndpointSpec
-from solari_cua.at_spi_bridge import AT_SPI_Bridge, ATSPIEvent
-from solari_cua.executor_interface import (
+from arc_cua.vm_manager import ArcVMManager
+from arc_cua.image_provider import ArcImageProvider, VMImageSpec
+from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.cdp_discovery import CDPDiscovery, CDPEndpointSpec
+from arc_cua.at_spi_bridge import AT_SPI_Bridge, ATSPIEvent
+from arc_cua.executor_interface import (
     BasePlaywrightExecutor,
     ActionVerb,
     ActionPayload,
     ExecutionOutcome,
     audit_public_api_compliance,
 )
-from solari_cua.schemas import (
+from arc_cua.schemas import (
     PerceptionSource,
     EscalationReason,
     UIState,
@@ -41,7 +41,7 @@ from solari_cua.schemas import (
     EscalationPayload,
     TelemetryRecord,
 )
-from solari_cua.telemetry import (
+from arc_cua.telemetry import (
     TelemetryCollector,
     compute_percentiles,
     compute_simhash64,
@@ -57,11 +57,11 @@ class TestImageProviderRemediation:
         dummy_kernel.write_bytes(b"\x7fELF" + b"\x00" * 128)
         dummy_rootfs.write_bytes(b"\x00" * 128)
 
-        monkeypatch.setenv("SOLARI_KERNEL_PATH", str(dummy_kernel))
-        monkeypatch.setenv("SOLARI_ROOTFS_PATH", str(dummy_rootfs))
-        monkeypatch.setenv("SOLARI_BASE_TEMPLATE", "custom-env-template")
+        monkeypatch.setenv("ARC_KERNEL_PATH", str(dummy_kernel))
+        monkeypatch.setenv("ARC_ROOTFS_PATH", str(dummy_rootfs))
+        monkeypatch.setenv("ARC_BASE_TEMPLATE", "custom-env-template")
 
-        provider = SolariImageProvider()
+        provider = ArcImageProvider()
         spec = provider.resolve(allow_mock=False)
 
         assert spec.kernel_path == dummy_kernel.resolve()
@@ -70,7 +70,7 @@ class TestImageProviderRemediation:
         assert spec.is_mock is False
 
     def test_mock_fallback_fixture_generation(self, tmp_path):
-        provider = SolariImageProvider(base_dir=tmp_path / "empty_dir")
+        provider = ArcImageProvider(base_dir=tmp_path / "empty_dir")
         spec = provider.resolve(template_name="test-scaffold", allow_mock=True)
 
         assert spec.is_mock is True
@@ -79,8 +79,8 @@ class TestImageProviderRemediation:
         assert "mock" in spec.kernel_path.name.lower()
 
     def test_vm_manager_dynamic_integration(self, tmp_path):
-        provider = SolariImageProvider()
-        mgr = SolariVMManager(
+        provider = ArcImageProvider()
+        mgr = ArcVMManager(
             runtime_dir=tmp_path,
             image_provider=provider,
             template_name="integration-test",
@@ -100,9 +100,9 @@ class TestCDPDiscoveryRemediation:
 
     def test_explicit_endpoint_override(self):
         discovery = CDPDiscovery()
-        spec = discovery.discover(endpoint_override="ws://remote-solari:9222/devtools/browser/xyz")
+        spec = discovery.discover(endpoint_override="ws://remote-arc:9222/devtools/browser/xyz")
         assert spec.transport_type == "explicit"
-        assert spec.endpoint_url == "ws://remote-solari:9222/devtools/browser/xyz"
+        assert spec.endpoint_url == "ws://remote-arc:9222/devtools/browser/xyz"
         assert spec.is_mock is False
 
     def test_env_var_cdp_endpoint(self, monkeypatch):
@@ -112,21 +112,21 @@ class TestCDPDiscoveryRemediation:
         assert spec.transport_type == "env"
         assert spec.endpoint_url == "http://10.0.0.45:9222"
 
-    def test_solari_cloud_gateway_resolution(self, monkeypatch):
+    def test_arc_cloud_gateway_resolution(self, monkeypatch):
         monkeypatch.delenv("CDP_ENDPOINT", raising=False)
-        monkeypatch.delenv("SOLARI_CDP_ENDPOINT", raising=False)
-        monkeypatch.setenv("SOLARI_API_KEY", "sk_solari_live_test_123")
-        monkeypatch.setenv("SOLARI_BASE_URL", "https://api.getsolari.com")
+        monkeypatch.delenv("ARC_CDP_ENDPOINT", raising=False)
+        monkeypatch.setenv("ARC_API_KEY", "sk_arc_live_test_123")
+        monkeypatch.setenv("ARC_BASE_URL", "https://api.getarc.com")
 
         discovery = CDPDiscovery()
         spec = discovery.discover(allow_mock=False)
-        assert spec.transport_type == "solari_cloud"
-        assert "api.getsolari.com" in spec.endpoint_url
+        assert spec.transport_type == "arc_cloud"
+        assert "api.getarc.com" in spec.endpoint_url
 
     def test_tunnel_fallback_resolution(self, monkeypatch):
         monkeypatch.delenv("CDP_ENDPOINT", raising=False)
-        monkeypatch.delenv("SOLARI_CDP_ENDPOINT", raising=False)
-        monkeypatch.delenv("SOLARI_API_KEY", raising=False)
+        monkeypatch.delenv("ARC_CDP_ENDPOINT", raising=False)
+        monkeypatch.delenv("ARC_API_KEY", raising=False)
         monkeypatch.setenv("TARGET_URL", "https://ephemeral-ingress-4310.trycloudflare.com")
 
         discovery = CDPDiscovery()
@@ -259,7 +259,7 @@ class TestPlaywrightPublicAPIExecutorContract:
         class MockPlaywrightPage:
             def __init__(self):
                 self.actions_log: List[str] = []
-                self.url = "https://solari.local/dashboard"
+                self.url = "https://arc.local/dashboard"
 
             def locator(self, selector):
                 self.actions_log.append(f"locate:{selector}")
@@ -346,7 +346,7 @@ class TestTelemetryAndPercentilesBenchmark:
         token_dist = collector.get_distribution("axtree_tokens")
 
         print("\n" + "=" * 65)
-        print("SOLARI HYBRID CUA: EMPIRICAL BENCHMARK DISTRIBUTIONS (N=100)")
+        print("ARC HYBRID CUA: EMPIRICAL BENCHMARK DISTRIBUTIONS (N=100)")
         print("=" * 65)
         print(f"AXTree Sanitization Latency (ms):")
         print(f"  p50={ax_dist.p50:.4f} ms | p95={ax_dist.p95:.4f} ms | p99={ax_dist.p99:.4f} ms (Mean={ax_dist.mean:.4f} ms)")

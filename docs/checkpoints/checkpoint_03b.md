@@ -20,18 +20,18 @@
 ## 2. Files Added/Updated
 
 ### Files Created
-- `src/solari_cua/datasets/__init__.py`: Package initialization for datasets subsystem.
-- `src/solari_cua/datasets/trajectory_collector.py`: Structured trajectory logger and 5-step sliding window generator with automatic credential and token redaction.
-- `src/solari_cua/datasets/labeler.py`: Offline deterministic auto-labeling pipeline implementing 5 stuck heuristics and 4 milestone heuristics.
+- `src/arc_cua/datasets/__init__.py`: Package initialization for datasets subsystem.
+- `src/arc_cua/datasets/trajectory_collector.py`: Structured trajectory logger and 5-step sliding window generator with automatic credential and token redaction.
+- `src/arc_cua/datasets/labeler.py`: Offline deterministic auto-labeling pipeline implementing 5 stuck heuristics and 4 milestone heuristics.
 - `scripts/label_phase3.py`: CLI script for auto-labeling trajectory logs and generating synthetic bootstrapping datasets.
-- `src/solari_cua/monitors/model_interface.py`: Pluggable `MonitorModel` interface, `MonitorPrediction` schema, `MonitorWindow`, and `to_step_telemetry` converter.
-- `src/solari_cua/monitors/heuristic_adapter.py`: Heuristic adapters (`HeuristicStuckModelAdapter`, `HeuristicMilestoneModelAdapter`) wrapping Phase 3A deterministic monitors into the `MonitorModel` contract.
-- `src/solari_cua/monitors/feature_builder.py`: 16-feature deterministic extraction vector generator with JSON serialization.
-- `src/solari_cua/monitors/transformer_adapter.py`: Optional learned sequence classification monitor with local model path support and safe `LEARNED_MONITOR_UNAVAILABLE` fallback.
+- `src/arc_cua/monitors/model_interface.py`: Pluggable `MonitorModel` interface, `MonitorPrediction` schema, `MonitorWindow`, and `to_step_telemetry` converter.
+- `src/arc_cua/monitors/heuristic_adapter.py`: Heuristic adapters (`HeuristicStuckModelAdapter`, `HeuristicMilestoneModelAdapter`) wrapping Phase 3A deterministic monitors into the `MonitorModel` contract.
+- `src/arc_cua/monitors/feature_builder.py`: 16-feature deterministic extraction vector generator with JSON serialization.
+- `src/arc_cua/monitors/transformer_adapter.py`: Optional learned sequence classification monitor with local model path support and safe `LEARNED_MONITOR_UNAVAILABLE` fallback.
 - `scripts/train_monitors.py`: Optional training CLI script checking for PyTorch/Transformers dependencies and writing `TRAINING_SKIPPED.md` when absent.
 - `artifacts/phase3b/models/TRAINING_SKIPPED.md`: Documented skip notice explaining optional dependency status.
-- `src/solari_cua/monitors/semantic_progress.py`: Pluggable goal advancement estimator with `HeuristicProgressEstimator` and `EmbeddingProgressEstimator` (silent fallback to heuristic).
-- `src/solari_cua/cortex/http_cortex.py`: Production `HttpCortexClient` supporting `mock`, `dry_run`, and `real` execution modes with bounded exponential backoff retries and `RecoveryCompiler` validation.
+- `src/arc_cua/monitors/semantic_progress.py`: Pluggable goal advancement estimator with `HeuristicProgressEstimator` and `EmbeddingProgressEstimator` (silent fallback to heuristic).
+- `src/arc_cua/cortex/http_cortex.py`: Production `HttpCortexClient` supporting `mock`, `dry_run`, and `real` execution modes with bounded exponential backoff retries and `RecoveryCompiler` validation.
 - `tests/test_phase3b_live.py`: Real headless Chromium live hybrid smoke test validating end-to-end execution, stuck detection, and recovery.
 - `scripts/smoke_phase3b.py`: Standalone CLI execution script for live browser hybrid smoke testing.
 - `scripts/benchmark_phase3b.py`: Comprehensive empirical benchmark script evaluating all Phase 3B metrics against architectural targets.
@@ -40,13 +40,13 @@
 - `instructions_03b.md`: Phase 3B prompt and requirements specification.
 
 ### Files Updated
-- `src/solari_cua/schemas.py`: Added `TrajectoryRecord` and `TrajectoryWindow` dataclasses with `.to_dict()` serialization.
-- `src/solari_cua/telemetry.py`: Integrated `TrajectoryCollector`, added `record_trajectory_step`, and `export_trajectories`.
-- `src/solari_cua/hybrid_runner.py`: Wired step-by-step trajectory collection into execution loop; wired `HttpCortexClient` as default Cortex client.
-- `src/solari_cua/playwright_executor.py`: Enabled numeric `action.value` to set custom wait duration for `WAIT_FOR_SELECTOR`.
-- `src/solari_cua/monitors/__init__.py`: Exported all new monitor interfaces, adapters, feature builder, and semantic estimators.
-- `src/solari_cua/monitors/milestone_monitor.py`: Integrated `SemanticProgressEstimator` from `semantic_progress.py`.
-- `src/solari_cua/cortex/__init__.py`: Exported `HttpCortexClient`.
+- `src/arc_cua/schemas.py`: Added `TrajectoryRecord` and `TrajectoryWindow` dataclasses with `.to_dict()` serialization.
+- `src/arc_cua/telemetry.py`: Integrated `TrajectoryCollector`, added `record_trajectory_step`, and `export_trajectories`.
+- `src/arc_cua/hybrid_runner.py`: Wired step-by-step trajectory collection into execution loop; wired `HttpCortexClient` as default Cortex client.
+- `src/arc_cua/playwright_executor.py`: Enabled numeric `action.value` to set custom wait duration for `WAIT_FOR_SELECTOR`.
+- `src/arc_cua/monitors/__init__.py`: Exported all new monitor interfaces, adapters, feature builder, and semantic estimators.
+- `src/arc_cua/monitors/milestone_monitor.py`: Integrated `SemanticProgressEstimator` from `semantic_progress.py`.
+- `src/arc_cua/cortex/__init__.py`: Exported `HttpCortexClient`.
 - `ARCHITECTURE.md`: Added Section 5.7 documenting Phase 3B architecture, dataset schemas, labeling heuristics, feature vectors, and safety invariants.
 - `IMPLEMENTATION_PLAN.md`: Updated Phase 3B status to COMPLETED with component deliverables and verified metrics.
 
@@ -109,7 +109,7 @@ Measured on: **Windows 11 AMD64, Python 3.12.10**, Sample Size: **N=1000** itera
 - **Execution:** SUCCEEDED against real headless Chromium.
 - **Verification Flow:**
   1. Opened local interactive HTML page with inputs and buttons.
-  2. Executed healthy typed action (`TYPE` "Hello Solari" into `input#test-input`).
+  2. Executed healthy typed action (`TYPE` "Hello Arc" into `input#test-input`).
   3. Dispatched repeated no-op clicks (`button#noop-btn`) producing zero state delta.
   4. `StuckMonitor` flagged stuck condition ($H(s_t) == H(s_{t-1})$, score $= 1.0$).
   5. `EscalationController` triggered escalation decision (`consecutive_stuck_escalation`).

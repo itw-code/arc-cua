@@ -3,7 +3,7 @@
   "run_metadata": {
     "platform": "Windows-11-10.0.26200-SP0",
     "python_version": "3.12.10",
-    "solari_cloud_mode": "live",
+    "arc_cloud_mode": "live",
     "cortex_mode": "mock",
     "total_tasks_evaluated": 10,
     "webarena_tasks": 5,
@@ -41,8 +41,8 @@
     "duration_p99_ms": 5.8
   },
   "cost_metrics": {
-    "solari_compute_ms": 4343.51,
-    "solari_compute_cost_usd": 4.3e-05,
+    "arc_compute_ms": 4343.51,
+    "arc_compute_cost_usd": 4.3e-05,
     "cortex_tokens_used": 0,
     "cortex_cost_usd": 0.0,
     "proxy_storage_cost_usd": 0.015,

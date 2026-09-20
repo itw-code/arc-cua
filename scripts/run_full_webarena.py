@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full-Scale WebArena Benchmark Runner for Solari Hybrid CUA (Phase 6).
+"""Full-Scale WebArena Benchmark Runner for ARC (Phase 6).
 
 Coordinates the execution of the full WebArena-Verified dataset (812 tasks):
 1. Ingests full WebArena task suite from local file or generates standard 812-task benchmark.
@@ -25,13 +25,13 @@ from typing import Any, Dict, List, Optional, Sequence, Set
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root / "src"))
 
-from solari_cua.eval.live_orchestrator import LiveOrchestrator
-from solari_cua.eval.schemas import EvalAssertion, EvalResult, EvalTask
-from solari_cua.eval.tasks_webarena import RAW_WEBARENA_SUBSET, create_webarena_subset
-from solari_cua.eval.webarena_env import WebArenaEnv
-from solari_cua.eval.webarena_mapper import map_webarena_task
-from solari_cua.eval.webarena_runner import WebArenaRunner
-from solari_cua.schemas import ActionStep
+from arc_cua.eval.live_orchestrator import LiveOrchestrator
+from arc_cua.eval.schemas import EvalAssertion, EvalResult, EvalTask
+from arc_cua.eval.tasks_webarena import RAW_WEBARENA_SUBSET, create_webarena_subset
+from arc_cua.eval.webarena_env import WebArenaEnv
+from arc_cua.eval.webarena_mapper import map_webarena_task
+from arc_cua.eval.webarena_runner import WebArenaRunner
+from arc_cua.schemas import ActionStep
 
 logging.basicConfig(
     level=logging.INFO,
@@ -56,7 +56,7 @@ def generate_full_webarena_tasks(
     - wikipedia: Article lookup, reference checking, search
     - map: Directions, address search, route verification
     """
-    from solari_cua.eval.tasks_webarena import MOCK_TASK_ACTIONS
+    from arc_cua.eval.tasks_webarena import MOCK_TASK_ACTIONS
 
     templates = list(RAW_WEBARENA_SUBSET)
     tasks: List[EvalTask] = []

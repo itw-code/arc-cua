@@ -21,33 +21,33 @@ import pytest
 # Ensure src is in python path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from solari_cua.cortex.http_cortex import HttpCortexClient
-from solari_cua.cortex.mock_cortex import MockCortexClient
-from solari_cua.cortex.recovery_compiler import RecoveryCompiler
-from solari_cua.datasets.labeler import AutoLabeler, LabelResult
-from solari_cua.datasets.trajectory_collector import TrajectoryCollector, redact_sensitive_data
-from solari_cua.monitors.feature_builder import FeatureBuilder, WindowFeatures
-from solari_cua.monitors.heuristic_adapter import (
+from arc_cua.cortex.http_cortex import HttpCortexClient
+from arc_cua.cortex.mock_cortex import MockCortexClient
+from arc_cua.cortex.recovery_compiler import RecoveryCompiler
+from arc_cua.datasets.labeler import AutoLabeler, LabelResult
+from arc_cua.datasets.trajectory_collector import TrajectoryCollector, redact_sensitive_data
+from arc_cua.monitors.feature_builder import FeatureBuilder, WindowFeatures
+from arc_cua.monitors.heuristic_adapter import (
     HeuristicMilestoneModelAdapter,
     HeuristicStuckModelAdapter,
 )
-from solari_cua.monitors.model_interface import (
+from arc_cua.monitors.model_interface import (
     MonitorModel,
     MonitorPrediction,
     MonitorWindow,
     to_step_telemetry,
 )
-from solari_cua.monitors.semantic_progress import (
+from arc_cua.monitors.semantic_progress import (
     EmbeddingProgressEstimator,
     HeuristicProgressEstimator,
     SemanticProgressEstimator,
 )
-from solari_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor
-from solari_cua.monitors.transformer_adapter import (
+from arc_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor
+from arc_cua.monitors.transformer_adapter import (
     LEARNED_MONITOR_UNAVAILABLE,
     TransformerMonitorAdapter,
 )
-from solari_cua.schemas import (
+from arc_cua.schemas import (
     ActionStep,
     EscalationPayload,
     EscalationReason,

@@ -1,4 +1,4 @@
-# Orchestrator & Principal Review Checklist: Solari Hybrid CUA
+# Orchestrator & Principal Review Checklist: ARC
 
 This document outlines the formal review gates and criteria required before transitioning from the **RFC & Planning Phase** to active development.
 
@@ -7,7 +7,7 @@ This document outlines the formal review gates and criteria required before tran
 ## Gate 0: Conceptual & Architectural Alignment
 - [ ] **Problem Formulation**: Confirm the "Vision Tax" characterization (1.8s–3.5s latency, 1.6k–3.2k tokens/step, $0.01–$0.05/step) accurately reflects our benchmark baseline data.
 - [ ] **Dual-Tier Hierarchy**: Validate the separation of concerns between the **Reflex Loop** (in-VM deterministic execution + local quantized SLM) and **Cortex Loop** (cloud frontier reasoning).
-- [ ] **MicroVM Runtime Viability**: Confirm Solari Firecracker microVM image specifications (Linux kernel `userfaultfd` support, D-Bus session support, and Xvfb display architecture).
+- [ ] **MicroVM Runtime Viability**: Confirm Arc Firecracker microVM image specifications (Linux kernel `userfaultfd` support, D-Bus session support, and Xvfb display architecture).
 
 ---
 
@@ -23,7 +23,7 @@ This document outlines the formal review gates and criteria required before tran
 - [ ] **Task 2.1 (Sub-Goal Playwright Compiler)**: Review Playwright primitive action execution contracts (`CLICK`, `TYPE`, `SELECT`, `SCROLL`, `WAIT`).
 - [ ] **Task 2.2 (Local Quantized SLM)**: Review model selection (Qwen2-VL-2B vs. UI-TARS-2B), INT4 quantization overhead, and JSON grammar-guided decoding constraints.
 - [ ] **Task 2.3 (Invariant Selector Cache)**: Validate LRU caching strategy and Levenshtein distance thresholds for self-healing locators.
-- [ ] **Task 2.4 (Input Synthesizer)**: Confirm bypass methods for anti-bot detection in Solari stealth profiles.
+- [ ] **Task 2.4 (Input Synthesizer)**: Confirm bypass methods for anti-bot detection in Arc stealth profiles.
 
 ---
 

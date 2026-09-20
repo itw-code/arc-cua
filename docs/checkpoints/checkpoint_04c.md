@@ -13,15 +13,15 @@
 ## 2. Files Added/Updated
 
 ### Files Added:
-- `src/solari_cua/eval/osworld_env.py` (OSWorld environment adapter with mock POSIX filesystem, shell interpreter, and AT-SPI bridge integration)
-- `src/solari_cua/eval/osworld_mapper.py` (JSON/JSONL ingestion engine mapping OSWorld tasks to `EvalTask` and `EvalAssertion`)
-- `src/solari_cua/eval/osworld_assertions.py` (Assertion evaluation engine for `file_exist`, `file_content_match`, `terminal_output_match`, `at_spi_state_match`)
-- `src/solari_cua/eval/tasks_osworld.py` (12 representative OSWorld tasks across OS File System, Terminal, and Desktop Apps)
-- `src/solari_cua/eval/osworld_runner.py` (End-to-end runner connecting `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and assertions)
+- `src/arc_cua/eval/osworld_env.py` (OSWorld environment adapter with mock POSIX filesystem, shell interpreter, and AT-SPI bridge integration)
+- `src/arc_cua/eval/osworld_mapper.py` (JSON/JSONL ingestion engine mapping OSWorld tasks to `EvalTask` and `EvalAssertion`)
+- `src/arc_cua/eval/osworld_assertions.py` (Assertion evaluation engine for `file_exist`, `file_content_match`, `terminal_output_match`, `at_spi_state_match`)
+- `src/arc_cua/eval/tasks_osworld.py` (12 representative OSWorld tasks across OS File System, Terminal, and Desktop Apps)
+- `src/arc_cua/eval/osworld_runner.py` (End-to-end runner connecting `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and assertions)
 - `tests/test_phase4c_osworld.py` (13 comprehensive automated unit and integration tests)
 
 ### Files Updated:
-- `src/solari_cua/eval/__init__.py` (Exported Phase 4C modules, classes, and helper functions)
+- `src/arc_cua/eval/__init__.py` (Exported Phase 4C modules, classes, and helper functions)
 - `ARCHITECTURE.md` (Documented Phase 4C integration design, task mapping strategy, assertion logic, and mock vs live policy)
 - `IMPLEMENTATION_PLAN.md` (Documented Phase 4C completion summary and empirical benchmark metrics)
 - `instructions_04c.md` (Saved phase instructions)
@@ -53,9 +53,9 @@
 
 ## 6. Cross-Repo Patterns Used
 
-- **`AT_SPI_Bridge` (`src/solari_cua/at_spi_bridge.py`)**: Reused the native Linux AT-SPI2 D-Bus client from Task 1.3 for desktop perception and hierarchy query.
-- **`EvalRunner` & `EvalTask` (`src/solari_cua/eval/runner.py`, `schemas.py`)**: Reused Phase 4A evaluation contracts, telemetry, cost accounting, and reflex/hybrid execution loops.
-- **`WebArenaRunner` Pattern (`src/solari_cua/eval/webarena_runner.py`)**: Reused the decoupled domain environment adapter and page interceptor pattern established in Phase 4B.
+- **`AT_SPI_Bridge` (`src/arc_cua/at_spi_bridge.py`)**: Reused the native Linux AT-SPI2 D-Bus client from Task 1.3 for desktop perception and hierarchy query.
+- **`EvalRunner` & `EvalTask` (`src/arc_cua/eval/runner.py`, `schemas.py`)**: Reused Phase 4A evaluation contracts, telemetry, cost accounting, and reflex/hybrid execution loops.
+- **`WebArenaRunner` Pattern (`src/arc_cua/eval/webarena_runner.py`)**: Reused the decoupled domain environment adapter and page interceptor pattern established in Phase 4B.
 - **POSIX Path Normalization (`posixpath`)**: Applied uniform cross-platform path handling to ensure OSWorld tasks define standard Linux file targets seamlessly across platforms.
 
 ## 7. Remaining Blockers

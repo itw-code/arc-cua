@@ -1,7 +1,7 @@
 # checkpoint_01.md
 
 ## 1. Implementation Status
-- [x] Task 1.1: Solari VM Manager (Status: Done)
+- [x] Task 1.1: Arc VM Manager (Status: Done)
 - [x] Task 1.2: CDP AXTree Extractor (Status: Done)
 - [x] Task 1.3: AT-SPI D-Bus Bridge (Status: Done)
 
@@ -11,7 +11,7 @@
 
 ### Repository File Structure
 ```
-solari-hybrid-cua/
+arc-hybrid-cua/
 ├── ARCHITECTURE.md
 ├── IMPLEMENTATION_PLAN.md
 ├── README.md
@@ -19,16 +19,16 @@ solari-hybrid-cua/
 ├── docs/
 │   └── ORCHESTRATOR_REVIEW_CHECKLIST.md
 ├── src/
-│   └── solari_cua/
+│   └── arc_cua/
 │       ├── __init__.py
-│       ├── vm_manager.py       # Task 1.1: SolariVMManager (Firecracker UDS + UFFD CoW)
+│       ├── vm_manager.py       # Task 1.1: ArcVMManager (Firecracker UDS + UFFD CoW)
 │       ├── cdp_extractor.py    # Task 1.2: CDP_AXTree_Extractor (Sub-ms DOM/AXTree Pruning)
 │       └── at_spi_bridge.py    # Task 1.3: AT_SPI_Bridge (AT-SPI2 D-Bus & Desktop Hierarchy)
 └── tests/
     └── test_phase1.py          # Empirical latency & token budget verification suite
 ```
 
-### Core Logic Snippet 1: CDP AXTree Sanitizer (`src/solari_cua/cdp_extractor.py`)
+### Core Logic Snippet 1: CDP AXTree Sanitizer (`src/arc_cua/cdp_extractor.py`)
 ```python
 def _prune_node(
     self,
@@ -78,7 +78,7 @@ def _prune_node(
     return [AXNode(index=action_idx, role=role, name=name, is_actionable=is_actionable, children=sanitized_children)]
 ```
 
-### Core Logic Snippet 2: AT-SPI Desktop Serialization & Event Dispatch (`src/solari_cua/at_spi_bridge.py`)
+### Core Logic Snippet 2: AT-SPI Desktop Serialization & Event Dispatch (`src/arc_cua/at_spi_bridge.py`)
 ```python
 def dispatch_event(self, event: ATSPIEvent) -> float:
     """Dispatch AT-SPI event to registered callbacks with sub-0.5ms latency."""
@@ -117,8 +117,8 @@ Empirically measured via `pytest -s tests/test_phase1.py` across 100 benchmark i
 ## 4. Blockers / Questions for the Human Reviewer
 
 1.  **Guest Kernel & RootFS Image Provisioning:**  
-    For production deployment in Solari Cloud, what are the canonical host paths for the pre-built microVM kernel (`vmlinux-6.1.guest`) and rootfs (`rootfs.ext4`) containing the pre-baked Xvfb, AT-SPI2 D-Bus registry, and stealth Chromium binaries?
+    For production deployment in Arc Cloud, what are the canonical host paths for the pre-built microVM kernel (`vmlinux-6.1.guest`) and rootfs (`rootfs.ext4`) containing the pre-baked Xvfb, AT-SPI2 D-Bus registry, and stealth Chromium binaries?
 2.  **Chromium CDP Socket Mounting vs. DevTools Active Page Protocol:**  
-    Do your Solari VM base images mount Chromium's debugging socket directly at `/tmp/chromium-cdp.sock` with `--remote-debugging-socket-path`, or should the Reflex orchestrator initialize Chromium with a dynamic vsock bridge forwarder from host to guest?
+    Do your Arc VM base images mount Chromium's debugging socket directly at `/tmp/chromium-cdp.sock` with `--remote-debugging-socket-path`, or should the Reflex orchestrator initialize Chromium with a dynamic vsock bridge forwarder from host to guest?
 3.  **Reflex Engine (Phase 2) Handshake Confirmation:**  
     For Task 2.1 (Sub-Goal Playwright Compiler), should we prioritize Playwright's CDP session routing (`page._channel.send(...)`) for action execution, or emit direct synthetic mouse/keyboard events over CDP `Input.dispatchMouseEvent` / `Input.dispatchKeyEvent` to minimize Playwright node process overhead?

@@ -1,6 +1,6 @@
 # Artifacts Index
 
-This index catalogs all empirical evaluation artifacts, benchmark outputs, and research deliverables generated across the development phases of the Solari Hybrid CUA project.
+This index catalogs all empirical evaluation artifacts, benchmark outputs, and research deliverables generated across the development phases of the ARC project.
 
 ## Directory Structure
 

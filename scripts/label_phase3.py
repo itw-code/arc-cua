@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Auto-Labeling CLI script for Solari Hybrid CUA (Phase 3B Task 2).
+"""Auto-Labeling CLI script for ARC (Phase 3B Task 2).
 
 Generates deterministic labels (stuck.jsonl, milestone.jsonl, summary.json)
 from recorded or generated trajectory windows:
@@ -19,9 +19,9 @@ from typing import List
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root / "src"))
 
-from solari_cua.datasets.labeler import AutoLabeler
-from solari_cua.datasets.trajectory_collector import TrajectoryCollector
-from solari_cua.schemas import TrajectoryRecord, TrajectoryWindow
+from arc_cua.datasets.labeler import AutoLabeler
+from arc_cua.datasets.trajectory_collector import TrajectoryCollector
+from arc_cua.schemas import TrajectoryRecord, TrajectoryWindow
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("label_phase3")

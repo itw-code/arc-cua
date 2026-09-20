@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ModernBERT Full Monitor Training Runner for Solari Hybrid CUA (Phase 6).
+"""ModernBERT Full Monitor Training Runner for ARC (Phase 6).
 
 Trains ModernBERT-base sequence classification models for Stuck and Milestone
 perception monitors using trajectory datasets collected across all phases:
@@ -23,7 +23,7 @@ from pathlib import Path
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root / "src"))
 
-from solari_cua.monitors.training_pipeline import (
+from arc_cua.monitors.training_pipeline import (
     ModernBERTTrainingPipeline,
     TrainingConfig,
     check_training_environment,

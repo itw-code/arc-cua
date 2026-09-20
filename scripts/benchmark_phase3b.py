@@ -30,17 +30,17 @@ repo_root = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root))
 sys.path.insert(0, str(repo_root / "src"))
 
-from solari_cua.cortex.http_cortex import HttpCortexClient
-from solari_cua.cortex.mock_cortex import MockCortexClient
-from solari_cua.datasets.labeler import AutoLabeler
-from solari_cua.datasets.trajectory_collector import TrajectoryCollector
-from solari_cua.monitors.feature_builder import FeatureBuilder
-from solari_cua.monitors.heuristic_adapter import HeuristicStuckModelAdapter
-from solari_cua.monitors.transformer_adapter import (
+from arc_cua.cortex.http_cortex import HttpCortexClient
+from arc_cua.cortex.mock_cortex import MockCortexClient
+from arc_cua.datasets.labeler import AutoLabeler
+from arc_cua.datasets.trajectory_collector import TrajectoryCollector
+from arc_cua.monitors.feature_builder import FeatureBuilder
+from arc_cua.monitors.heuristic_adapter import HeuristicStuckModelAdapter
+from arc_cua.monitors.transformer_adapter import (
     LEARNED_MONITOR_UNAVAILABLE,
     TransformerMonitorAdapter,
 )
-from solari_cua.schemas import (
+from arc_cua.schemas import (
     ActionStep,
     EscalationPayload,
     EscalationReason,
@@ -49,7 +49,7 @@ from solari_cua.schemas import (
     TrajectoryWindow,
     UIState,
 )
-from solari_cua.telemetry import compute_percentiles
+from arc_cua.telemetry import compute_percentiles
 
 
 def run_benchmarks(sample_size: int = 1000) -> Dict[str, Any]:
@@ -64,7 +64,7 @@ def run_benchmarks(sample_size: int = 1000) -> Dict[str, Any]:
     }
 
     print("=" * 70)
-    print("SOLARI HYBRID CUA - PHASE 3B BENCHMARK SUITE")
+    print("ARC HYBRID CUA - PHASE 3B BENCHMARK SUITE")
     print(f"Environment: {env_str}")
     print(f"Sample Size: {sample_size}")
     print("=" * 70)

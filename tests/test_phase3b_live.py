@@ -1,4 +1,4 @@
-"""Live Browser Hybrid Smoke Test for Solari Hybrid CUA (Phase 3B Task 8).
+"""Live Browser Hybrid Smoke Test for ARC (Phase 3B Task 8).
 
 Validates HybridRunner end-to-end against a real headless Chromium browser:
 1. Open a local test page in Chromium.
@@ -21,14 +21,14 @@ import pytest
 # Ensure src is on sys.path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from solari_cua.cdp_extractor import CDP_AXTree_Extractor
-from solari_cua.cortex.mock_cortex import MockCortexClient
-from solari_cua.hybrid_runner import HybridRunner
-from solari_cua.monitors.escalation_controller import EscalationController
-from solari_cua.monitors.milestone_monitor import MilestoneMonitor
-from solari_cua.monitors.stuck_monitor import StuckMonitor
-from solari_cua.schemas import ActionStep, DecisionType, EscalationReason, PlanSource, RecoveryPlan
-from solari_cua.telemetry import TelemetryCollector
+from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.cortex.mock_cortex import MockCortexClient
+from arc_cua.hybrid_runner import HybridRunner
+from arc_cua.monitors.escalation_controller import EscalationController
+from arc_cua.monitors.milestone_monitor import MilestoneMonitor
+from arc_cua.monitors.stuck_monitor import StuckMonitor
+from arc_cua.schemas import ActionStep, DecisionType, EscalationReason, PlanSource, RecoveryPlan
+from arc_cua.telemetry import TelemetryCollector
 
 LIVE_BROWSER_SMOKE_SKIPPED = "LIVE_BROWSER_SMOKE_SKIPPED"
 
@@ -115,7 +115,7 @@ def run_live_hybrid_smoke(headless: bool = True) -> dict:
                     step_number=1,
                     verb="TYPE",
                     target_selector="input#test-input",
-                    value="Hello Solari",
+                    value="Hello Arc",
                     action_index=None,
                     latency_ms=0,
                     success=True,
@@ -196,7 +196,7 @@ class TestLiveBrowserHybrid:
 
         assert smoke_result["success"] is True
         assert smoke_result["total_steps"] >= 4
-        assert smoke_result["input_value"] == "Hello Solari"
+        assert smoke_result["input_value"] == "Hello Arc"
         assert smoke_result["final_status"] in {"recovered", "updated"}
         assert smoke_result["recoveries_attempted"] >= 1
         assert smoke_result["trajectory_windows_count"] >= 1

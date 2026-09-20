@@ -82,11 +82,11 @@ All checkpoint and instruction files moved from repo root to their respective `d
 
 ## 6. Showcase Verification
 - **File Structure:** `showcase.html` is 100% self-contained with inline CSS, inline JS, and inline SVGs.
-- **Visual Design:** Dark-mode aesthetic matching `coldstart/` conventions (`#05080F` background, emerald accents for Solari, rose accents for baseline, JetBrains Mono and Inter typography).
+- **Visual Design:** Dark-mode aesthetic matching `coldstart/` conventions (`#0A0A0F` background, emerald accents for Arc, rose accents for baseline, JetBrains Mono and Inter typography).
 - **All 7 Mandatory Sections Verified:**
   1. `#hero`: Title, subtitle, 3 stat cards (99.69% Cost, 2.31ms Latency, 152 Tests), live terminal stream.
   2. `#architecture`: Dual-tier cascading SVG diagram (Tier 1 Reflex vs Tier 2 Cortex) with 98% local vs 2% escalation routing.
-  3. `#simulator`: Step slider (10–10,000 steps) with dynamic Chart.js curve and live stat updates ($0.04820/step frontier vs $0.0001504/step Solari).
+  3. `#simulator`: Step slider (10–10,000 steps) with dynamic Chart.js curve and live stat updates ($0.04820/step frontier vs $0.0001504/step Arc).
   4. `#benchmarks`: WebArena (812 tasks) and OSWorld (369 tasks) empirical comparison tables with `PROJECTED_BASED_ON_MOCK_EXECUTION` banner.
   5. `#monitors`: Escalation prevention rate bars (Stuck: 94.2%, Milestone: 98.1%, Session Guard: 100%).
   6. `#timeline`: Visual milestone timeline for Phases 1 through 6 with test counts and headline metrics.

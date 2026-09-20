@@ -14,24 +14,24 @@ All Phase 2 implementation and verification tasks are 100% complete. The Reflex 
 
 ## 2. Files Added / Modified
 
-- `src/solari_cua/playwright_executor.py`: Implements `PlaywrightExecutor(ActionExecutor)` for deterministic click, type, select, scroll, press, goto, and wait actions using strictly public Playwright APIs with auto-waiting.
-- `src/solari_cua/locator_resolver.py`: Implements `LocatorResolver` with an in-memory `SelectorLRUCache` and a 6-tier fallback resolution chain ingesting Phase 1 `AXNode` metadata.
-- `src/solari_cua/session_guard.py`: Implements `SessionGuard` to verify document readyState, target visibility, enabled state, Zero-Pixel Trap avoidance, and absence of occluding modal overlays.
-- `src/solari_cua/state_verifier.py`: Implements `StateVerifier` comparing pre- and post-action UI states via 64-bit SimHash Hamming distances, URL changes, and DOM mutation counts to detect "stuck" no-op actions.
-- `src/solari_cua/reflex_runner.py`: Implements `ReflexRunner` orchestrating the deterministic execution lifecycle (`Resolve -> Guard -> Execute -> Verify -> Telemetry`) and yielding structured `ESCALATE` signals on repeated failures.
-- `src/solari_cua/schemas.py`: Added `ActionResult` execution telemetry schema, `to_action_step()` conversion, and `STATE_NOT_CHANGED` / `READINESS_TIMEOUT` to `EscalationReason`.
-- `src/solari_cua/executor_interface.py`: Formalized the abstract `ActionExecutor` interface with all Phase 2 primitive methods (`click`, `type_text`, `select`, `scroll`, `press_key`, `goto`, `wait`).
-- `src/solari_cua/telemetry.py`: Optimized `compute_simhash64` token frequency summation using `collections.Counter` and exposed the `record` alias on `TelemetryCollector`.
-- `src/solari_cua/__init__.py`: Re-exported all Phase 2 classes and protocols for unified package imports.
+- `src/arc_cua/playwright_executor.py`: Implements `PlaywrightExecutor(ActionExecutor)` for deterministic click, type, select, scroll, press, goto, and wait actions using strictly public Playwright APIs with auto-waiting.
+- `src/arc_cua/locator_resolver.py`: Implements `LocatorResolver` with an in-memory `SelectorLRUCache` and a 6-tier fallback resolution chain ingesting Phase 1 `AXNode` metadata.
+- `src/arc_cua/session_guard.py`: Implements `SessionGuard` to verify document readyState, target visibility, enabled state, Zero-Pixel Trap avoidance, and absence of occluding modal overlays.
+- `src/arc_cua/state_verifier.py`: Implements `StateVerifier` comparing pre- and post-action UI states via 64-bit SimHash Hamming distances, URL changes, and DOM mutation counts to detect "stuck" no-op actions.
+- `src/arc_cua/reflex_runner.py`: Implements `ReflexRunner` orchestrating the deterministic execution lifecycle (`Resolve -> Guard -> Execute -> Verify -> Telemetry`) and yielding structured `ESCALATE` signals on repeated failures.
+- `src/arc_cua/schemas.py`: Added `ActionResult` execution telemetry schema, `to_action_step()` conversion, and `STATE_NOT_CHANGED` / `READINESS_TIMEOUT` to `EscalationReason`.
+- `src/arc_cua/executor_interface.py`: Formalized the abstract `ActionExecutor` interface with all Phase 2 primitive methods (`click`, `type_text`, `select`, `scroll`, `press_key`, `goto`, `wait`).
+- `src/arc_cua/telemetry.py`: Optimized `compute_simhash64` token frequency summation using `collections.Counter` and exposed the `record` alias on `TelemetryCollector`.
+- `src/arc_cua/__init__.py`: Re-exported all Phase 2 classes and protocols for unified package imports.
 - `tests/test_phase2_reflex.py`: Comprehensive test and benchmark suite covering static AST compliance, mock fallbacks, live Chromium browser execution, and N=100 empirical benchmarks.
 
 ---
 
 ## 3. Cross-Repo Patterns Applied
 
-Translating design doctrine from `coldstart/solari-cookbook/`:
+Translating design doctrine from `coldstart/arc-cookbook/`:
 1. **Resilient Accessible Selectors (`selectors.ts`)**:
-   - Translated the priority chain from `coldstart/solari-cookbook/src/qa-framework/selectors.ts` into `LocatorResolver._execute_fallback_chain()`.
+   - Translated the priority chain from `coldstart/arc-cookbook/src/qa-framework/selectors.ts` into `LocatorResolver._execute_fallback_chain()`.
    - Prioritizes semantic stability over brittle layout: `data-testid` / `backend_dom_id` $\to$ CSS $\to$ XPath $\to$ Role + ARIA Label $\to$ Text Match $\to$ Bounding Box coordinates.
    - Self-healing invariant cache (`SelectorLRUCache`) evicts drifted selectors when live DOM changes cause an existing cached strategy to fail.
 2. **Zero-Pixel Trap Prevention (`assertions.ts:50-80`)**:
@@ -72,7 +72,7 @@ Empirical latency distributions measured across $N = 100$ continuous iterations 
   - `TestReflexRunner`: 3 passed (successful multi-step sequence, escalation on 3x stuck actions, escalation on locator not found).
   - `TestPhase2EmpiricalBenchmarks`: 3 passed ($N=100$ empirical latency percentiles).
   - `TestLiveBrowserReflexExecution`: 1 passed (live Chromium end-to-end `TYPE` and `CLICK` verification).
-- **Private API Static Analysis Compliance Check**: **PASSED**. Zero references to `_channel`, `_connection`, `_impl_obj`, `_initializer`, `_object`, `_transport`, or `_dispatcherFiber` found in `src/solari_cua/playwright_executor.py`.
+- **Private API Static Analysis Compliance Check**: **PASSED**. Zero references to `_channel`, `_connection`, `_impl_obj`, `_initializer`, `_object`, `_transport`, or `_dispatcherFiber` found in `src/arc_cua/playwright_executor.py`.
 - **Entire Repository Test Suite**: **52 / 52 tests passed (100%)** across `test_phase1.py`, `test_phase1_remediation.py`, and `test_phase2_reflex.py`.
 
 ---

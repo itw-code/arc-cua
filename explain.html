@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Solari Hybrid CUA — Motion Explainer (Reflex + Cortex)</title>
+  <title>ARC — Motion Explainer (Reflex + Cortex)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -11,14 +11,14 @@
       theme: {
         extend: {
           colors: {
-            void: '#05080F',
-            panel: '#0A0F1C',
-            card: '#0D1424',
-            surface: '#121A2D',
-            solari: '#10B981',
-            solariGlow: '#34D399',
-            baseline: '#F43F5E',
-            amber: '#F59E0B',
+            void: '#0A0A0F',
+            surface: '#13131F',
+            card: '#13131F',
+            panel: '#1A1A2E',
+            primary: '#2563EB',
+            primaryGlow: '#60A5FA',
+            secondary: '#FF6B6B',
+            accent: '#2563EB',
             muted: '#8B94A7',
           },
           fontFamily: {
@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
   <style>
     body {
-      background: #05080F;
+      background: #0A0A0F;
       color: #E6EAF2;
       font-family: 'Inter', system-ui, sans-serif;
       overflow-x: hidden;
@@ -62,10 +62,10 @@
       75% { transform: translateX(6px) rotate(1deg); }
     }
     .pulse-glow {
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 0 40px rgba(37, 99, 235, 0.35);
     }
-    .rose-glow {
-      box-shadow: 0 0 40px rgba(244, 63, 94, 0.35);
+    .coral-glow {
+      box-shadow: 0 0 40px rgba(255, 107, 107, 0.35);
     }
     .stage-container {
       perspective: 1000px;
@@ -75,40 +75,40 @@
     }
   </style>
 </head>
-<body class="antialiased selection:bg-emerald-500/30 selection:text-white">
+<body class="antialiased selection:bg-blue-500/30 selection:text-white">
 
   <!-- Background Ambient Glow -->
   <div class="fixed inset-0 pointer-events-none z-0">
     <div class="absolute inset-0 bg-grid opacity-60"></div>
-    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-20 blur-[130px] bg-emerald-500"></div>
-    <div class="absolute bottom-10 right-10 w-[500px] h-[500px] rounded-full opacity-15 blur-[120px] bg-amber-500"></div>
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-20 blur-[130px] bg-blue-500"></div>
+    <div class="absolute bottom-10 right-10 w-[500px] h-[500px] rounded-full opacity-15 blur-[120px] bg-blue-500"></div>
   </div>
 
   <!-- Top Bar -->
   <header class="relative z-30 max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <a href="showcase.html" class="relative w-11 h-11 shrink-0 block hover:scale-105 transition-transform" aria-label="Back to showcase">
-        <svg viewBox="0 0 44 44" class="w-11 h-11" role="img" aria-label="Solari Hybrid CUA logo">
+        <svg viewBox="0 0 44 44" class="w-11 h-11" role="img" aria-label="ARC logo">
           <defs>
-            <linearGradient id="solari-logo-fast-x" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#34D399"/>
-              <stop offset="100%" stop-color="#059669"/>
+            <linearGradient id="arc-logo-primary-x" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#60A5FA"/>
+              <stop offset="100%" stop-color="#2563EB"/>
             </linearGradient>
-            <linearGradient id="solari-logo-think-x" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#38BDF8"/>
-              <stop offset="100%" stop-color="#0EA5E9"/>
+            <linearGradient id="arc-logo-secondary-x" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#60A5FA"/>
+              <stop offset="100%" stop-color="#2563EB"/>
             </linearGradient>
           </defs>
-          <rect x="1" y="1" width="42" height="42" rx="11" fill="#0A0F1C" stroke="rgba(52,211,153,.45)" stroke-width="1.5"/>
-          <path d="M22 8 L32 17 L26 17 L30 27 L22 27 L22 35 L12 20 L19 20 Z" fill="url(#solari-logo-fast-x)"/>
-          <circle cx="31.5" cy="30.5" r="5.2" fill="#0A0F1C" stroke="url(#solari-logo-think-x)" stroke-width="1.8"/>
-          <circle cx="31.5" cy="30.5" r="1.7" fill="#38BDF8"/>
+          <rect x="1" y="1" width="42" height="42" rx="11" fill="#0A0A0F" stroke="rgba(37,99,235,.45)" stroke-width="1.5"/>
+          <path d="M22 8 L32 17 L26 17 L30 27 L22 27 L22 35 L12 20 L19 20 Z" fill="url(#arc-logo-primary-x)"/>
+          <circle cx="31.5" cy="30.5" r="5.2" fill="#0A0A0F" stroke="url(#arc-logo-secondary-x)" stroke-width="1.8"/>
+          <circle cx="31.5" cy="30.5" r="1.7" fill="#60A5FA"/>
         </svg>
-        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-void"></span>
+        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-blue-400 border-2 border-void"></span>
       </a>
       <div>
         <div class="font-extrabold text-base sm:text-lg tracking-tight leading-none">
-          SOLARI <span class="text-emerald-400">HYBRID&nbsp;CUA</span>
+          ARC
         </div>
         <div class="text-[10px] font-mono text-muted tracking-[.22em] uppercase mt-1">Motion Explainer · Reflex + Cortex</div>
       </div>
@@ -116,10 +116,10 @@
 
     <div class="flex items-center gap-3">
       <button id="sound-toggle-btn" onclick="toggleSound()" class="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition" aria-label="Toggle interface sounds">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400" id="sound-dot"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-400" id="sound-dot"></span>
         <span id="sound-label">Sound: On</span>
       </button>
-      <a href="showcase.html" class="px-3.5 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold transition">
+      <a href="showcase.html" class="px-3.5 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-mono text-xs font-bold transition">
         Technical Report
       </a>
     </div>
@@ -129,26 +129,26 @@
   <main class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-16">
     
     <div class="text-center mb-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold mb-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-mono font-bold mb-4">
         <span>BANG-MOTION EXPLAINER</span>
         <span>•</span>
         <span>ONE CONTINUOUS WORLD</span>
       </div>
       <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-display">
         Why call a professor in Switzerland<br>
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-teal-400">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-blue-400 to-blue-600">
           just to tie your shoelaces?
         </span>
       </h1>
       <p class="mt-4 text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
-        Understanding the <strong>Solari Hybrid CUA</strong> through the classic <em>Hot Stove Reflex</em> analogy. Watch the interactive scenes below or scrub through the timeline!
+        Understanding the <strong>ARC</strong> through the classic <em>Hot Stove Reflex</em> analogy. Watch the interactive scenes below or scrub through the timeline!
       </p>
-      <div class="mt-4 inline-flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/25 text-amber-300 text-[11px] font-mono max-w-2xl text-left">
-        <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <div class="mt-4 inline-flex items-start gap-2 px-3 py-2 rounded-lg bg-blue-500/5 border border-blue-500/25 text-blue-300 text-[11px] font-mono max-w-2xl text-left">
+        <svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span>
           <strong>EVIDENCE STATUS: PROJECTED_BASED_ON_MOCK_EXECUTION.</strong>
           Numbers shown (2.31 ms reflex, 99.69% cost reduction) are the empirical parameters recorded in
-          <a class="underline decoration-amber-500/50 hover:text-amber-200" href="https://github.com/itw-code/solari-hybrid-cua/blob/master/artifacts/production/final_scorecard.json" target="_blank" rel="noopener">final_scorecard.json</a>.
+          <a class="underline decoration-blue-500/50 hover:text-blue-200" href="https://github.com/itw-code/arc-cua/blob/master/artifacts/production/final_scorecard.json" target="_blank" rel="noopener">final_scorecard.json</a>.
           This animation visualizes those published aggregates; it is not a live re-measurement, and the race below is a timed simulation of that ratio.
         </span>
       </div>
@@ -160,11 +160,11 @@
       <!-- Top Stage HUD -->
       <div class="flex items-center justify-between pb-4 border-b border-white/10 text-xs font-mono text-slate-400">
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-400 animate-ping"></span>
           <span class="text-white font-bold" id="current-scene-title">SCENE 1: THE COST OF PHONING HOME</span>
         </div>
         <div class="flex items-center gap-3">
-          <span id="timecode-display" class="text-amber-300 font-bold">00:04 / 00:25</span>
+          <span id="timecode-display" class="text-blue-300 font-bold">00:04 / 00:25</span>
           <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px]" id="speed-badge">1.0× SPEED</span>
         </div>
       </div>
@@ -174,51 +174,51 @@
         
         <!-- SCENE 1: The Silly Robot -->
         <div id="scene-1" class="scene-item text-center max-w-xl mx-auto">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 grid place-items-center text-rose-400 bang-pop">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-red-500/10 border border-red-500/30 grid place-items-center text-red-400 bang-pop">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
           </div>
-          <div class="text-xs font-mono text-rose-400 uppercase tracking-widest font-bold mb-2">The Monolithic Agent Problem</div>
+          <div class="text-xs font-mono text-red-400 uppercase tracking-widest font-bold mb-2">The Monolithic Agent Problem</div>
           <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
             Every Single Click Phones Home
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
             Old AI agents take a huge 4K photo, send it across the ocean to a giant cloud brain, wait <strong>3 whole seconds</strong>, and pay <strong>$0.48</strong>... just to click a button that says <em>"Next"</em>.
           </p>
-          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 font-mono text-xs">
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 font-mono text-xs">
             [COST AUDIT] $4,820 for 10,000 routine clicks
           </div>
         </div>
 
         <!-- SCENE 2: The Hot Stove Superpower (Hidden by default, driven by JS) -->
         <div id="scene-2" class="scene-item text-center max-w-xl mx-auto hidden">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 grid place-items-center text-amber-400 bang-pop">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 grid place-items-center text-blue-400 bang-pop">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343a7.975 7.975 0 012.344 5.657 7.975 7.975 0 01-2.343 5.657z"/></svg>
           </div>
-          <div class="text-xs font-mono text-amber-400 uppercase tracking-widest font-bold mb-2">Human Biology Moat</div>
+          <div class="text-xs font-mono text-blue-400 uppercase tracking-widest font-bold mb-2">Human Biology Moat</div>
           <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
             You Touch a Hot Stove. What Happens?
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Do you stop and do calculus? Do you call a doctor? <strong>NO.</strong> Your spine pulls your hand back in <strong class="text-emerald-400">2 milliseconds</strong> before your thinking brain even realizes it was hot.
+            Do you stop and do calculus? Do you call a doctor? <strong>NO.</strong> Your spine pulls your hand back in <strong class="text-blue-400">2 milliseconds</strong> before your thinking brain even realizes it was hot.
           </p>
-          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono text-xs">
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-300 font-mono text-xs">
             [BIOLOGICAL INVARIANT] Instant Spinal Reflex · $0.00 Cost
           </div>
         </div>
 
-        <!-- SCENE 3: The Solari Secret -->
+        <!-- SCENE 3: The ARC Secret -->
         <div id="scene-3" class="scene-item text-center max-w-xl mx-auto hidden">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 grid place-items-center text-emerald-400 bang-pop">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 grid place-items-center text-blue-400 bang-pop">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke-width="2"/></svg>
           </div>
-          <div class="text-xs font-mono text-emerald-400 uppercase tracking-widest font-bold mb-2">The Solari Hybrid Leap</div>
+          <div class="text-xs font-mono text-blue-400 uppercase tracking-widest font-bold mb-2">The ARC Leap</div>
           <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
             We Gave Software Human Reflexes
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Solari uses a <strong>Local Reflex Engine</strong> running on the host machine. <strong class="text-emerald-400">98 out of 100 actions</strong> complete in <strong>2.31 ms avg</strong> with zero network calls and zero marginal cost.
+            ARC uses a <strong>Local Reflex Engine</strong> running on the host machine. <strong class="text-blue-400">98 out of 100 actions</strong> complete in <strong>2.31 ms avg</strong> with zero network calls and zero marginal cost.
           </p>
-          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono text-xs">
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-300 font-mono text-xs">
             [EMPIRICAL DELTA] 99.69% Cheaper · Sub-10ms Verified
           </div>
         </div>
@@ -228,32 +228,32 @@
           <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 grid place-items-center text-teal-400 bang-pop">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-width="2"/></svg>
           </div>
-          <div class="text-xs font-mono text-teal-400 uppercase tracking-widest font-bold mb-2">Targeted Anomaly Escalation</div>
+          <div class="text-xs font-mono text-blue-400 uppercase tracking-widest font-bold mb-2">Targeted Anomaly Escalation</div>
           <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
             What If We Hit a Locked Door?
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
             When an action fails or an unexpected state appears, the <strong>Stuck Monitor</strong> flags the anomaly. The Cortex reasoning tier then synthesizes a targeted recovery plan, and local execution resumes.
           </p>
-          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-950/40 border border-teal-500/30 text-teal-300 font-mono text-xs">
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-950/40 border border-blue-500/30 text-blue-300 font-mono text-xs">
             [DUAL-TIER CASCADE] 98% Local Reflex / 2% Cloud Escalation
           </div>
         </div>
 
         <!-- SCENE 5: The Piggy Bank Test -->
         <div id="scene-5" class="scene-item text-center max-w-xl mx-auto hidden">
-          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 grid place-items-center text-amber-400 bang-pop">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 grid place-items-center text-blue-400 bang-pop">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="text-xs font-mono text-amber-400 uppercase tracking-widest font-bold mb-2">The Bottom Line</div>
+          <div class="text-xs font-mono text-blue-400 uppercase tracking-widest font-bold mb-2">The Bottom Line</div>
           <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
             The Price of 10,000 Tasks
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Frontier Baseline: <span class="text-rose-400 font-bold">$4,820.00</span>.<br>
-            Solari Hybrid: <span class="text-emerald-400 font-black text-lg">$15.00</span> (99.7% margin preserved).
+            Frontier Baseline: <span class="text-red-400 font-bold">$4,820.00</span>.<br>
+            ARC Hybrid: <span class="text-blue-400 font-black text-lg">$15.00</span> (99.7% margin preserved).
           </p>
-          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-950/60 to-teal-950/60 border border-emerald-500/40 text-white font-mono text-xs font-bold">
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-950/60 to-blue-950/60 border border-blue-500/40 text-white font-mono text-xs font-bold">
             [VERIFIED HARNESS] 152 Core Tests Passing · PROJECTED_BASED_ON_MOCK_EXECUTION
           </div>
         </div>
@@ -270,7 +270,7 @@
         <!-- Buttons Row -->
         <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
           <div class="flex items-center gap-2">
-            <button id="play-pause-btn" onclick="togglePlay()" style="background:#fbbf24;color:#000;" class="px-3 py-1.5 rounded-lg hover:bg-amber-300 text-black font-black flex items-center gap-1.5 transition shadow-[0_0_12px_rgba(245,158,11,.35)]">
+            <button id="play-pause-btn" onclick="togglePlay()" style="background:#10B981;color:#000;" class="px-3 py-1.5 rounded-lg hover:bg-amber-300 text-black font-black flex items-center gap-1.5 transition shadow-[0_0_12px_rgba(16,185,129,.35)]">
               <span id="play-btn-icon">⏸</span>
               <span id="play-btn-text">PAUSE</span>
             </button>
@@ -284,7 +284,7 @@
 
           <!-- Scene Jump Chips -->
           <div class="flex items-center gap-1.5">
-            <button onclick="jumpTo(0)" class="scene-chip px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">1. Robot</button>
+            <button onclick="jumpTo(0)" class="scene-chip px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 border border-amber-500/40 font-bold">1. Robot</button>
             <button onclick="jumpTo(1)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">2. Stove</button>
             <button onclick="jumpTo(2)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">3. Secret</button>
             <button onclick="jumpTo(3)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">4. Locked</button>
@@ -298,10 +298,10 @@
     <!-- ===================================================================== -->
     <!-- INTERACTIVE "REFLEX RACE" ARENA                                       -->
     <!-- ===================================================================== -->
-    <div class="mt-14 p-6 sm:p-10 rounded-3xl bg-panel border border-emerald-500/30 pulse-glow relative overflow-hidden">
+    <div class="mt-14 p-6 sm:p-10 rounded-3xl bg-panel border border-blue-500/30 pulse-glow relative overflow-hidden">
       
       <div class="text-center max-w-2xl mx-auto mb-8">
-        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-bold uppercase border border-emerald-500/30">
+        <span class="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-mono font-bold uppercase border border-blue-500/30">
           INTERACTIVE RUNTIME BENCHMARK
         </span>
         <h2 class="text-2xl sm:text-3xl font-black text-white font-display mt-2">
@@ -314,7 +314,7 @@
 
       <!-- Race Trigger Button -->
       <div class="text-center mb-8">
-        <button id="race-trigger-btn" onclick="startRace()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-black font-black text-base sm:text-lg tracking-wide hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+        <button id="race-trigger-btn" onclick="startRace()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 text-black font-black text-base sm:text-lg tracking-wide hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)]">
           <span class="inline-flex items-center gap-2">
             <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             EXECUTE UI ACTION NOW
@@ -326,11 +326,11 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- Track 1: Traditional Cloud LLM -->
-        <div id="cloud-track" class="p-5 rounded-2xl bg-black/50 border border-rose-500/30 flex flex-col justify-between">
+        <div id="cloud-track" class="p-5 rounded-2xl bg-black/50 border border-red-500/30 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-mono font-bold text-rose-400 uppercase">1. Monolithic Cloud Agent</span>
-              <span id="cloud-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">IDLE</span>
+              <span class="text-xs font-mono font-bold text-red-400 uppercase">1. Monolithic Cloud Agent</span>
+              <span id="cloud-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-300">IDLE</span>
             </div>
             <div class="text-sm font-bold text-slate-200 mb-1">GPT-4o / Claude Remote Loop</div>
             <div class="text-xs text-slate-400">Capture PNG → Transmit WAN → Multimodal Tokens → Mouse Click</div>
@@ -340,25 +340,25 @@
           <div class="my-6">
             <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
               <span>Progress</span>
-              <span id="cloud-timer" class="text-rose-400 font-bold">0.00 ms</span>
+              <span id="cloud-timer" class="text-red-400 font-bold">0.00 ms</span>
             </div>
             <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
-              <div id="cloud-bar" class="h-full bg-rose-500 rounded-full transition-all duration-75" style="width: 0%"></div>
+              <div id="cloud-bar" class="h-full bg-red-500 rounded-full transition-all duration-75" style="width: 0%"></div>
             </div>
           </div>
 
-          <div class="p-2.5 rounded bg-black/60 border border-rose-500/20 font-mono text-xs flex justify-between text-slate-300">
-            <span>Bill: <strong id="cloud-cost" class="text-rose-400 font-bold">$0.00</strong></span>
+          <div class="p-2.5 rounded bg-black/60 border border-red-500/20 font-mono text-xs flex justify-between text-slate-300">
+            <span>Bill: <strong id="cloud-cost" class="text-red-400 font-bold">$0.00</strong></span>
             <span>Latency: <strong id="cloud-final-time" class="text-slate-400">--</strong></span>
           </div>
         </div>
 
-        <!-- Track 2: Solari Hybrid Reflex -->
-        <div id="solari-track" class="p-5 rounded-2xl bg-black/50 border border-emerald-500/40 glow-solari flex flex-col justify-between">
+        <!-- Track 2: ARC Hybrid Reflex -->
+        <div id="arc-track" class="p-5 rounded-2xl bg-black/50 border border-blue-500/40 glow-primary flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-mono font-bold text-emerald-400 uppercase">2. Solari Hybrid Reflex</span>
-              <span id="solari-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">IDLE</span>
+              <span class="text-xs font-mono font-bold text-blue-400 uppercase">2. ARC Hybrid Reflex</span>
+              <span id="arc-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">IDLE</span>
             </div>
             <div class="text-sm font-bold text-slate-200 mb-1">Sub-10ms MicroVM Reflex</div>
             <div class="text-xs text-slate-400">Zero-copy CDP/AT-SPI → Local LRU Selector → SimHash Diff</div>
@@ -368,16 +368,16 @@
           <div class="my-6">
             <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
               <span>Progress</span>
-              <span id="solari-timer" class="text-emerald-400 font-bold">0.00 ms</span>
+              <span id="arc-timer" class="text-blue-400 font-bold">0.00 ms</span>
             </div>
             <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
-              <div id="solari-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-75" style="width: 0%"></div>
+              <div id="arc-bar" class="h-full bg-blue-400 rounded-full transition-all duration-75" style="width: 0%"></div>
             </div>
           </div>
 
-          <div class="p-2.5 rounded bg-black/60 border border-emerald-500/20 font-mono text-xs flex justify-between text-slate-300">
-            <span>Bill: <strong id="solari-cost" class="text-emerald-400 font-bold">$0.00</strong></span>
-            <span>Latency: <strong id="solari-final-time" class="text-emerald-400">--</strong></span>
+          <div class="p-2.5 rounded bg-black/60 border border-blue-500/20 font-mono text-xs flex justify-between text-slate-300">
+            <span>Bill: <strong id="arc-cost" class="text-blue-400 font-bold">$0.00</strong></span>
+            <span>Latency: <strong id="arc-final-time" class="text-blue-400">--</strong></span>
           </div>
         </div>
 
@@ -385,16 +385,16 @@
 
       <!-- Race Result Verdict Box -->
       <div id="race-verdict" class="mt-6 p-4 rounded-xl bg-black/70 border border-white/10 text-center font-mono text-xs text-slate-300 hidden">
-        <span class="text-emerald-400 font-bold text-sm font-mono">[VISUALIZED RATIO] SOLARI 1,233x FASTER (PUBLISHED AGGREGATES)</span>
-        <div class="mt-1 text-slate-400">Solari executed locally in 2.31 ms for $0.00. The cloud agent took 2,850 ms and billed $0.482.</div>
-        <div class="mt-2 text-[10px] text-amber-300/80 font-mono">Timed visualization of published aggregates (PROJECTED_BASED_ON_MOCK_EXECUTION) — not a live model run.</div>
+        <span class="text-blue-400 font-bold text-sm font-mono">[VISUALIZED RATIO] ARC 1,233x FASTER (PUBLISHED AGGREGATES)</span>
+        <div class="mt-1 text-slate-400">ARC executed locally in 2.31 ms for $0.00. The cloud agent took 2,850 ms and billed $0.482.</div>
+        <div class="mt-2 text-[10px] text-blue-300/80 font-mono">Timed visualization of published aggregates (PROJECTED_BASED_ON_MOCK_EXECUTION) — not a live model run.</div>
       </div>
 
     </div>
 
     <!-- Navigation Footer -->
     <div class="mt-12 text-center">
-      <a href="showcase.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-surface border border-white/10 text-slate-200 hover:text-white hover:border-emerald-500/40 text-xs font-mono uppercase tracking-wider transition">
+      <a href="showcase.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-surface border border-white/10 text-slate-200 hover:text-white hover:border-blue-500/40 text-xs font-mono uppercase tracking-wider transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         <span>Back to Technical Benchmark Showcase</span>
       </a>
@@ -462,7 +462,7 @@
       const label = document.getElementById('sound-label');
       const dot = document.getElementById('sound-dot');
       if (label) label.textContent = soundEnabled ? 'Sound: On' : 'Sound: Off';
-      if (dot) dot.className = soundEnabled ? 'w-1.5 h-1.5 rounded-full bg-emerald-400' : 'w-1.5 h-1.5 rounded-full bg-slate-600';
+      if (dot) dot.className = soundEnabled ? 'w-1.5 h-1.5 rounded-full bg-blue-400' : 'w-1.5 h-1.5 rounded-full bg-slate-600';
     }
     // =========================================================================
     // Bang-Motion Scene Choreography Engine
@@ -504,7 +504,7 @@
       const chips = document.querySelectorAll('.scene-chip');
       chips.forEach((c, i) => {
         if (i === idx) {
-          c.className = 'scene-chip px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold';
+          c.className = 'scene-chip px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 border border-amber-500/40 font-bold';
         } else {
           c.className = 'scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white';
         }
@@ -590,34 +590,34 @@
       const cloudBadge = document.getElementById('cloud-status-badge');
       const cloudFinalTime = document.getElementById('cloud-final-time');
 
-      const solariTimer = document.getElementById('solari-timer');
-      const solariBar = document.getElementById('solari-bar');
-      const solariCost = document.getElementById('solari-cost');
-      const solariBadge = document.getElementById('solari-status-badge');
-      const solariFinalTime = document.getElementById('solari-final-time');
+      const arcTimer = document.getElementById('arc-timer');
+      const arcBar = document.getElementById('arc-bar');
+      const arcCost = document.getElementById('arc-cost');
+      const arcBadge = document.getElementById('arc-status-badge');
+      const arcFinalTime = document.getElementById('arc-final-time');
       const verdict = document.getElementById('race-verdict');
 
       verdict.classList.add('hidden');
       cloudBar.style.width = '0%';
-      solariBar.style.width = '0%';
+      arcBar.style.width = '0%';
       cloudCost.textContent = '$0.00';
-      solariCost.textContent = '$0.00';
+      arcCost.textContent = '$0.00';
       cloudFinalTime.textContent = '--';
-      solariFinalTime.textContent = '--';
+      arcFinalTime.textContent = '--';
 
       cloudBadge.textContent = 'TRANSMITTING WAN...';
-      solariBadge.textContent = 'ZAPPING...';
+      arcBadge.textContent = 'ZAPPING...';
 
-      // 1. SOLARI WINS INSTANTLY (2.31 ms)
+      // 1. ARC WINS INSTANTLY (2.31 ms)
       setTimeout(() => {
         playCompleteSound();
-        solariBar.style.width = '100%';
-        solariTimer.textContent = '2.31 ms';
-        solariFinalTime.textContent = '2.31 ms [OK]';
-        solariCost.textContent = '$0.000000';
-        solariBadge.textContent = 'COMPLETED! (2.31ms)';
-        solariBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500 text-black font-bold';
-        document.getElementById('solari-track').classList.add('zap-shake');
+        arcBar.style.width = '100%';
+        arcTimer.textContent = '2.31 ms';
+        arcFinalTime.textContent = '2.31 ms [OK]';
+        arcCost.textContent = '$0.000000';
+        arcBadge.textContent = 'COMPLETED! (2.31ms)';
+        arcBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500 text-black font-bold';
+        document.getElementById('arc-track').classList.add('zap-shake');
       }, 50);
 
       // 2. CLOUD LLM PROGRESS CRAWL (2,850 ms)
@@ -633,7 +633,7 @@
         if (elapsed >= 2850) {
           clearInterval(cloudInterval);
           cloudBadge.textContent = 'DONE (2,850ms)';
-          cloudBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500 text-white font-bold';
+          cloudBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-red-500 text-white font-bold';
           cloudFinalTime.textContent = '2,850 ms';
           cloudCost.textContent = '$0.4820';
           verdict.classList.remove('hidden');

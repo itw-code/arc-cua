@@ -30,7 +30,7 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from solari_cua.eval.osworld_assertions import (
+from arc_cua.eval.osworld_assertions import (
     OSWorldAssertionAdapter,
     check_at_spi_state_match,
     check_file_content_match,
@@ -38,8 +38,8 @@ from solari_cua.eval.osworld_assertions import (
     check_osworld_unsupported,
     check_terminal_output_match,
 )
-from solari_cua.eval.osworld_env import OSWorldEnv
-from solari_cua.eval.osworld_mapper import (
+from arc_cua.eval.osworld_env import OSWorldEnv
+from arc_cua.eval.osworld_mapper import (
     build_at_spi_state_match_assertion,
     build_file_content_match_assertion,
     build_file_exist_assertion,
@@ -49,15 +49,15 @@ from solari_cua.eval.osworld_mapper import (
     parse_osworld_json,
     parse_osworld_jsonl,
 )
-from solari_cua.eval.osworld_runner import MockOSWorldPage, OSWorldRunner
-from solari_cua.eval.schemas import EvalAssertion, EvalAssertionResult, EvalResult, EvalTask
-from solari_cua.eval.tasks_osworld import (
+from arc_cua.eval.osworld_runner import MockOSWorldPage, OSWorldRunner
+from arc_cua.eval.schemas import EvalAssertion, EvalAssertionResult, EvalResult, EvalTask
+from arc_cua.eval.tasks_osworld import (
     RAW_OSWORLD_SUBSET,
     create_osworld_subset,
     get_osworld_task_by_id,
     get_osworld_tasks_by_domain,
 )
-from solari_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
 
 
 # -----------------------------------------------------------------------------
@@ -458,7 +458,7 @@ def test_osworld_subset_selection_integrity():
 # -----------------------------------------------------------------------------
 def test_public_playwright_api_compliance():
     """AST check verifying zero forbidden Playwright private internals in Phase 4C modules."""
-    eval_dir = REPO_ROOT / "src" / "solari_cua" / "eval"
+    eval_dir = REPO_ROOT / "src" / "arc_cua" / "eval"
     phase4c_files = [
         eval_dir / "osworld_env.py",
         eval_dir / "osworld_mapper.py",
