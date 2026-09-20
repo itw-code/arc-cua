@@ -120,6 +120,35 @@ def test_showcase_html_headless_browser():
         canvas = page.locator("canvas#costSimulatorChart")
         assert canvas.count() == 1
 
+        # Test Architecture view toggle buttons
+        btn_trad = page.locator("#view-trad-btn")
+        btn_solari = page.locator("#view-solari-btn")
+        btn_compare = page.locator("#view-compare-btn")
+        panel_trad = page.locator("#arch-panel-trad")
+        panel_solari = page.locator("#arch-panel-solari")
+
+        assert btn_trad.count() == 1
+        assert btn_solari.count() == 1
+        assert btn_compare.count() == 1
+
+        # Switch to Traditional view only
+        btn_trad.click()
+        assert panel_trad.is_visible()
+        assert not panel_solari.is_visible()
+
+        # Switch to Solari view only
+        btn_solari.click()
+        assert not panel_trad.is_visible()
+        assert panel_solari.is_visible()
+
+        # Switch back to Compare view
+        btn_compare.click()
+        assert panel_trad.is_visible()
+        assert panel_solari.is_visible()
+
+        # Allow dual-loop animation to tick for a few frames
+        page.wait_for_timeout(200)
+
         browser.close()
 
     # Verify no unhandled javascript errors occurred in console
