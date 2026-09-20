@@ -5,6 +5,7 @@ dist/
 
 # Python & Virtual Environments
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 .venv/
@@ -17,7 +18,7 @@ build/
 *.log
 telemetry.parquet
 *.trace
-artifacts/runs/
+artifacts/
 .cache/
 
 # Test & Coverage
@@ -28,3 +29,7 @@ coverage/
 # OS Specific
 .DS_Store
 Thumbs.db
+
+# Environment & Secrets
+.env
+.env.*

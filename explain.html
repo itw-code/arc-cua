@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solari Hybrid CUA — Explained Like You're 5 (Bang-Motion Edition)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            void: '#05080F',
+            panel: '#0A0F1C',
+            card: '#0D1424',
+            surface: '#121A2D',
+            solari: '#10B981',
+            solariGlow: '#34D399',
+            baseline: '#F43F5E',
+            amber: '#F59E0B',
+            muted: '#8B94A7',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+            display: ['Outfit', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #05080F;
+      color: #E6EAF2;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+    .bg-grid {
+      background-image: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .bang-pop {
+      animation: bangPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes bangPop {
+      0% { transform: scale(0.65); opacity: 0; }
+      70% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .zap-shake {
+      animation: zapShake 0.3s ease-in-out;
+    }
+    @keyframes zapShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px) rotate(-1deg); }
+      75% { transform: translateX(6px) rotate(1deg); }
+    }
+    .pulse-glow {
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.35);
+    }
+    .rose-glow {
+      box-shadow: 0 0 40px rgba(244, 63, 94, 0.35);
+    }
+    .stage-container {
+      perspective: 1000px;
+    }
+    .camera-rig {
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-emerald-500/30 selection:text-white">
+
+  <!-- Background Ambient Glow -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute inset-0 bg-grid opacity-60"></div>
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-20 blur-[130px] bg-emerald-500"></div>
+    <div class="absolute bottom-10 right-10 w-[500px] h-[500px] rounded-full opacity-15 blur-[120px] bg-amber-500"></div>
+  </div>
+
+  <!-- Top Bar -->
+  <header class="relative z-30 max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="showcase.html" class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center font-black text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 transition-transform">
+        ⚡
+      </a>
+      <div>
+        <div class="font-extrabold text-base sm:text-lg tracking-tight flex items-center gap-2">
+          SOLARI <span class="text-amber-400">ELI5 MOTION</span>
+        </div>
+        <div class="text-[10px] font-mono text-muted tracking-widest uppercase">Explained Like You're 5</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button id="sound-toggle-btn" onclick="toggleSound()" class="px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+        <span id="sound-icon">🔊</span>
+        <span id="sound-label">Audio: ON</span>
+      </button>
+      <a href="showcase.html" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+        🔬 Technical Report
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Intro: Kinetic Headline -->
+  <main class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-16">
+    
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold mb-4">
+        <span>🎬 BANG-MOTION EXPLAINER</span>
+        <span>•</span>
+        <span>ONE CONTINUOUS WORLD</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-display">
+        Why call a professor in Switzerland<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-teal-400">
+          just to tie your shoelaces?
+        </span>
+      </h1>
+      <p class="mt-4 text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+        Understanding the <strong>Solari Hybrid CUA</strong> through the classic <em>Hot Stove Reflex</em> analogy. Watch the interactive scenes below or scrub through the timeline!
+      </p>
+    </div>
+
+    <!-- Motion Theater Stage -->
+    <div class="stage-container relative rounded-3xl bg-panel border border-white/10 p-6 sm:p-10 shadow-2xl overflow-hidden min-h-[460px] flex flex-col justify-between">
+      
+      <!-- Top Stage HUD -->
+      <div class="flex items-center justify-between pb-4 border-b border-white/10 text-xs font-mono text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-white font-bold" id="current-scene-title">SCENE 1: THE SILLY ROBOT</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="timecode-display" class="text-amber-300 font-bold">00:04 / 00:25</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px]" id="speed-badge">1.0× SPEED</span>
+        </div>
+      </div>
+
+      <!-- Animated Camera Rig / Dynamic Scenes -->
+      <div id="camera-rig" class="camera-rig my-auto py-6">
+        
+        <!-- SCENE 1: The Silly Robot -->
+        <div id="scene-1" class="scene-item text-center max-w-xl mx-auto">
+          <div class="text-6xl sm:text-7xl mb-4 bang-pop">🤖 📞 🇨🇭</div>
+          <div class="text-xs font-mono text-rose-400 uppercase tracking-widest font-bold mb-2">The Monolithic Agent Problem</div>
+          <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
+            Every Single Click Phones Home!
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Old AI agents take a huge 4K photo, send it across the ocean to a giant cloud brain, wait <strong>3 whole seconds</strong>, and pay <strong>$0.48</strong>... just to click a button that says <em>"Next"</em>!
+          </p>
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 font-mono text-xs">
+            💸 $4,820 for 10,000 clicks. That's absurd!
+          </div>
+        </div>
+
+        <!-- SCENE 2: The Hot Stove Superpower (Hidden by default, driven by JS) -->
+        <div id="scene-2" class="scene-item text-center max-w-xl mx-auto hidden">
+          <div class="text-6xl sm:text-7xl mb-4 bang-pop">🔥 ✋ ⚡</div>
+          <div class="text-xs font-mono text-amber-400 uppercase tracking-widest font-bold mb-2">Human Biology Moat</div>
+          <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
+            You Touch a Hot Stove. What Happens?
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Do you stop and do calculus? Do you call a doctor? <strong>NO!</strong> Your spine pulls your hand back in <strong class="text-emerald-400">2 milliseconds</strong> before your thinking brain even realizes it was hot!
+          </p>
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono text-xs">
+            ⚡ That's a Spinal Reflex. It's instant, and it costs $0.00!
+          </div>
+        </div>
+
+        <!-- SCENE 3: The Solari Secret -->
+        <div id="scene-3" class="scene-item text-center max-w-xl mx-auto hidden">
+          <div class="text-6xl sm:text-7xl mb-4 bang-pop">⚡ 🧠 💻</div>
+          <div class="text-xs font-mono text-emerald-400 uppercase tracking-widest font-bold mb-2">The Solari Hybrid Leap</div>
+          <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
+            We Gave Software Human Reflexes!
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Solari uses a <strong>Local Reflex Engine</strong> running right on the machine. <strong class="text-emerald-400">98 out of 100 actions</strong> happen in <strong>2.31 milliseconds</strong> with zero internet calls and zero dollar bills!
+          </p>
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono text-xs">
+            🎯 99.7% cheaper. Sub-10ms reflex verified.
+          </div>
+        </div>
+
+        <!-- SCENE 4: When Do We Think? -->
+        <div id="scene-4" class="scene-item text-center max-w-xl mx-auto hidden">
+          <div class="text-6xl sm:text-7xl mb-4 bang-pop">🚪 🔑 💡</div>
+          <div class="text-xs font-mono text-teal-400 uppercase tracking-widest font-bold mb-2">Targeted Anomaly Escalation</div>
+          <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
+            What If We Hit a Locked Door?
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            When a button doesn't work or an unexpected popup appears, the <strong>Stuck Monitor</strong> flags an anomaly. <em>Now</em> we wake up the thinking brain (Cortex) to solve the puzzle in 1 step, then sprint again!
+          </p>
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-950/40 border border-teal-500/30 text-teal-300 font-mono text-xs">
+            🛡️ 98% Local Reflex / 2% Cloud Escalation. Pure Harmony.
+          </div>
+        </div>
+
+        <!-- SCENE 5: The Piggy Bank Test -->
+        <div id="scene-5" class="scene-item text-center max-w-xl mx-auto hidden">
+          <div class="text-6xl sm:text-7xl mb-4 bang-pop">🐷 🍕 🏆</div>
+          <div class="text-xs font-mono text-amber-400 uppercase tracking-widest font-bold mb-2">The Bottom Line</div>
+          <h2 class="text-2xl sm:text-4xl font-black text-white font-display mb-3">
+            The Price of 10,000 Tasks
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Old Way: <span class="text-rose-400 font-bold">$4,820.00</span> (A used car).<br>
+            Solari Way: <span class="text-emerald-400 font-black text-lg">$15.00</span> (The price of a pizza!).
+          </p>
+          <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-950/60 to-teal-950/60 border border-emerald-500/40 text-white font-mono text-xs font-bold">
+            🎉 152/152 Tests Passing · Production Ready
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Player Control Bar (Bang-Motion Video Controls) -->
+      <div class="pt-4 border-t border-white/10 space-y-3">
+        <!-- Progress Scrubber -->
+        <div class="flex items-center gap-3">
+          <input id="timeline-scrubber" type="range" min="0" max="4" step="1" value="0" class="w-full h-2 rounded-lg bg-slate-800 accent-amber-400 cursor-pointer" oninput="seekScene(this.value)" />
+        </div>
+
+        <!-- Buttons Row -->
+        <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+          <div class="flex items-center gap-2">
+            <button id="play-pause-btn" onclick="togglePlay()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black flex items-center gap-1.5 transition">
+              <span id="play-btn-icon">⏸</span>
+              <span id="play-btn-text">PAUSE</span>
+            </button>
+            <button onclick="restartShow()" class="px-2.5 py-1.5 rounded-lg bg-surface border border-white/10 text-slate-300 hover:text-white transition">
+              ↺ RESTART
+            </button>
+            <button onclick="toggleSpeed()" class="px-2.5 py-1.5 rounded-lg bg-surface border border-white/10 text-slate-300 hover:text-white transition">
+              1.0× / 2.0×
+            </button>
+          </div>
+
+          <!-- Scene Jump Chips -->
+          <div class="flex items-center gap-1.5">
+            <button onclick="jumpTo(0)" class="scene-chip px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">1. Robot</button>
+            <button onclick="jumpTo(1)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">2. Stove</button>
+            <button onclick="jumpTo(2)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">3. Secret</button>
+            <button onclick="jumpTo(3)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">4. Locked</button>
+            <button onclick="jumpTo(4)" class="scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white">5. Pizza</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- INTERACTIVE "REFLEX RACE" ARENA                                       -->
+    <!-- ===================================================================== -->
+    <div class="mt-14 p-6 sm:p-10 rounded-3xl bg-panel border border-emerald-500/30 pulse-glow relative overflow-hidden">
+      
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-bold uppercase border border-emerald-500/30">
+          🎮 Interactive Arena
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-white font-display mt-2">
+          The Hot Stove Reflex Race
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 mt-1">
+          Click the button to test your reaction against a traditional cloud agent. Watch the live timer and cost counter!
+        </p>
+      </div>
+
+      <!-- Race Trigger Button -->
+      <div class="text-center mb-8">
+        <button id="race-trigger-btn" onclick="startRace()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-black font-black text-base sm:text-lg tracking-wide hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+          ⚡ TRIGGER UI ACTION NOW!
+        </button>
+      </div>
+
+      <!-- Split Race Tracks -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Track 1: Traditional Cloud LLM -->
+        <div id="cloud-track" class="p-5 rounded-2xl bg-black/50 border border-rose-500/30 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono font-bold text-rose-400 uppercase">1. Monolithic Cloud Agent</span>
+              <span id="cloud-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">IDLE</span>
+            </div>
+            <div class="text-sm font-bold text-slate-200 mb-1">GPT-4o / Claude Remote Loop</div>
+            <div class="text-xs text-slate-400">Capture PNG $\to$ Transmit WAN $\to$ Multimodal Tokens $\to$ Mouse Click</div>
+          </div>
+
+          <!-- Progress Visual -->
+          <div class="my-6">
+            <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
+              <span>Progress</span>
+              <span id="cloud-timer" class="text-rose-400 font-bold">0.00 ms</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
+              <div id="cloud-bar" class="h-full bg-rose-500 rounded-full transition-all duration-75" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded bg-black/60 border border-rose-500/20 font-mono text-xs flex justify-between text-slate-300">
+            <span>Bill: <strong id="cloud-cost" class="text-rose-400 font-bold">$0.00</strong></span>
+            <span>Latency: <strong id="cloud-final-time" class="text-slate-400">--</strong></span>
+          </div>
+        </div>
+
+        <!-- Track 2: Solari Hybrid Reflex -->
+        <div id="solari-track" class="p-5 rounded-2xl bg-black/50 border border-emerald-500/40 glow-solari flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono font-bold text-emerald-400 uppercase">2. Solari Hybrid Reflex</span>
+              <span id="solari-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">IDLE</span>
+            </div>
+            <div class="text-sm font-bold text-slate-200 mb-1">Sub-10ms MicroVM Reflex</div>
+            <div class="text-xs text-slate-400">Zero-copy CDP/AT-SPI $\to$ Local LRU Selector $\to$ SimHash Diff</div>
+          </div>
+
+          <!-- Progress Visual -->
+          <div class="my-6">
+            <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
+              <span>Progress</span>
+              <span id="solari-timer" class="text-emerald-400 font-bold">0.00 ms</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
+              <div id="solari-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-75" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded bg-black/60 border border-emerald-500/20 font-mono text-xs flex justify-between text-slate-300">
+            <span>Bill: <strong id="solari-cost" class="text-emerald-400 font-bold">$0.00</strong></span>
+            <span>Latency: <strong id="solari-final-time" class="text-emerald-400">--</strong></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Race Result Verdict Box -->
+      <div id="race-verdict" class="mt-6 p-4 rounded-xl bg-black/70 border border-white/10 text-center font-mono text-xs text-slate-300 hidden">
+        <span class="text-emerald-400 font-bold text-sm">⚡ SOLARI WINS BY 1,233× SPEEDUP!</span>
+        <div class="mt-1 text-slate-400">Solari executed locally in 2.31 ms for $0.00. The cloud agent took 2,850 ms and billed $0.482.</div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="mt-12 text-center">
+      <a href="showcase.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-surface border border-white/10 text-slate-200 hover:text-white hover:border-emerald-500/40 text-xs font-mono uppercase tracking-wider transition">
+        <span>← Back to Technical Benchmark Showcase</span>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: Bang-Motion Choreography Engine & Web Audio Synth            -->
+  <!-- ========================================================================= -->
+  <script>
+    // Audio Synthesizer (Synthesized Beeps & Zaps via Web Audio API)
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+    }
+
+    function playZapSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.16);
+      } catch (e) {}
+    }
+
+    function playPopSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.11);
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('sound-label').textContent = soundEnabled ? 'Audio: ON' : 'Audio: OFF';
+    }
+
+    // =========================================================================
+    // Bang-Motion Scene Choreography Engine
+    // =========================================================================
+    const scenes = [
+      { id: 'scene-1', title: 'SCENE 1: THE SILLY ROBOT', timecode: '00:00 / 00:25' },
+      { id: 'scene-2', title: 'SCENE 2: THE HOT STOVE', timecode: '00:05 / 00:25' },
+      { id: 'scene-3', title: 'SCENE 3: THE SOLARI SECRET', timecode: '00:10 / 00:25' },
+      { id: 'scene-4', title: 'SCENE 4: WHEN DO WE THINK?', timecode: '00:15 / 00:25' },
+      { id: 'scene-5', title: 'SCENE 5: THE PIGGY BANK', timecode: '00:20 / 00:25' }
+    ];
+
+    let currentSceneIdx = 0;
+    let isPlaying = true;
+    let playbackSpeed = 1.0;
+    let timerInterval = null;
+
+    function renderScene(idx) {
+      currentSceneIdx = idx;
+      scenes.forEach((s, i) => {
+        const el = document.getElementById(s.id);
+        if (el) {
+          if (i === idx) {
+            el.classList.remove('hidden');
+            el.classList.add('bang-pop');
+          } else {
+            el.classList.add('hidden');
+            el.classList.remove('bang-pop');
+          }
+        }
+      });
+
+      document.getElementById('current-scene-title').textContent = scenes[idx].title;
+      document.getElementById('timecode-display').textContent = scenes[idx].timecode;
+      document.getElementById('timeline-scrubber').value = idx;
+
+      // Update chip highlights
+      const chips = document.querySelectorAll('.scene-chip');
+      chips.forEach((c, i) => {
+        if (i === idx) {
+          c.className = 'scene-chip px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold';
+        } else {
+          c.className = 'scene-chip px-2.5 py-1 rounded bg-surface text-slate-400 hover:text-white';
+        }
+      });
+
+      playPopSound();
+    }
+
+    function nextScene() {
+      let next = (currentSceneIdx + 1) % scenes.length;
+      renderScene(next);
+    }
+
+    function seekScene(val) {
+      renderScene(parseInt(val, 10));
+    }
+
+    function jumpTo(val) {
+      renderScene(val);
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const btnIcon = document.getElementById('play-btn-icon');
+      const btnText = document.getElementById('play-btn-text');
+      if (isPlaying) {
+        btnIcon.textContent = '⏸';
+        btnText.textContent = 'PAUSE';
+        startAutoplay();
+      } else {
+        btnIcon.textContent = '▶';
+        btnText.textContent = 'PLAY';
+        stopAutoplay();
+      }
+    }
+
+    function toggleSpeed() {
+      playbackSpeed = playbackSpeed === 1.0 ? 2.0 : 1.0;
+      document.getElementById('speed-badge').textContent = playbackSpeed.toFixed(1) + '× SPEED';
+      if (isPlaying) {
+        stopAutoplay();
+        startAutoplay();
+      }
+    }
+
+    function restartShow() {
+      renderScene(0);
+      if (!isPlaying) togglePlay();
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      const interval = (5000 / playbackSpeed);
+      timerInterval = setInterval(() => {
+        nextScene();
+      }, interval);
+    }
+
+    function stopAutoplay() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    // =========================================================================
+    // Reflex Race Simulation Logic
+    // =========================================================================
+    let raceInProgress = false;
+
+    function startRace() {
+      if (raceInProgress) return;
+      raceInProgress = true;
+      initAudio();
+
+      const btn = document.getElementById('race-trigger-btn');
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      const cloudTimer = document.getElementById('cloud-timer');
+      const cloudBar = document.getElementById('cloud-bar');
+      const cloudCost = document.getElementById('cloud-cost');
+      const cloudBadge = document.getElementById('cloud-status-badge');
+      const cloudFinalTime = document.getElementById('cloud-final-time');
+
+      const solariTimer = document.getElementById('solari-timer');
+      const solariBar = document.getElementById('solari-bar');
+      const solariCost = document.getElementById('solari-cost');
+      const solariBadge = document.getElementById('solari-status-badge');
+      const solariFinalTime = document.getElementById('solari-final-time');
+      const verdict = document.getElementById('race-verdict');
+
+      verdict.classList.add('hidden');
+      cloudBar.style.width = '0%';
+      solariBar.style.width = '0%';
+      cloudCost.textContent = '$0.00';
+      solariCost.textContent = '$0.00';
+      cloudFinalTime.textContent = '--';
+      solariFinalTime.textContent = '--';
+
+      cloudBadge.textContent = 'TRANSMITTING WAN...';
+      solariBadge.textContent = 'ZAPPING...';
+
+      // 1. SOLARI WINS INSTANTLY (2.31 ms)
+      setTimeout(() => {
+        playZapSound();
+        solariBar.style.width = '100%';
+        solariTimer.textContent = '2.31 ms';
+        solariFinalTime.textContent = '2.31 ms ✓';
+        solariCost.textContent = '$0.000000';
+        solariBadge.textContent = 'COMPLETED! (2.31ms)';
+        solariBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500 text-black font-bold';
+        document.getElementById('solari-track').classList.add('zap-shake');
+      }, 50);
+
+      // 2. CLOUD LLM PROGRESS CRAWL (2,850 ms)
+      let elapsed = 0;
+      const step = 50;
+      const cloudInterval = setInterval(() => {
+        elapsed += step;
+        const progress = Math.min((elapsed / 2850) * 100, 100);
+        cloudBar.style.width = progress + '%';
+        cloudTimer.textContent = elapsed + ' ms';
+        cloudCost.textContent = '$' + ((elapsed / 2850) * 0.482).toFixed(3);
+
+        if (elapsed >= 2850) {
+          clearInterval(cloudInterval);
+          cloudBadge.textContent = 'DONE (2,850ms)';
+          cloudBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500 text-white font-bold';
+          cloudFinalTime.textContent = '2,850 ms';
+          cloudCost.textContent = '$0.4820';
+          verdict.classList.remove('hidden');
+
+          btn.disabled = false;
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+          raceInProgress = false;
+        }
+      }, step);
+    }
+
+    // Start on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      renderScene(0);
+      startAutoplay();
+    });
+  </script>
+</body>
+</html>
