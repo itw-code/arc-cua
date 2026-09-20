@@ -13,6 +13,9 @@
 > - ⚡ **[Kinetic Motion Explainer & Interactive Reflex Race](https://itw-code.github.io/arc-cua/explain.html)**
 
 Monolithic Computer-Using Agents incur a crushing **vision tax**: streaming 4K display rasters over the WAN to frontier multimodal LLMs on every single keystroke and mouse click. ARC decouples perception from reasoning through a dual-tier cascade: **sub-10ms local reflex execution** inside the Solari MicroVM, escalating to cloud reasoning *only* when trajectory anomaly monitors detect an environmental stall.
+
+![ARC Action Replay — 2.31ms Sub-Millisecond Reflex Execution inside Solari MicroVM](./artifacts/arc-action-replay.gif)
+
 ---
 
 ## Architecture Diagram
