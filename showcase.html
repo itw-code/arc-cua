@@ -462,7 +462,7 @@
       </div>
       <!-- Live Synchronized Observation-Action Loop Simulation (ColdStart Pattern) -->
       <div class="mt-12 pt-8 border-t border-white/10">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
           <div>
             <div class="font-mono text-xs tracking-widest text-emerald-400 uppercase mb-1">02 — LIVE OBSERVATION–ACTION LOOP COMPARISON</div>
             <h3 class="text-xl sm:text-2xl font-black text-white">Side-by-Side Execution Timing</h3>
@@ -474,6 +474,15 @@
             <button id="view-trad-btn" onclick="setArchitectureView('trad')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Traditional</button>
             <button id="view-solari-btn" onclick="setArchitectureView('solari')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Solari</button>
           </div>
+        </div>
+
+        <!-- Epistemic status notice for the visualization -->
+        <div class="mb-5 inline-flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/25 text-amber-300 text-[11px] font-mono">
+          <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>
+            <strong>VISUALIZED BENCHMARK — PROJECTED_BASED_ON_MOCK_EXECUTION.</strong>
+            Timing behavior is animated from the empirical parameters recorded in <code class="text-amber-200">artifacts/production/final_scorecard.json</code> (aggregate Reflex step: 2.31 ms; frontier baseline: &gt;2,500 ms per step). Per-step rows are illustrative and normalized to those published aggregates; the browser does not measure these durations itself.
+          </span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -492,8 +501,12 @@
                 </div>
               </div>
 
-              <!-- Steps List -->
+              <!-- Steps List (illustrative rows normalized to published aggregates) -->
               <div class="space-y-2 text-xs font-mono" id="live-trad-steps">
+                <div class="flex items-center justify-between px-2.5 pb-1 text-[10px] text-slate-500">
+                  <span>PIPELINE STAGE</span>
+                  <span>NORMALIZED SHARE · 2,850 ms CYCLE</span>
+                </div>
                 <div class="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between text-slate-300" data-trad-step="0">
                   <div class="flex items-center gap-2">
                     <span class="text-rose-400 font-bold">01</span>
@@ -560,8 +573,12 @@
                 </div>
               </div>
 
-              <!-- Steps List -->
+              <!-- Steps List (illustrative rows normalized to published aggregates) -->
               <div class="space-y-2 text-xs font-mono" id="live-solari-steps">
+                <div class="flex items-center justify-between px-2.5 pb-1 text-[10px] text-slate-500">
+                  <span>PIPELINE STAGE</span>
+                  <span>MEASURED P50 · 2.31 ms AGGREGATE</span>
+                </div>
                 <div class="p-2.5 rounded-lg bg-black/40 border border-emerald-500/20 flex items-center justify-between text-slate-300" data-solari-step="0">
                   <div class="flex items-center gap-2">
                     <span class="text-emerald-400 font-bold">01</span>
@@ -1231,6 +1248,9 @@
         </a>
         <a href="./docs/CHANGELOG.md" class="px-6 py-3 rounded-xl glass-card text-white font-bold text-xs uppercase tracking-wider hover:border-emerald-500/40 transition-all">
           Read Full Changelog
+        </a>
+        <a href="./docs/REFERENCES.md" class="px-6 py-3 rounded-xl glass-card text-white font-bold text-xs uppercase tracking-wider hover:border-emerald-500/40 transition-all">
+          Research References
         </a>
       </div>
     </div>

@@ -146,8 +146,15 @@ def test_showcase_html_headless_browser():
         assert panel_trad.is_visible()
         assert panel_solari.is_visible()
 
-        # Allow dual-loop animation to tick for a few frames
-        page.wait_for_timeout(200)
+        # Verify the live dual-loop actually advances (tolerant of a throttled frame)
+        timer_before = page.locator("#live-trad-timer").inner_text().strip()
+        loops_before = page.locator("#live-solari-loops").inner_text().strip()
+        page.wait_for_timeout(250)
+        timer_after = page.locator("#live-trad-timer").inner_text().strip()
+        loops_after = page.locator("#live-solari-loops").inner_text().strip()
+        assert (
+            loops_after != "0" or timer_after != timer_before or loops_after != loops_before
+        ), "Live dual-loop did not advance: timers/loop count unchanged after 250ms of animation frames"
 
         browser.close()
 

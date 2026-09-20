@@ -104,5 +104,6 @@ Open `explain.html` for the high-energy Bang-Motion visual explainer using the H
 | **Implementation** | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
 | **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Solari Cloud |
 | **Research Whitepaper**| [`artifacts/phase6/FINAL_RESEARCH_REPORT.md`](./artifacts/phase6/FINAL_RESEARCH_REPORT.md) | Final architecture whitepaper, Pareto analysis, and evaluation findings |
+| **Research References** | [`docs/REFERENCES.md`](./docs/REFERENCES.md) | All cited papers and planning references behind the design and baselines, with verification status |
 | **Interactive Showcase** | [`showcase.html`](./showcase.html) | Interactive single-page visual demo, simulator, and benchmark scorecard |
 | **ELI5 Explainer** | [`explain.html`](./explain.html) | Bang-Motion interactive explainer for non-technical audiences using the Hot Stove reflex analogy |
