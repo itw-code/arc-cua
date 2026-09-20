@@ -54,10 +54,14 @@ class CDPDiscovery:
         """Initialize CDP Discovery.
 
         Args:
-            arc_base_url: Base URL for Arc Cloud API (default: https://api.getarc.com).
+            arc_base_url: Base URL for Solari/ARC Cloud API (default: https://api.getsolari.com).
             timeout: Probe network timeout in seconds.
         """
-        self.arc_base_url = arc_base_url or os.environ.get("ARC_BASE_URL", "https://api.getarc.com")
+        self.arc_base_url = (
+            arc_base_url
+            or os.environ.get("SOLARI_BASE_URL")
+            or os.environ.get("ARC_BASE_URL", "https://api.getsolari.com")
+        )
         self.timeout = timeout
 
     def discover(
@@ -81,7 +85,7 @@ class CDPDiscovery:
             )
 
         # 2. Environment variables: ARC_CDP_ENDPOINT or CDP_ENDPOINT
-        for env_var in ("ARC_CDP_ENDPOINT", "CDP_ENDPOINT"):
+        for env_var in ("SOLARI_CDP_ENDPOINT", "ARC_CDP_ENDPOINT", "CDP_ENDPOINT"):
             val = os.environ.get(env_var)
             if val and val.strip():
                 return CDPEndpointSpec(
@@ -91,15 +95,16 @@ class CDPDiscovery:
                     description=f"Resolved via environment variable {env_var}",
                 )
 
-        # 3. Arc Cloud API lookup if ARC_API_KEY is configured
-        api_key = os.environ.get("ARC_API_KEY")
+        # 3. Solari/ARC Cloud API lookup if SOLARI_API_KEY or ARC_API_KEY is configured
+        api_key = os.environ.get("SOLARI_API_KEY") or os.environ.get("ARC_API_KEY")
         if api_key:
             cloud_endpoint = f"{self.arc_base_url.rstrip('/')}/v1/browser/cdp"
+            transport = "solari_cloud" if os.environ.get("SOLARI_API_KEY") else "arc_cloud"
             return CDPEndpointSpec(
                 endpoint_url=cloud_endpoint,
-                transport_type="arc_cloud",
+                transport_type=transport,
                 is_mock=False,
-                description=f"Arc Cloud Managed CDP gateway ({cloud_endpoint})",
+                description=f"Solari/ARC Cloud Managed CDP gateway ({cloud_endpoint})",
             )
 
         # 4. Localhost Unix Domain Socket probes (Linux)
@@ -146,7 +151,7 @@ class CDPDiscovery:
 
         raise ConnectionError(
             "No active Chromium CDP endpoint could be discovered. "
-            "Set CDP_ENDPOINT or ARC_CDP_ENDPOINT, or start Chromium with --remote-debugging-port=9222."
+            "Set CDP_ENDPOINT, SOLARI_CDP_ENDPOINT, or ARC_CDP_ENDPOINT, or start Chromium with --remote-debugging-port=9222."
         )
 
     def _probe_tcp_port(self, host: str, port: int) -> bool:

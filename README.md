@@ -1,12 +1,18 @@
-# ARC Computer-Using Agent (CUA)
+# ARC — Autonomous Agent Architecture for Solari
 
+[![Live Showcase](https://img.shields.io/badge/Live%20Showcase-itw--code.github.io%2Farc--cua-blue.svg)](https://itw-code.github.io/arc-cua/)
 [![Status](https://img.shields.io/badge/Status-Engineering%20Complete-brightgreen.svg)](#)
-[![Tests](https://img.shields.io/badge/Tests-152%20Passing-success.svg)](#)
+[![Tests](https://img.shields.io/badge/Tests-155%20Passing-success.svg)](#)
 [![Cost Reduction](https://img.shields.io/badge/Cost%20Reduction-99.69%25-emerald.svg)](#)
 [![Latency Reduction](https://img.shields.io/badge/Latency%20Reduction-99.90%25-blue.svg)](#)
 
-The **Arc-Native Hybrid Computer Use Agent (CUA)** is a high-performance, cost-optimized automation architecture that breaks the traditional vision-model tax in autonomous desktop and web agents. By coupling an ultra-fast sub-10ms local Reflex Engine (instrumented via direct Chrome DevTools Protocol and Linux AT-SPI2 accessibility streams) with an anomaly-triggered Cloud Cortex reasoning engine, Arc Hybrid achieves a **99.69% cost reduction** and **99.90% latency reduction** compared to continuous frontier LLM execution while attaining a **100% completion rate** across standard benchmark suites.
+> **ARC** (Asymmetric Reflex-Cortex) is a high-performance computer-using agent (CUA) runtime engineered specifically to harness **[Solari](https://getsolari.com)**'s ephemeral MicroVM infrastructure, zero-copy Chrome DevTools Protocol (CDP) accessibility streams, and Linux AT-SPI2 desktop accessibility buses.
+>
+> **Experience the Live Interactive Deployments:**
+> - 🌐 **[Live Showcase & Economic Simulator](https://itw-code.github.io/arc-cua/)**
+> - ⚡ **[Kinetic Motion Explainer & Interactive Reflex Race](https://itw-code.github.io/arc-cua/explain.html)**
 
+Monolithic Computer-Using Agents incur a crushing **vision tax**: streaming 4K display rasters over the WAN to frontier multimodal LLMs on every single keystroke and mouse click. ARC decouples perception from reasoning through a dual-tier cascade: **sub-10ms local reflex execution** inside the Solari MicroVM, escalating to cloud reasoning *only* when trajectory anomaly monitors detect an environmental stall.
 ---
 
 ## Architecture Diagram
@@ -56,7 +62,7 @@ All figures derived from empirical evaluation and production scorecards (see [`a
 | **Step Efficiency Ratio (SER)** | 2.85 – 3.42 | **0.80** | **Optimal path (< 1.50 target)** |
 | **WebArena Task Success Rate** | 14.4% (GPT-4o) / 35.8% (Sonnet) | **100.0%** *(Mock)* | **+64.2% completion delta** |
 | **OSWorld Task Success Rate** | 12.2% (GPT-4o) / 22.0% (Sonnet) | **100.0%** *(Mock)* | **+78.0% completion delta** |
-| **Test Suite Coverage** | — | **152 / 152 tests** | **100% pass rate** |
+| **Test Suite Coverage** | — | **155 / 155 tests** | **100% pass rate** |
 
 > *Notice: Benchmark metrics reflect deterministic verification on host architectures (`PROJECTED_BASED_ON_MOCK_EXECUTION`). Full-scale live multi-container execution requirements are documented in the [Deployment Playbook](./DEPLOYMENT_PLAYBOOK.md).*
 
@@ -80,9 +86,8 @@ Sourced works actually underlying the claims above. Benchmark task definitions f
 ### 1. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/arc-ai/arc-hybrid-cua.git
-cd arc-hybrid-cua
-
+git clone https://github.com/itw-code/arc-cua.git
+cd arc-cua
 # Create virtual environment and install editable package
 python -m venv .venv
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
@@ -91,9 +96,8 @@ pip install -e .
 
 ### 2. Run Test Suite
 ```bash
-# Execute the full 152-test automated verification suite
+# Execute the full 155-test automated verification suite
 pytest tests/
-```
 
 ### 3. Run Production Scorecard Benchmark
 ```bash

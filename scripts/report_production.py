@@ -84,7 +84,7 @@ def run_production_evaluation(
     start_run_time = time.time()
 
     # 1. Initialize Cloud Driver
-    cloud_driver = ArcCloudDriver()
+    cloud_driver = ArcCloudDriver(api_key="" if force_mock else None)
     logger.info(f"ArcCloudDriver initialized [is_mock={cloud_driver.is_mock}]")
 
     # 2. Initialize Live Orchestrator

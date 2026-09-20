@@ -1,7 +1,7 @@
-"""Cloud Integration Package.
+"""ARC Cloud Driver adapter (aliases SolariCloudDriver).
 
-Provides cloud-native MicroVM, stealth browser, and desktop provisioning
-via Solari Cloud REST API and SDK.
+Provides backward-compatible import path for ARC-branded code while
+interfacing directly with Solari Cloud infrastructure.
 """
 
 from .solari_driver import (
