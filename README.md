@@ -1,11 +1,11 @@
-# Solari Hybrid Computer-Using Agent (CUA)
+# ARC Computer-Using Agent (CUA)
 
 [![Status](https://img.shields.io/badge/Status-Engineering%20Complete-brightgreen.svg)](#)
 [![Tests](https://img.shields.io/badge/Tests-152%20Passing-success.svg)](#)
 [![Cost Reduction](https://img.shields.io/badge/Cost%20Reduction-99.69%25-emerald.svg)](#)
 [![Latency Reduction](https://img.shields.io/badge/Latency%20Reduction-99.90%25-blue.svg)](#)
 
-The **Solari-Native Hybrid Computer Use Agent (CUA)** is a high-performance, cost-optimized automation architecture that breaks the traditional vision-model tax in autonomous desktop and web agents. By coupling an ultra-fast sub-10ms local Reflex Engine (instrumented via direct Chrome DevTools Protocol and Linux AT-SPI2 accessibility streams) with an anomaly-triggered Cloud Cortex reasoning engine, Solari Hybrid achieves a **99.69% cost reduction** and **99.90% latency reduction** compared to continuous frontier LLM execution while attaining a **100% completion rate** across standard benchmark suites.
+The **Arc-Native Hybrid Computer Use Agent (CUA)** is a high-performance, cost-optimized automation architecture that breaks the traditional vision-model tax in autonomous desktop and web agents. By coupling an ultra-fast sub-10ms local Reflex Engine (instrumented via direct Chrome DevTools Protocol and Linux AT-SPI2 accessibility streams) with an anomaly-triggered Cloud Cortex reasoning engine, Arc Hybrid achieves a **99.69% cost reduction** and **99.90% latency reduction** compared to continuous frontier LLM execution while attaining a **100% completion rate** across standard benchmark suites.
 
 ---
 
@@ -48,7 +48,7 @@ The **Solari-Native Hybrid Computer Use Agent (CUA)** is a high-performance, cos
 
 All figures derived from empirical evaluation and production scorecards (see [`artifacts/phase6/FINAL_RESEARCH_REPORT.md`](./artifacts/phase6/FINAL_RESEARCH_REPORT.md)):
 
-| Metric | Frontier LLM Baseline | Solari Hybrid CUA | Impact |
+| Metric | Frontier LLM Baseline | ARC | Impact |
 |---|:---:|:---:|:---:|
 | **Average Cost per Task** | ~$0.4820 | **$0.001504** | **99.69% reduction** |
 | **Cumulative Cost (10k Tasks)** | $4,820.00 | **$15.04** | **$4,805 saving** |
@@ -80,8 +80,8 @@ Sourced works actually underlying the claims above. Benchmark task definitions f
 ### 1. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/solari-ai/solari-hybrid-cua.git
-cd solari-hybrid-cua
+git clone https://github.com/arc-ai/arc-hybrid-cua.git
+cd arc-hybrid-cua
 
 # Create virtual environment and install editable package
 python -m venv .venv
@@ -115,7 +115,7 @@ Open `explain.html` for the high-energy Bang-Motion visual explainer using the H
 | **Artifacts** | [`artifacts/INDEX.md`](./artifacts/INDEX.md) | Catalog of evaluation datasets, JSONL streams, and performance scorecards |
 | **Architecture** | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
 | **Implementation** | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
-| **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Solari Cloud |
+| **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
 | **Research Whitepaper**| [`artifacts/phase6/FINAL_RESEARCH_REPORT.md`](./artifacts/phase6/FINAL_RESEARCH_REPORT.md) | Final architecture whitepaper, Pareto analysis, and evaluation findings |
 | **Research References** | [`docs/REFERENCES.md`](./docs/REFERENCES.md) | All cited papers and planning references behind the design and baselines, with verification status |
 | **Interactive Showcase** | [`showcase.html`](./showcase.html) | Interactive single-page visual demo, simulator, and benchmark scorecard |

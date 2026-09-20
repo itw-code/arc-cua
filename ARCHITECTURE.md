@@ -1,9 +1,9 @@
-# Architecture Specification: Solari-Native Hybrid Computer Use Agent (CUA)
+# Architecture Specification: Arc-Native Hybrid Computer Use Agent (CUA)
 
 ## 1. System Overview
 
-The Solari Hybrid CUA is an asymmetric, dual-tier autonomous agent runtime. It addresses the latency and cost bottlenecks of visual foundation models through two collaborating execution loops:
-1. **The Reflex Loop (In-VM, Sub-Millisecond)**: Operates entirely within the local execution environment (Solari Firecracker MicroVM). It consumes structured accessibility and DOM representations, consults an invariant selector cache, and relies on an in-VM quantized small language/multimodal model (e.g., Qwen2-VL-2B or UI-TARS-2B) to execute routine single-hop actions.
+The ARC is an asymmetric, dual-tier autonomous agent runtime. It addresses the latency and cost bottlenecks of visual foundation models through two collaborating execution loops:
+1. **The Reflex Loop (In-VM, Sub-Millisecond)**: Operates entirely within the local execution environment (Arc Firecracker MicroVM). It consumes structured accessibility and DOM representations, consults an invariant selector cache, and relies on an in-VM quantized small language/multimodal model (e.g., Qwen2-VL-2B or UI-TARS-2B) to execute routine single-hop actions.
 2. **The Cortex Loop (Cloud Escalation, Event-Driven)**: An escalation tier triggered only when local monitors detect trajectory anomalies (repetitive loops, stalled progress, locator exceptions, or low grounding confidence). It invokes a frontier reasoning model (e.g. Jev / Claude 3.5 Sonnet) with multi-modal context to perform root-cause diagnosis, re-plan the global trajectory, and decompile the solution into a sequence of deterministic sub-goals for the Reflex loop.
 
 ---
@@ -11,7 +11,7 @@ The Solari Hybrid CUA is an asymmetric, dual-tier autonomous agent runtime. It a
 ## 2. Perception Subsystem
 
 ### 2.1 Zero-Copy Accessibility Tree Extraction (Web)
-Traditional web agents inject heavy JavaScript scripts to serialize the DOM into HTML strings or capture raster screenshots. The Solari Hybrid CUA interfaces directly with the browser engine process via the Chrome DevTools Protocol (CDP) over a local Unix Domain Socket (`/tmp/chromium-cdp.sock`):
+Traditional web agents inject heavy JavaScript scripts to serialize the DOM into HTML strings or capture raster screenshots. The ARC interfaces directly with the browser engine process via the Chrome DevTools Protocol (CDP) over a local Unix Domain Socket (`/tmp/chromium-cdp.sock`):
 * Calls `Accessibility.getFullAXTree`.
 * Runs a C++/Rust native sanitizer to prune redundant nodes:
   - Discards unlabelled containers (`div`, `span` lacking click handlers, ARIA labels, or text nodes).
@@ -228,7 +228,7 @@ To ensure tests run fast and hermetically on any environment without GPU/PyTorch
 * Validates typing, intentional stalling (repeated no-op actions), stuck detection, escalation to mock Cortex, recovery compilation, recovery execution in DOM, and telemetry persistence.
 * If Chromium binary is missing, gracefully records `LIVE_BROWSER_SMOKE_SKIPPED`.
 
-## 6. Solari MicroVM Lifecycle & Snapshotting
+## 6. Arc MicroVM Lifecycle & Snapshotting
 
 Built on Firecracker lightweight virtualization:
 * **MicroVM Startup**: Replaced with UFFD (Userfaultfd) memory snapshots.
@@ -270,7 +270,7 @@ All evaluations execute against an offline, zero-network HTML fixture (`tests/fi
 12. `assertion_failure`: Intentional negative test confirming the assertion engine flags failures safely without throwing unhandled exceptions.
 
 ### 7.3 Success Assertion Engine & Zero-Pixel Trap Prevention
-Adapted from the ColdStart QA framework (`coldstart/solari-cookbook/src/qa-framework/assertions.ts`):
+Adapted from the ColdStart QA framework (`coldstart/arc-cookbook/src/qa-framework/assertions.ts`):
 * Checks element visibility (`is_visible()`).
 * Enforces positive bounding box dimensions ($w \ge \text{min\_width}, h \ge \text{min\_height}$) to catch flex-collapsed 0px elements (Zero-Pixel Trap).
 * Inspects computed styles (`display !== 'none'`, `visibility !== 'hidden'`, `opacity > 0`).
@@ -288,21 +288,21 @@ The evaluation runner (`EvalRunner`) executes identical task sequences under two
 
 ### 7.6 Future WebArena (Phase 4B) & OSWorld (Phase 4C) Integration Points
 * **Phase 4B (WebArena)**: Will reuse `EvalRunner`, `ScorecardBuilder`, `CostLedger`, and `evaluate_assertion` while swapping `eval_site.html` with containerized WebArena task environments (Shopping, Reddit, GitLab, CMS).
-* **Phase 4C (OSWorld)**: Will extend `EvalAssertion` with OS-level assertion checks (file system states, process inspection, AT-SPI accessibility queries) and run desktop tasks inside Solari MicroVMs.
+* **Phase 4C (OSWorld)**: Will extend `EvalAssertion` with OS-level assertion checks (file system states, process inspection, AT-SPI accessibility queries) and run desktop tasks inside Arc MicroVMs.
 
 ---
 
 ## 8. Phase 4B: WebArena-Verified Subset Integration
 
-Phase 4B connects the Solari evaluation harness to real-world web benchmark tasks through an integration layer for the WebArena-Verified benchmark, supporting Reddit (Postmill), Shopping (OneStopShop / Magento), and GitLab environments.
+Phase 4B connects the Arc evaluation harness to real-world web benchmark tasks through an integration layer for the WebArena-Verified benchmark, supporting Reddit (Postmill), Shopping (OneStopShop / Magento), and GitLab environments.
 
 ### 8.1 Architecture & Design
 The Phase 4B architecture extends the evaluation pipeline with four modular components:
-1. **`WebArenaEnv` (`src/solari_cua/eval/webarena_env.py`)**: Environment lifecycle controller managing live Docker containers and offline mock environments.
-2. **`DatabaseDiffEngine` (`src/solari_cua/eval/webarena_env.py`)**: Dual-layer verification engine ported from `coldstart/solari-cookbook/src/qa-framework/db-diff.ts` to detect backend row-level insertions, updates, and deletions.
-3. **`webarena_mapper.py` (`src/solari_cua/eval/webarena_mapper.py`)**: WebArena JSON/JSONL ingestion engine translating external benchmark schemas into `EvalTask` and `EvalAssertion`.
-4. **`WebArenaAssertionAdapter` (`src/solari_cua/eval/webarena_assertions.py`)**: Domain assertion engine evaluating `url_match`, `string_match`, and `program_html` assertions against live or mock page and database states.
-5. **`WebArenaRunner` (`src/solari_cua/eval/webarena_runner.py`)**: Integration runner orchestrating `WebArenaEnv`, `EvalRunner`, `HybridRunner`, and `WebArenaAssertionAdapter`.
+1. **`WebArenaEnv` (`src/arc_cua/eval/webarena_env.py`)**: Environment lifecycle controller managing live Docker containers and offline mock environments.
+2. **`DatabaseDiffEngine` (`src/arc_cua/eval/webarena_env.py`)**: Dual-layer verification engine ported from `coldstart/arc-cookbook/src/qa-framework/db-diff.ts` to detect backend row-level insertions, updates, and deletions.
+3. **`webarena_mapper.py` (`src/arc_cua/eval/webarena_mapper.py`)**: WebArena JSON/JSONL ingestion engine translating external benchmark schemas into `EvalTask` and `EvalAssertion`.
+4. **`WebArenaAssertionAdapter` (`src/arc_cua/eval/webarena_assertions.py`)**: Domain assertion engine evaluating `url_match`, `string_match`, and `program_html` assertions against live or mock page and database states.
+5. **`WebArenaRunner` (`src/arc_cua/eval/webarena_runner.py`)**: Integration runner orchestrating `WebArenaEnv`, `EvalRunner`, `HybridRunner`, and `WebArenaAssertionAdapter`.
 
 ### 8.2 Task Mapping Strategy
 WebArena tasks are defined in JSON/JSONL format containing `task_id`, `intent`, `start_url`, `sites`, `require_login`, and an `eval` configuration block.
@@ -335,7 +335,7 @@ To guarantee deterministic continuous integration without requiring local Docker
   - Pings live container reset endpoints between tasks and attaches to real headless Chromium sessions.
 
 ### 8.5 Representative Subset Selection
-A curated suite of 12 tasks (`src/solari_cua/eval/tasks_webarena.py`) represents the core WebArena benchmarks across 3 domains:
+A curated suite of 12 tasks (`src/arc_cua/eval/tasks_webarena.py`) represents the core WebArena benchmarks across 3 domains:
 1. **Reddit**: Subreddit thread browsing (`url_match` + `string_match`), comment submission (`program_html`), user profile inspection (`url_match` + `string_match`), and post submission (`program_html`).
 2. **Shopping**: Catalog search (`url_match` + `string_match`), cart addition (`program_html`), cart view review (`url_match` + `string_match`), and checkout order placement (`program_html` + `url_match`).
 3. **GitLab**: Issue lookup (`url_match` + `string_match`), issue creation (`program_html`), merge request listing (`url_match` + `string_match`), and merge request creation (`program_html`).
@@ -344,15 +344,15 @@ A curated suite of 12 tasks (`src/solari_cua/eval/tasks_webarena.py`) represents
 
 ## 9. Phase 4C: OSWorld Desktop Subset Integration
 
-Phase 4C connects the Solari evaluation harness to real-world desktop benchmark tasks through an integration layer for the OSWorld benchmark (Xie et al., 2024), supporting operating system file management, terminal command execution, and desktop application accessibility (Visual Studio Code, GNOME Terminal, LibreOffice).
+Phase 4C connects the Arc evaluation harness to real-world desktop benchmark tasks through an integration layer for the OSWorld benchmark (Xie et al., 2024), supporting operating system file management, terminal command execution, and desktop application accessibility (Visual Studio Code, GNOME Terminal, LibreOffice).
 
 ### 9.1 Architecture & Design
 The Phase 4C architecture introduces five modular components to evaluate desktop tasks:
-1. **`OSWorldEnv` (`src/solari_cua/eval/osworld_env.py`)**: Desktop environment lifecycle controller managing file operations, terminal command execution and history, and AT-SPI accessibility state across both offline mock testbeds and live Linux desktop environments.
-2. **`osworld_mapper.py` (`src/solari_cua/eval/osworld_mapper.py`)**: OSWorld JSON/JSONL ingestion engine translating external benchmark tasks into internal `EvalTask` and `EvalAssertion` contracts.
-3. **`OSWorldAssertionAdapter` (`src/solari_cua/eval/osworld_assertions.py`)**: Desktop assertion adapter evaluating `file_exist`, `file_content_match`, `terminal_output_match`, and `at_spi_state_match` assertions against environment state.
-4. **`tasks_osworld.py` (`src/solari_cua/eval/tasks_osworld.py`)**: Curated subset suite of 12 representative desktop tasks across `os_fs`, `terminal`, and `desktop` domains.
-5. **`OSWorldRunner` (`src/solari_cua/eval/osworld_runner.py`)**: End-to-end integration runner coordinating `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and `OSWorldAssertionAdapter`.
+1. **`OSWorldEnv` (`src/arc_cua/eval/osworld_env.py`)**: Desktop environment lifecycle controller managing file operations, terminal command execution and history, and AT-SPI accessibility state across both offline mock testbeds and live Linux desktop environments.
+2. **`osworld_mapper.py` (`src/arc_cua/eval/osworld_mapper.py`)**: OSWorld JSON/JSONL ingestion engine translating external benchmark tasks into internal `EvalTask` and `EvalAssertion` contracts.
+3. **`OSWorldAssertionAdapter` (`src/arc_cua/eval/osworld_assertions.py`)**: Desktop assertion adapter evaluating `file_exist`, `file_content_match`, `terminal_output_match`, and `at_spi_state_match` assertions against environment state.
+4. **`tasks_osworld.py` (`src/arc_cua/eval/tasks_osworld.py`)**: Curated subset suite of 12 representative desktop tasks across `os_fs`, `terminal`, and `desktop` domains.
+5. **`OSWorldRunner` (`src/arc_cua/eval/osworld_runner.py`)**: End-to-end integration runner coordinating `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and `OSWorldAssertionAdapter`.
 
 ### 9.2 Task Mapping Strategy
 OSWorld tasks are defined in JSON/JSONL format containing `id` or `task_id`, `instruction`, `domain` / `category`, `start_state` (initial files, terminal commands, AT-SPI hierarchy), and an `eval` configuration block:
@@ -394,7 +394,7 @@ To maintain zero-dependency local testability and fast CI feedback without spinn
   - Attaches directly to Linux D-Bus `org.a11y.Bus` for sub-2.0ms accessibility tree serialization.
 
 ### 9.5 Representative Desktop Subset Selection
-A curated suite of 12 tasks (`src/solari_cua/eval/tasks_osworld.py`) covers 3 primary desktop domains:
+A curated suite of 12 tasks (`src/arc_cua/eval/tasks_osworld.py`) covers 3 primary desktop domains:
 1. **`os_fs` (Tasks 201-204)**: Summary file generation (`file_exist` + `file_content_match`), diagnostic log archiving (`file_exist`), temporary artifact deletion (`file_exist` negative), and version configuration updates (`file_content_match`).
 2. **`terminal` (Tasks 205-208)**: System diagnostic execution (`terminal_output_match`), git repository staging and committing (`terminal_output_match`), error log grepping (`terminal_output_match`), and native library compilation via gcc (`terminal_output_match`).
 3. **`desktop` (Tasks 209-212)**: Visual Studio Code benchmark execution button inspection (`at_spi_state_match`), VS Code quick open file search input accessibility (`at_spi_state_match`), GNOME Terminal tab switching (`at_spi_state_match`), and GNOME Terminal VTE screen focus (`at_spi_state_match`).
@@ -405,20 +405,20 @@ A curated suite of 12 tasks (`src/solari_cua/eval/tasks_osworld.py`) covers 3 pr
 
 ### 10.1 Architecture & Design
 Phase 5 bridges the gap between offline mock CI testbeds and production cloud infrastructure:
-1. **`SolariCloudDriver` (`src/solari_cua/cloud/solari_driver.py`)**:
-   - Connects to the Solari Cloud REST API to provision ephemeral MicroVMs, stealth browsers, and desktop sandboxes.
-   - Supports environment configurations: `SOLARI_API_KEY`, `SOLARI_REGION`, `SOLARI_API_URL`.
+1. **`ArcCloudDriver` (`src/arc_cua/cloud/arc_driver.py`)**:
+   - Connects to the Arc Cloud REST API to provision ephemeral MicroVMs, stealth browsers, and desktop sandboxes.
+   - Supports environment configurations: `ARC_API_KEY`, `ARC_REGION`, `ARC_API_URL`.
    - Implements methods: `provision_browser()`, `provision_desktop()`, `get_cdp_endpoint()`, `get_vnc_stream()`, `get_replay_url()`, and `terminate()`.
-   - Provides zero-crash graceful fallback to local mock mode if `SOLARI_API_KEY` is not detected.
+   - Provides zero-crash graceful fallback to local mock mode if `ARC_API_KEY` is not detected.
    - Accurately tracks compute duration in milliseconds per session for infrastructure cost accounting.
-2. **`RealLlmCortex` (`src/solari_cua/cortex/real_llm_cortex.py`)**:
+2. **`RealLlmCortex` (`src/arc_cua/cortex/real_llm_cortex.py`)**:
    - Connects the Cortex reasoning engine to real frontier and System-1 models (TypeSafe Jev, OpenAI GPT-4o, Anthropic Claude).
    - Enforces strict safety gate: refuses instantiation unless `CORTEX_MODE=real`.
    - Formats `EscalationPayload` into a deterministic system/user prompt enforcing JSON `RecoveryPlan` output.
    - Parses LLM output (stripping markdown fences) and compiles through `RecoveryCompiler` to validate action safety.
    - Tracks exact input and output tokens and computes dollar costs via provider pricing tables.
    - Implements exponential backoff retries with circuit breaker timeouts.
-3. **`LiveOrchestrator` (`src/solari_cua/eval/live_orchestrator.py`)**:
+3. **`LiveOrchestrator` (`src/arc_cua/eval/live_orchestrator.py`)**:
    - Inspects host virtualization and containerization capabilities (Docker daemon, Docker Compose, Linux KVM `/dev/kvm`, QEMU, SSH).
    - Manages WebArena docker-compose lifecycle: start, stop, DB wipe/reset.
    - Manages OSWorld QEMU/KVM VM lifecycle: spawn, SSH/VNC health check, COW snapshot restoration.
@@ -427,17 +427,17 @@ Phase 5 bridges the gap between offline mock CI testbeds and production cloud in
    - If live infrastructure is unavailable, logs `LIVE_ORCHESTRATION_SKIPPED` and exits gracefully without raising exceptions.
 4. **Production Scorecard Generator (`scripts/report_production.py`)**:
    - Executes representative subsets across WebArena and OSWorld benchmarks.
-   - Computes real total cost: Solari MicroVM compute + Real LLM tokens + Stealth proxy and session replay storage.
+   - Computes real total cost: Arc MicroVM compute + Real LLM tokens + Stealth proxy and session replay storage.
    - Computes real wall-clock latency percentiles ($p_{50}, p_{95}, p_{99}$) and Step Efficiency Ratio ($\text{SER} = \text{Agent Steps} / \text{Human Gold Steps}$).
    - Outputs production artifacts to `artifacts/production/`: `final_scorecard.json`, `production_report.md`, and `live_trajectory_logs.jsonl`.
 
 ### 10.2 Production Deployment Guide
-To run Solari Hybrid CUA in live production environments:
+To run ARC in live production environments:
 
 ```bash
 # 1. Configure Cloud & LLM Credentials
-export SOLARI_API_KEY="sk-solari-live-..."
-export SOLARI_REGION="us-east-1"
+export ARC_API_KEY="sk-arc-live-..."
+export ARC_REGION="us-east-1"
 export CORTEX_MODE="real"
 export CORTEX_PROVIDER="openai"         # "openai" | "anthropic" | "jev"
 export CORTEX_API_KEY="sk-proj-..."
@@ -450,7 +450,7 @@ python scripts/report_production.py --webarena-count 5 --osworld-count 5
 
 ### 10.3 Final Metric Targets & Empirical Production Results
 
-| Metric | Baseline Target | Frontier LLM Baseline | Solari Hybrid Production Result | Status |
+| Metric | Baseline Target | Frontier LLM Baseline | Arc Hybrid Production Result | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Overall Task Success Rate** | $\ge 35.0\%$ | ~13.3% (GPT-4 / Claude) | **100.0%** (Curated Mock Benchmark) | Exceeded |
 | **Step Efficiency Ratio (SER)**| $\le 1.30$ | 2.85 (Human gold baseline) | **0.80** | Target Met |
@@ -464,7 +464,7 @@ python scripts/report_production.py --webarena-count 5 --osworld-count 5
 
 ### 11.1 Architecture & Design
 
-Phase 6 transitions the Solari Hybrid CUA system from an offline architectural prototype into a full-scale research and deployment platform:
+Phase 6 transitions the ARC system from an offline architectural prototype into a full-scale research and deployment platform:
 
 1. **Full WebArena Benchmark Runner (`scripts/run_full_webarena.py`)**:
    - Ingests and executes the entire 812-task WebArena dataset.
@@ -478,7 +478,7 @@ Phase 6 transitions the Solari Hybrid CUA system from an offline architectural p
    - Captures file-system diffs (added, removed, modified files) and AT-SPI accessibility state (active window, focused widget, total node count) before and after each task execution.
    - Probes live KVM and X11 display availability; if missing, executes first 20 tasks in mock mode and records `FULL_RUN_REQUIRES_LIVE_INFRA`.
 
-3. **ModernBERT Monitor Training Pipeline (`src/solari_cua/monitors/training_pipeline.py` & `scripts/train_monitors_full.py`)**:
+3. **ModernBERT Monitor Training Pipeline (`src/arc_cua/monitors/training_pipeline.py` & `scripts/train_monitors_full.py`)**:
    - Collects all trajectory logs across all phases and windows them into contextual state representations.
    - Uses `AutoLabeler` to generate deterministic stuck and milestone labels.
    - Implements an 80/20 train/test split, inverse frequency class balancing (stuck and milestone events are rare), and F1-score validation early stopping.

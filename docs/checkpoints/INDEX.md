@@ -1,6 +1,6 @@
 # Checkpoints Index
 
-Timeline index of all development checkpoints across the Solari Hybrid CUA project lifecycle.
+Timeline index of all development checkpoints across the ARC project lifecycle.
 
 | File | Phase | Status | Test Count | Key Metric |
 |---|---|---|:---:|---|

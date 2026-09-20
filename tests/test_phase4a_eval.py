@@ -1,4 +1,4 @@
-"""Comprehensive Test Suite for Solari Hybrid CUA Evaluation Harness (Phase 4A).
+"""Comprehensive Test Suite for ARC Evaluation Harness (Phase 4A).
 
 Verifies all Task 4A requirements:
 1. Eval schemas validate (EvalTask, EvalAssertion, EvalResult, CostRecord, ScorecardSummary, EvalRunSummary).
@@ -31,7 +31,7 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from solari_cua.eval.assertions import (
+from arc_cua.eval.assertions import (
     check_element_state,
     check_input_value,
     check_page_title,
@@ -40,9 +40,9 @@ from solari_cua.eval.assertions import (
     check_visible_text,
     evaluate_assertion,
 )
-from solari_cua.eval.cost import CostLedger, CostModelConfig
-from solari_cua.eval.runner import EvalCortexClient, EvalRunner, MockEvalPage
-from solari_cua.eval.schemas import (
+from arc_cua.eval.cost import CostLedger, CostModelConfig
+from arc_cua.eval.runner import EvalCortexClient, EvalRunner, MockEvalPage
+from arc_cua.eval.schemas import (
     AssertionType,
     CostRecord,
     ElementState,
@@ -53,15 +53,15 @@ from solari_cua.eval.schemas import (
     EvalTask,
     ScorecardSummary,
 )
-from solari_cua.eval.scorecard import ScorecardBuilder
-from solari_cua.eval.tasks_local import (
+from arc_cua.eval.scorecard import ScorecardBuilder
+from arc_cua.eval.tasks_local import (
     create_local_tasks,
     get_fixture_url,
     get_task_by_id,
     get_tasks_by_category,
 )
-from solari_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
-from solari_cua.schemas import ActionStep
+from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.schemas import ActionStep
 
 LIVE_BROWSER_EVAL_SMOKE_SKIPPED = "LIVE_BROWSER_EVAL_SMOKE_SKIPPED"
 
@@ -180,7 +180,7 @@ def test_assertion_engine_detects_success():
     assert res_text.error_message is None
 
     # 2. Page title check
-    res_title = check_page_title(page, expected_title="Solari Hybrid CUA Evaluation Suite")
+    res_title = check_page_title(page, expected_title="ARC Evaluation Suite")
     assert res_title.passed is True
 
     # 3. Element state check
@@ -318,7 +318,7 @@ def test_reflex_only_fails_forced_stuck_task():
 # 13. Public Playwright API compliance remains enforced
 def test_public_playwright_api_compliance():
     """Static analysis verifying no forbidden private Playwright internals in eval/."""
-    eval_dir = REPO_ROOT / "src" / "solari_cua" / "eval"
+    eval_dir = REPO_ROOT / "src" / "arc_cua" / "eval"
     for py_file in eval_dir.glob("*.py"):
         source = py_file.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(py_file))

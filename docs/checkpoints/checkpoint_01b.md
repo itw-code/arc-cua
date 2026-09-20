@@ -5,30 +5,30 @@
 All remediation tasks from `instructions_01_remediation.md` and blockers from `checkpoint_01.md` have been fully resolved without starting Phase 2.
 
 - [x] **Task 1: Dynamic Kernel/RootFS Image Provider**
-  - Created `src/solari_cua/image_provider.py` with `SolariImageProvider`.
-  - Removed all hardcoded `/usr/share/solari/...` paths from `src/solari_cua/vm_manager.py`.
-  - Added environment variable configuration support: `SOLARI_KERNEL_PATH`, `SOLARI_ROOTFS_PATH`, `SOLARI_IMAGE_DIR`, and `SOLARI_BASE_TEMPLATE` (aligning with `coldstart/solari-cookbook/src/solari/orchestrate.ts`).
+  - Created `src/arc_cua/image_provider.py` with `ArcImageProvider`.
+  - Removed all hardcoded `/usr/share/arc/...` paths from `src/arc_cua/vm_manager.py`.
+  - Added environment variable configuration support: `ARC_KERNEL_PATH`, `ARC_ROOTFS_PATH`, `ARC_IMAGE_DIR`, and `ARC_BASE_TEMPLATE` (aligning with `coldstart/arc-cookbook/src/arc/orchestrate.ts`).
   - Added auto-provisioning of minimal mock image fixtures for non-Linux/CI execution.
 
 - [x] **Task 2: Dynamic Chrome DevTools Protocol (CDP) Discovery**
-  - Created `src/solari_cua/cdp_discovery.py` with `CDPDiscovery`.
-  - Removed hardcoded `/tmp/chromium-cdp.sock` path from `src/solari_cua/cdp_extractor.py`.
+  - Created `src/arc_cua/cdp_discovery.py` with `CDPDiscovery`.
+  - Removed hardcoded `/tmp/chromium-cdp.sock` path from `src/arc_cua/cdp_extractor.py`.
   - Implemented multi-tier discovery cascade:
     1. Explicit endpoint argument.
-    2. Environment variables (`SOLARI_CDP_ENDPOINT`, `CDP_ENDPOINT`).
-    3. Solari Cloud API routing (`SOLARI_API_KEY` + `api.getsolari.com`).
+    2. Environment variables (`ARC_CDP_ENDPOINT`, `CDP_ENDPOINT`).
+    3. Arc Cloud API routing (`ARC_API_KEY` + `api.getarc.com`).
     4. Localhost loopback detection (TCP 9222/9223 or standard UDS paths).
     5. Autonomous ingress tunnel fallback (`TARGET_URL` from Cloudflare quick tunnel).
   - Updated `CDP_AXTree_Extractor` to integrate `CDPDiscovery`.
 
 - [x] **Task 3: Phase 2 Playwright Public API Executor Interface**
-  - Created `src/solari_cua/executor_interface.py` defining the interface contract for Phase 2.
+  - Created `src/arc_cua/executor_interface.py` defining the interface contract for Phase 2.
   - Strictly relies on public Playwright APIs (`page.locator(selector).click()`, `page.locator(selector).fill(...)`, `page.locator(selector).select_option(...)`, `page.keyboard.press(...)`, `page.mouse.wheel(...)`, and `page.goto(...)`).
   - Implemented `audit_public_api_compliance()` which audits targets and explicitly bans private Playwright internals (`_channel`, `_connection`, `_impl_obj`).
   - Phase 2 implementation was **not** started; interface and schemas prepared only.
 
 - [x] **Task 4: Enriched AXTree Locator Metadata**
-  - Enhanced `AXNode` in `src/solari_cua/cdp_extractor.py` to derive and output:
+  - Enhanced `AXNode` in `src/arc_cua/cdp_extractor.py` to derive and output:
     * CSS selector (`css_selector`)
     * XPath expression (`xpath`)
     * Backend DOM node identifier (`backend_dom_id`)
@@ -38,14 +38,14 @@ All remediation tasks from `instructions_01_remediation.md` and blockers from `c
   - Included locator metadata in compact YAML, structured JSON, and `action_index_map` while preserving the $\le 1,200$ token budget.
 
 - [x] **Task 5: AT-SPI Non-Blocking Queue-Based Dispatch & Mode Marking**
-  - Refactored `src/solari_cua/at_spi_bridge.py` to use a dedicated background worker thread (`_dispatch_worker`) and queue (`_dispatch_queue`).
+  - Refactored `src/arc_cua/at_spi_bridge.py` to use a dedicated background worker thread (`_dispatch_worker`) and queue (`_dispatch_queue`).
   - `dispatch_event()` pushes to the queue in sub-microseconds without blocking the perception loop on subscriber execution.
   - Added `flush_events()` with `unfinished_tasks` synchronization.
   - Added explicit execution modes (`mode="real"`, `mode="mock"`, or `mode="auto"`) and `is_mock` property.
 
 - [x] **Task 6: Unified Schemas & Telemetry Engine**
-  - Created `src/solari_cua/schemas.py` defining `UIState`, `ActionStep`, `EscalationPayload`, `EscalationReason`, `TelemetryRecord`, and `PerceptionSource`.
-  - Created `src/solari_cua/telemetry.py` implementing:
+  - Created `src/arc_cua/schemas.py` defining `UIState`, `ActionStep`, `EscalationPayload`, `EscalationReason`, `TelemetryRecord`, and `PerceptionSource`.
+  - Created `src/arc_cua/telemetry.py` implementing:
     * 64-bit SimHash state fingerprinting (`compute_simhash64`) for zero-pixel trap and cyclic oscillation detection.
     * Latency and resource percentile calculation (`p50`, `p95`, `p99`).
     * JSONL and JSON summary telemetry export.
@@ -55,20 +55,20 @@ All remediation tasks from `instructions_01_remediation.md` and blockers from `c
   - Full test suite (`test_phase1.py` + `test_phase1_remediation.py`) passes 100% (25/25 tests).
 
 - [x] **Task 8: Cross-Repository Reference Documentation**
-  - Created `docs/CROSS_REPO_REFERENCE_MAP.md` documenting evidence and code citations across `coldstart/solari-cookbook` and `research-assets/solari-docs`.
+  - Created `docs/CROSS_REPO_REFERENCE_MAP.md` documenting evidence and code citations across `coldstart/arc-cookbook` and `research-assets/arc-docs`.
 
 ---
 
 ## 2. Real vs. Mocked Architecture
 
-To ensure both production deployment in Solari Cloud and deterministic testing across diverse developer environments (including Windows hosts and offline CI runners), components are partitioned into **Real** and **Mock** capabilities:
+To ensure both production deployment in Arc Cloud and deterministic testing across diverse developer environments (including Windows hosts and offline CI runners), components are partitioned into **Real** and **Mock** capabilities:
 
 | Component | Real (Production) Capability | Mock (Simulation / Offline) Capability | Automatic Mode Selection |
 | :--- | :--- | :--- | :--- |
-| **`SolariVMManager`** | Spawns real `firecracker` process with strictly scoped UDS sockets (`firecracker.sock`, `uffd.sock`), REST API configuration, and Linux UFFD lazy CoW paging. | Simulates Firecracker REST state transitions, socket tracking, zero-leakage cleanup, and dirty page accounting on non-KVM hosts. | Selects real mode if Linux, `/dev/kvm`, `AF_UNIX`, and `firecracker` binary are present; otherwise simulation mode. |
-| **`SolariImageProvider`** | Resolves live production kernel (`vmlinux`) and rootfs (`ext4`) from host paths or environment variables (`SOLARI_KERNEL_PATH`, `SOLARI_ROOTFS_PATH`). | Generates minimal sparse mock image files in temporary storage so test runners never crash on missing disk images. | If real images exist on disk, uses real; if absent and `allow_mock=True`, generates fixtures. |
+| **`ArcVMManager`** | Spawns real `firecracker` process with strictly scoped UDS sockets (`firecracker.sock`, `uffd.sock`), REST API configuration, and Linux UFFD lazy CoW paging. | Simulates Firecracker REST state transitions, socket tracking, zero-leakage cleanup, and dirty page accounting on non-KVM hosts. | Selects real mode if Linux, `/dev/kvm`, `AF_UNIX`, and `firecracker` binary are present; otherwise simulation mode. |
+| **`ArcImageProvider`** | Resolves live production kernel (`vmlinux`) and rootfs (`ext4`) from host paths or environment variables (`ARC_KERNEL_PATH`, `ARC_ROOTFS_PATH`). | Generates minimal sparse mock image files in temporary storage so test runners never crash on missing disk images. | If real images exist on disk, uses real; if absent and `allow_mock=True`, generates fixtures. |
 | **`CDP_AXTree_Extractor`** | **100% Real**: Tree parsing, hidden subtree elimination, non-semantic wrapper flattening, CSS/XPath locator synthesis, and token estimation execute on real DOM/AX data. | Uses mock target list when no active browser process is running on the host. | Real extraction logic always executes; connects to live browser when endpoint is accessible. |
-| **`CDPDiscovery`** | Probes live Unix Domain Sockets, TCP ports 9222/9223, and queries Solari Cloud API (`api.getsolari.com`). | Returns simulated tunnel endpoint (`mock://chromium-cdp.local`) when no local or remote browser is running. | Falls back in order: explicit $\to$ env $\to$ Solari cloud $\to$ local probes $\to$ quick tunnel $\to$ mock. |
+| **`CDPDiscovery`** | Probes live Unix Domain Sockets, TCP ports 9222/9223, and queries Arc Cloud API (`api.getarc.com`). | Returns simulated tunnel endpoint (`mock://chromium-cdp.local`) when no local or remote browser is running. | Falls back in order: explicit $\to$ env $\to$ Arc cloud $\to$ local probes $\to$ quick tunnel $\to$ mock. |
 | **`AT_SPI_Bridge`** | Connects to session D-Bus (`org.a11y.Bus`) via `dasbus` on Linux, registers for AT-SPI2 signals, and queries accessibility registry. | Emulates a realistic multi-toolkit Linux desktop hierarchy (GNOME Terminal GTK, VS Code Electron, LibreOffice GTK) with bounding boxes and focus states. | `mode="real"` vs. `mode="mock"`. In `mode="auto"`, selects real if POSIX, `dasbus`, and accessibility bus address are present. |
 | **`TelemetryCollector`** | **100% Real**: Computes genuine mathematical percentiles (p50, p95, p99), 64-bit MD5-based SimHash fingerprints, and exports JSONL. | N/A (all computation is native). | Always active. |
 

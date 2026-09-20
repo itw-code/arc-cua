@@ -1,7 +1,7 @@
 # Phase 4A Local Evaluation Report
 
 > Generated on: `2026-09-20 21:55:23`  
-> Benchmark Engine: `Solari Hybrid CUA Eval Harness v1.0`
+> Benchmark Engine: `ARC Eval Harness v1.0`
 
 ## Run Metadata
 
@@ -79,6 +79,6 @@ Hybrid mode successfully demonstrated closed-loop reasoning recovery from forced
 
 1. **Zero External Network Calls:** All evaluations ran strictly offline against `tests/fixtures/eval_site.html`.
 2. **Public Playwright API Compliance:** Full compliance preserved; no private internals accessed.
-3. **Zero-Pixel Trap Defense:** Element states and visibility verified with positive bounding boxes and opacity checks adapted from `coldstart/solari-cookbook`.
+3. **Zero-Pixel Trap Defense:** Element states and visibility verified with positive bounding boxes and opacity checks adapted from `coldstart/arc-cookbook`.
 4. **Trajectory Collection:** Successfully recorded per-step transitions and SimHash state deltas to `trajectory_logs.jsonl`.
 5. **Readiness for Phase 4B:** Local baseline, scorecard generator, and assertion engine are validated and ready for WebArena subset integration.

@@ -95,7 +95,7 @@ def test_showcase_html_headless_browser():
 
         # Confirm title
         title = page.title()
-        assert "Solari" in title
+        assert "Arc" in title
 
         # Verify presence of all key section elements in DOM
         for sec_id in MANDATORY_SECTIONS:
@@ -108,7 +108,7 @@ def test_showcase_html_headless_browser():
         assert slider.count() == 1
         
         badge = page.locator("#slider-value-badge")
-        solari_cost = page.locator("#solari-cost-display")
+        arc_cost = page.locator("#arc-cost-display")
         frontier_cost = page.locator("#frontier-cost-display")
 
         # Change slider value to 5,000 steps via evaluate
@@ -121,7 +121,7 @@ def test_showcase_html_headless_browser():
         # Confirm DOM updated
         assert "5,000" in badge.inner_text()
         assert "$241" in frontier_cost.inner_text() or "$241.00" in frontier_cost.inner_text()
-        assert "$0.75" in solari_cost.inner_text() or "$0.7520" in solari_cost.inner_text()
+        assert "$0.75" in arc_cost.inner_text() or "$0.7520" in arc_cost.inner_text()
 
         # Verify canvas exists
         canvas = page.locator("canvas#costSimulatorChart")
@@ -129,36 +129,36 @@ def test_showcase_html_headless_browser():
 
         # Test Architecture view toggle buttons
         btn_trad = page.locator("#view-trad-btn")
-        btn_solari = page.locator("#view-solari-btn")
+        btn_arc = page.locator("#view-arc-btn")
         btn_compare = page.locator("#view-compare-btn")
         panel_trad = page.locator("#arch-panel-trad")
-        panel_solari = page.locator("#arch-panel-solari")
+        panel_arc = page.locator("#arch-panel-arc")
 
         assert btn_trad.count() == 1
-        assert btn_solari.count() == 1
+        assert btn_arc.count() == 1
         assert btn_compare.count() == 1
 
         # Switch to Traditional view only
         btn_trad.click()
         assert panel_trad.is_visible()
-        assert not panel_solari.is_visible()
+        assert not panel_arc.is_visible()
 
-        # Switch to Solari view only
-        btn_solari.click()
+        # Switch to Arc view only
+        btn_arc.click()
         assert not panel_trad.is_visible()
-        assert panel_solari.is_visible()
+        assert panel_arc.is_visible()
 
         # Switch back to Compare view
         btn_compare.click()
         assert panel_trad.is_visible()
-        assert panel_solari.is_visible()
+        assert panel_arc.is_visible()
 
         # Verify the live dual-loop actually advances (tolerant of a throttled frame)
         timer_before = page.locator("#live-trad-timer").inner_text().strip()
-        loops_before = page.locator("#live-solari-loops").inner_text().strip()
+        loops_before = page.locator("#live-arc-loops").inner_text().strip()
         page.wait_for_timeout(250)
         timer_after = page.locator("#live-trad-timer").inner_text().strip()
-        loops_after = page.locator("#live-solari-loops").inner_text().strip()
+        loops_after = page.locator("#live-arc-loops").inner_text().strip()
         assert (
             loops_after != "0" or timer_after != timer_before or loops_after != loops_before
         ), "Live dual-loop did not advance: timers/loop count unchanged after 250ms of animation frames"
@@ -201,7 +201,7 @@ def test_explain_html_headless_browser():
         page.goto(file_url, wait_until="load")
 
         title = page.title()
-        assert "Motion Explainer" in title and "Solari Hybrid CUA" in title
+        assert "Motion Explainer" in title and "ARC" in title
 
         # Verify scenes exist
         assert page.locator("#scene-1").count() == 1
@@ -212,9 +212,9 @@ def test_explain_html_headless_browser():
         page.click("#race-trigger-btn")
         page.wait_for_timeout(300)
 
-        # Check that Solari bar completed quickly
-        solari_bar = page.locator("#solari-bar")
-        assert solari_bar.count() == 1
+        # Check that Arc bar completed quickly
+        arc_bar = page.locator("#arc-bar")
+        assert arc_bar.count() == 1
 
         browser.close()
 

@@ -6,13 +6,13 @@ Status: PASS
 
 Approved Phase 4A components:
 
-- `src/solari_cua/eval/schemas.py`
+- `src/arc_cua/eval/schemas.py`
 - `tests/fixtures/eval_site.html`
-- `src/solari_cua/eval/tasks_local.py`
-- `src/solari_cua/eval/assertions.py`
-- `src/solari_cua/eval/runner.py`
-- `src/solari_cua/eval/cost.py`
-- `src/solari_cua/eval/scorecard.py`
+- `src/arc_cua/eval/tasks_local.py`
+- `src/arc_cua/eval/assertions.py`
+- `src/arc_cua/eval/runner.py`
+- `src/arc_cua/eval/cost.py`
+- `src/arc_cua/eval/scorecard.py`
 - `scripts/report_phase4a.py`
 - `tests/test_phase4a_eval.py`
 
@@ -32,7 +32,7 @@ Build the WebArena-Verified Subset Integration.
 Work in:
 
 ```text
-solari-hybrid-cua/
+arc-hybrid-cua/
 ```
 
 Phase 4B connects the local evaluation harness to a subset of the WebArena-Verified benchmark.
@@ -67,8 +67,8 @@ Not allowed:
 1. Default mode must remain offline/mock if WebArena Docker containers are not running.
 2. Do not modify Phase 4A schemas; extend them if necessary.
 3. Use existing `EvalRunner`, `ScorecardBuilder`, and `HybridRunner`.
-4. Keep final implementation inside `solari-hybrid-cua/`.
-5. Use `coldstart/solari-cookbook/` and WebArena documentation only as design references.
+4. Keep final implementation inside `arc-hybrid-cua/`.
+5. Use `coldstart/arc-cookbook/` and WebArena documentation only as design references.
 
 ---
 
@@ -77,9 +77,9 @@ Not allowed:
 Use these only as design references:
 
 ```text
-coldstart/solari-cookbook/src/qa-framework/db-diff.ts
-coldstart/solari-cookbook/src/verify/checks.ts
-coldstart/solari-cookbook/src/verify/verifier.ts
+coldstart/arc-cookbook/src/qa-framework/db-diff.ts
+coldstart/arc-cookbook/src/verify/checks.ts
+coldstart/arc-cookbook/src/verify/verifier.ts
 ```
 
 ---
@@ -89,7 +89,7 @@ coldstart/solari-cookbook/src/verify/verifier.ts
 Create:
 
 ```text
-src/solari_cua/eval/webarena_env.py
+src/arc_cua/eval/webarena_env.py
 ```
 
 Purpose:
@@ -110,7 +110,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/webarena_mapper.py
+src/arc_cua/eval/webarena_mapper.py
 ```
 
 Purpose:
@@ -131,7 +131,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/webarena_assertions.py
+src/arc_cua/eval/webarena_assertions.py
 ```
 
 Purpose:
@@ -152,7 +152,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/tasks_webarena.py
+src/arc_cua/eval/tasks_webarena.py
 ```
 
 Purpose:
@@ -173,13 +173,13 @@ Requirements:
 Update:
 
 ```text
-src/solari_cua/eval/runner.py
+src/arc_cua/eval/runner.py
 ```
 
 Or create:
 
 ```text
-src/solari_cua/eval/webarena_runner.py
+src/arc_cua/eval/webarena_runner.py
 ```
 
 Purpose:

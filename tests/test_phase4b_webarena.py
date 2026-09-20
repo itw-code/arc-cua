@@ -29,14 +29,14 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from solari_cua.eval.schemas import EvalAssertion, EvalAssertionResult, EvalResult, EvalTask
-from solari_cua.eval.tasks_webarena import (
+from arc_cua.eval.schemas import EvalAssertion, EvalAssertionResult, EvalResult, EvalTask
+from arc_cua.eval.tasks_webarena import (
     RAW_WEBARENA_SUBSET,
     create_webarena_subset,
     get_webarena_task_by_id,
     get_webarena_tasks_by_domain,
 )
-from solari_cua.eval.webarena_assertions import (
+from arc_cua.eval.webarena_assertions import (
     WebArenaAssertionAdapter,
     check_webarena_program_html,
     check_webarena_string_match,
@@ -45,12 +45,12 @@ from solari_cua.eval.webarena_assertions import (
     normalize_text,
     normalize_url,
 )
-from solari_cua.eval.webarena_env import (
+from arc_cua.eval.webarena_env import (
     DatabaseDiffEngine,
     DatabaseDiffReport,
     WebArenaEnv,
 )
-from solari_cua.eval.webarena_mapper import (
+from arc_cua.eval.webarena_mapper import (
     build_program_html_assertion,
     build_string_match_assertion,
     build_unsupported_assertion,
@@ -59,8 +59,8 @@ from solari_cua.eval.webarena_mapper import (
     parse_webarena_json,
     parse_webarena_jsonl,
 )
-from solari_cua.eval.webarena_runner import MockWebArenaPage, WebArenaRunner
-from solari_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.eval.webarena_runner import MockWebArenaPage, WebArenaRunner
+from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
 
 
 # -----------------------------------------------------------------------------
@@ -150,31 +150,31 @@ def test_assertion_adapter_string_match():
     """Verify string_match handles fuzzy substring, exact match, and must_include tokens."""
     adapter = WebArenaAssertionAdapter()
 
-    page_text = "Welcome to Solari Research! We provide autonomous CUA systems and evaluation benches."
+    page_text = "Welcome to Arc Research! We provide autonomous CUA systems and evaluation benches."
 
     # Fuzzy match passes on substring
-    a_fuzzy = build_string_match_assertion({"fuzzy_match": ["Solari Research", "CUA systems"]})
+    a_fuzzy = build_string_match_assertion({"fuzzy_match": ["Arc Research", "CUA systems"]})
     r1 = adapter.evaluate(a_fuzzy, page_text=page_text)
     assert r1.passed is True
 
     # Case insensitive and normalized whitespace
-    a_case = build_string_match_assertion({"fuzzy_match": ["  solari  research  "]})
+    a_case = build_string_match_assertion({"fuzzy_match": ["  arc  research  "]})
     r2 = adapter.evaluate(a_case, page_text=page_text)
     assert r2.passed is True
 
     # Must include tokens (all must be present)
-    a_must = build_string_match_assertion({"must_include": ["Solari", "autonomous", "evaluation"]})
+    a_must = build_string_match_assertion({"must_include": ["Arc", "autonomous", "evaluation"]})
     r3 = adapter.evaluate(a_must, page_text=page_text)
     assert r3.passed is True
 
     # Missing must_include token fails
-    a_must_fail = build_string_match_assertion({"must_include": ["Solari", "NonExistentWord"]})
+    a_must_fail = build_string_match_assertion({"must_include": ["Arc", "NonExistentWord"]})
     r4 = adapter.evaluate(a_must_fail, page_text=page_text)
     assert r4.passed is False
     assert "missing required tokens" in (r4.error_message or "")
 
     # Exact match fails if whole text doesn't match
-    a_exact = build_string_match_assertion({"exact_match": "Solari Research"})
+    a_exact = build_string_match_assertion({"exact_match": "Arc Research"})
     r5 = adapter.evaluate(a_exact, page_text=page_text)
     assert r5.passed is False
 
@@ -412,7 +412,7 @@ def test_database_diff_engine():
 # -----------------------------------------------------------------------------
 def test_public_playwright_api_compliance_phase4b():
     """Verify no forbidden private Playwright internals are used in Phase 4B eval modules."""
-    eval_dir = REPO_ROOT / "src" / "solari_cua" / "eval"
+    eval_dir = REPO_ROOT / "src" / "arc_cua" / "eval"
     phase4b_files = [
         "webarena_env.py",
         "webarena_mapper.py",

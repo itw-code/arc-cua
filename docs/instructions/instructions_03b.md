@@ -6,15 +6,15 @@ Status: PASS
 
 Approved Phase 3A components:
 
-- `src/solari_cua/monitors/stuck_monitor.py`
-- `src/solari_cua/monitors/milestone_monitor.py`
-- `src/solari_cua/monitors/escalation_controller.py`
-- `src/solari_cua/cortex/cortex_interface.py`
-- `src/solari_cua/cortex/mock_cortex.py`
-- `src/solari_cua/cortex/recovery_compiler.py`
-- `src/solari_cua/hybrid_runner.py`
-- `src/solari_cua/schemas.py`
-- `src/solari_cua/telemetry.py`
+- `src/arc_cua/monitors/stuck_monitor.py`
+- `src/arc_cua/monitors/milestone_monitor.py`
+- `src/arc_cua/monitors/escalation_controller.py`
+- `src/arc_cua/cortex/cortex_interface.py`
+- `src/arc_cua/cortex/mock_cortex.py`
+- `src/arc_cua/cortex/recovery_compiler.py`
+- `src/arc_cua/hybrid_runner.py`
+- `src/arc_cua/schemas.py`
+- `src/arc_cua/telemetry.py`
 - `tests/test_phase3_monitors.py`
 - `scripts/benchmark_phase3.py`
 
@@ -38,7 +38,7 @@ Upgrade Phase 3 from deterministic mock escalation to a production-ready escalat
 Work in:
 
 ```text
-solari-hybrid-cua/
+arc-hybrid-cua/
 ```
 
 Phase 3B includes:
@@ -68,7 +68,7 @@ Keep deterministic monitors as the default fallback.
 3. Do not log secrets or API keys.
 4. Do not use private Playwright internals.
 5. Do not create Python-to-TypeScript runtime dependencies.
-6. Keep final implementation inside `solari-hybrid-cua/`.
+6. Keep final implementation inside `arc-hybrid-cua/`.
 7. Heavy model training must be optional.
 8. Tests must pass without requiring GPU, Torch, Transformers, or network access.
 
@@ -79,15 +79,15 @@ Keep deterministic monitors as the default fallback.
 Use these existing modules:
 
 ```text
-src/solari_cua/hybrid_runner.py
-src/solari_cua/monitors/stuck_monitor.py
-src/solari_cua/monitors/milestone_monitor.py
-src/solari_cua/monitors/escalation_controller.py
-src/solari_cua/cortex/cortex_interface.py
-src/solari_cua/cortex/mock_cortex.py
-src/solari_cua/cortex/recovery_compiler.py
-src/solari_cua/schemas.py
-src/solari_cua/telemetry.py
+src/arc_cua/hybrid_runner.py
+src/arc_cua/monitors/stuck_monitor.py
+src/arc_cua/monitors/milestone_monitor.py
+src/arc_cua/monitors/escalation_controller.py
+src/arc_cua/cortex/cortex_interface.py
+src/arc_cua/cortex/mock_cortex.py
+src/arc_cua/cortex/recovery_compiler.py
+src/arc_cua/schemas.py
+src/arc_cua/telemetry.py
 ```
 
 Do not rewrite Phase 3A unless a bug blocks Phase 3B.
@@ -99,12 +99,12 @@ Do not rewrite Phase 3A unless a bug blocks Phase 3B.
 Use these only as design references:
 
 ```text
-coldstart/solari-cookbook/src/config/model-router.ts
-coldstart/solari-cookbook/src/agent/loop.ts
-coldstart/solari-cookbook/src/agent/model.ts
-coldstart/solari-cookbook/src/agent/trace.ts
-coldstart/solari-cookbook/src/scorecard/cost.ts
-coldstart/solari-cookbook/src/qa-framework/heuristics.ts
+coldstart/arc-cookbook/src/config/model-router.ts
+coldstart/arc-cookbook/src/agent/loop.ts
+coldstart/arc-cookbook/src/agent/model.ts
+coldstart/arc-cookbook/src/agent/trace.ts
+coldstart/arc-cookbook/src/scorecard/cost.ts
+coldstart/arc-cookbook/src/qa-framework/heuristics.ts
 ```
 
 Rules:
@@ -120,14 +120,14 @@ Rules:
 Update:
 
 ```text
-src/solari_cua/telemetry.py
+src/arc_cua/telemetry.py
 ```
 
 Create:
 
 ```text
-src/solari_cua/datasets/__init__.py
-src/solari_cua/datasets/trajectory_collector.py
+src/arc_cua/datasets/__init__.py
+src/arc_cua/datasets/trajectory_collector.py
 ```
 
 Purpose:
@@ -184,7 +184,7 @@ Create:
 
 ```text
 scripts/label_phase3.py
-src/solari_cua/datasets/labeler.py
+src/arc_cua/datasets/labeler.py
 ```
 
 Purpose:
@@ -253,7 +253,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/monitors/model_interface.py
+src/arc_cua/monitors/model_interface.py
 ```
 
 Define:
@@ -277,7 +277,7 @@ MonitorPrediction:
 Create adapters:
 
 ```text
-src/solari_cua/monitors/heuristic_adapter.py
+src/arc_cua/monitors/heuristic_adapter.py
 ```
 
 Implement:
@@ -303,7 +303,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/monitors/feature_builder.py
+src/arc_cua/monitors/feature_builder.py
 ```
 
 Purpose:
@@ -345,7 +345,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/monitors/transformer_adapter.py
+src/arc_cua/monitors/transformer_adapter.py
 ```
 
 This module must be optional.
@@ -407,13 +407,13 @@ artifacts/phase3b/models/TRAINING_SKIPPED.md
 Update or extend:
 
 ```text
-src/solari_cua/monitors/milestone_monitor.py
+src/arc_cua/monitors/milestone_monitor.py
 ```
 
 Create:
 
 ```text
-src/solari_cua/monitors/semantic_progress.py
+src/arc_cua/monitors/semantic_progress.py
 ```
 
 Implement pluggable estimator:
@@ -450,7 +450,7 @@ Rules:
 Create:
 
 ```text
-src/solari_cua/cortex/http_cortex.py
+src/arc_cua/cortex/http_cortex.py
 ```
 
 Implement:
@@ -542,7 +542,7 @@ Flow:
 
 Requirements:
 
-1. Must not require Solari Cloud.
+1. Must not require Arc Cloud.
 2. Must not require external LLM.
 3. Must use Mock Cortex by default.
 4. If live browser unavailable, mark:

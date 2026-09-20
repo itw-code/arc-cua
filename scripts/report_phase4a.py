@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 4A Local Evaluation Report Generator for Solari Hybrid CUA.
+"""Phase 4A Local Evaluation Report Generator for ARC.
 
 Executes the local synthetic task suite across Reflex-only and Hybrid modes.
 Produces all required Phase 4A evaluation artifacts:
@@ -27,12 +27,12 @@ from typing import Any, Dict, List
 REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from solari_cua.datasets.trajectory_collector import TrajectoryCollector
-from solari_cua.eval.cost import CostLedger
-from solari_cua.eval.runner import EvalRunner
-from solari_cua.eval.schemas import EvalResult, EvalRunSummary
-from solari_cua.eval.scorecard import ScorecardBuilder
-from solari_cua.eval.tasks_local import create_local_tasks, get_fixture_url
+from arc_cua.datasets.trajectory_collector import TrajectoryCollector
+from arc_cua.eval.cost import CostLedger
+from arc_cua.eval.runner import EvalRunner
+from arc_cua.eval.schemas import EvalResult, EvalRunSummary
+from arc_cua.eval.scorecard import ScorecardBuilder
+from arc_cua.eval.tasks_local import create_local_tasks, get_fixture_url
 
 logging.basicConfig(
     level=logging.INFO,
@@ -188,7 +188,7 @@ def generate_markdown_report(
     lines.append("# Phase 4A Local Evaluation Report")
     lines.append("")
     lines.append(f"> Generated on: `{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}`  ")
-    lines.append(f"> Benchmark Engine: `Solari Hybrid CUA Eval Harness v1.0`")
+    lines.append(f"> Benchmark Engine: `ARC Eval Harness v1.0`")
     lines.append("")
 
     # 1. Run Metadata
@@ -290,7 +290,7 @@ def generate_markdown_report(
     lines.append("")
     lines.append("1. **Zero External Network Calls:** All evaluations ran strictly offline against `tests/fixtures/eval_site.html`.")
     lines.append("2. **Public Playwright API Compliance:** Full compliance preserved; no private internals accessed.")
-    lines.append("3. **Zero-Pixel Trap Defense:** Element states and visibility verified with positive bounding boxes and opacity checks adapted from `coldstart/solari-cookbook`.")
+    lines.append("3. **Zero-Pixel Trap Defense:** Element states and visibility verified with positive bounding boxes and opacity checks adapted from `coldstart/arc-cookbook`.")
     lines.append("4. **Trajectory Collection:** Successfully recorded per-step transitions and SimHash state deltas to `trajectory_logs.jsonl`.")
     lines.append("5. **Readiness for Phase 4B:** Local baseline, scorecard generator, and assertion engine are validated and ready for WebArena subset integration.")
     lines.append("")

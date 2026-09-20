@@ -2,7 +2,7 @@
 
 ## Context
 
-The Solari Hybrid CUA is engineering-complete across all 6 phases (152 tests passing, final research report generated). Two final tasks remain:
+The ARC is engineering-complete across all 6 phases (152 tests passing, final research report generated). Two final tasks remain:
 
 1. **Codebase consolidation** — organize the accumulated checkpoint files, instruction files, and artifacts into a clean, navigable structure.
 2. **HTML showcase** — build a polished, interactive single-page showcase, following the same presentation pattern used by `coldstart/`.
@@ -114,10 +114,10 @@ Run `pytest tests/` and confirm all 152 tests still pass after file moves. If an
 Before writing any HTML, read these files to understand the presentation style:
 ```text
 coldstart/index.html
-coldstart/solari-cookbook/index.html
-coldstart/solari-cookbook/docs/index.html
-coldstart/solari-cookbook/docs/interactive-sections.html
-coldstart/solari-cookbook/PITCH.md
+coldstart/arc-cookbook/index.html
+coldstart/arc-cookbook/docs/index.html
+coldstart/arc-cookbook/docs/interactive-sections.html
+coldstart/arc-cookbook/PITCH.md
 research-assets/coldstart-site/index.html
 ```
 
@@ -134,7 +134,7 @@ Requirements:
 - Single self-contained HTML file. All CSS and JS inline.
 - Use Tailwind CSS via CDN (`https://cdn.tailwindcss.com`).
 - Use Chart.js via CDN for the cost/latency simulator.
-- Dark-mode aesthetic (deep background, emerald/green accents for Solari, red/orange for baseline).
+- Dark-mode aesthetic (deep background, emerald/green accents for Arc, red/orange for baseline).
 - Fully responsive.
 - No external image files — use inline SVG for icons and diagrams.
 
@@ -143,7 +143,7 @@ Requirements:
 Include these sections in order:
 
 **1. Hero**
-- Title: "Solari Hybrid CUA"
+- Title: "ARC"
 - Subtitle: the core value prop (99.7% cost reduction, sub-10ms reflex)
 - Three stat cards: Cost Reduction / Latency Reduction / Test Count
 
@@ -156,10 +156,10 @@ Include these sections in order:
 - A slider for "Number of UI Steps" (range 10 to 10,000)
 - As the slider moves, update a Chart.js chart and stat cards comparing:
   - Frontier LLM baseline (cost grows linearly, high latency)
-  - Solari Hybrid (cost stays near zero, flat latency)
+  - Arc Hybrid (cost stays near zero, flat latency)
 - Use the real per-task cost figures from `FINAL_RESEARCH_REPORT.md`:
   - Frontier baseline: ~$0.48/task
-  - Solari Hybrid: ~$0.0015/task
+  - Arc Hybrid: ~$0.0015/task
 
 **4. Benchmark Results**
 - Two tables: WebArena and OSWorld

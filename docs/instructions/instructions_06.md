@@ -5,9 +5,9 @@
 Status: PASS
 
 Approved Phase 5 components:
-- `src/solari_cua/cloud/solari_driver.py`
-- `src/solari_cua/cortex/real_llm_cortex.py`
-- `src/solari_cua/eval/live_orchestrator.py`
+- `src/arc_cua/cloud/arc_driver.py`
+- `src/arc_cua/cortex/real_llm_cortex.py`
+- `src/arc_cua/eval/live_orchestrator.py`
 - `scripts/report_production.py`
 - `tests/test_phase5_production.py`
 
@@ -25,7 +25,7 @@ Execute Full-Scale Benchmarking, Monitor Training, and Final Reporting.
 
 Work in:
 ```text
-solari-hybrid-cua/
+arc-hybrid-cua/
 ```
 
 Phase 6 transitions the project from "offline architecture" to "live research execution". 
@@ -39,11 +39,11 @@ You will build:
 
 ## Strict Rules
 
-1. Default mode must remain offline/mock if live infrastructure (Solari API, KVM, LLM keys) is missing.
+1. Default mode must remain offline/mock if live infrastructure (Arc API, KVM, LLM keys) is missing.
 2. Do not modify Phases 1-5 core logic.
 3. Training scripts must gracefully skip and log `TRAINING_SKIPPED` if PyTorch/Transformers/GPU are unavailable.
 4. Full benchmark runners must support chunking/resuming (e.g., running 50 tasks at a time) so they don't crash on long runs.
-5. Keep final implementation inside `solari-hybrid-cua/`.
+5. Keep final implementation inside `arc-hybrid-cua/`.
 
 ---
 
@@ -89,7 +89,7 @@ Requirements:
 Create:
 ```text
 scripts/train_monitors_full.py
-src/solari_cua/monitors/training_pipeline.py
+src/arc_cua/monitors/training_pipeline.py
 ```
 
 Purpose:
@@ -120,9 +120,9 @@ Compile all benchmark results, cost models, and latency metrics into a final, po
 Requirements:
 1. Read `artifacts/production/final_scorecard.json`, `webarena_results.jsonl`, and `osworld_results.jsonl`.
 2. Generate `artifacts/phase6/FINAL_RESEARCH_REPORT.md` with the following sections:
-   - **Executive Summary:** The "Solari Hybrid CUA" value proposition (99% cost reduction, sub-10ms reflex).
+   - **Executive Summary:** The "ARC" value proposition (99% cost reduction, sub-10ms reflex).
    - **Architecture Overview:** Brief summary of Reflex + Cortex cascading.
-   - **Benchmark Results:** Tables comparing Solari Hybrid vs. Frontier LLM baselines on WebArena and OSWorld.
+   - **Benchmark Results:** Tables comparing Arc Hybrid vs. Frontier LLM baselines on WebArena and OSWorld.
    - **Cost & Latency Analysis:** Graphs/tables showing the Pareto frontier of cost vs. success rate.
    - **Monitor Efficacy:** How many escalations were prevented by the local monitors.
    - **Conclusion & Future Work.**
@@ -199,7 +199,7 @@ Confirm that `artifacts/phase6/FINAL_RESEARCH_REPORT.md` was generated successfu
 
 ## 6. Project Completion Summary
 
-Write a final 1-paragraph summary declaring the Solari Hybrid CUA project fully engineered, tested, and ready for live cloud deployment.
+Write a final 1-paragraph summary declaring the ARC project fully engineered, tested, and ready for live cloud deployment.
 
 ## 7. Remaining Blockers
 

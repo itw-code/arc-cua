@@ -30,12 +30,12 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from solari_cua.eval.assertions import evaluate_assertion
-from solari_cua.eval.runner import EvalRunner, MockEvalPage
-from solari_cua.eval.schemas import AssertionType, ElementState, EvalAssertion, EvalResult
-from solari_cua.eval.scorecard import ScorecardBuilder
-from solari_cua.eval.tasks_local import create_local_tasks, get_task_by_id
-from solari_cua.telemetry import compute_percentiles
+from arc_cua.eval.assertions import evaluate_assertion
+from arc_cua.eval.runner import EvalRunner, MockEvalPage
+from arc_cua.eval.schemas import AssertionType, ElementState, EvalAssertion, EvalResult
+from arc_cua.eval.scorecard import ScorecardBuilder
+from arc_cua.eval.tasks_local import create_local_tasks, get_task_by_id
+from arc_cua.telemetry import compute_percentiles
 
 
 def benchmark_assertion_evaluation(n_samples: int = 100) -> Dict[str, float]:

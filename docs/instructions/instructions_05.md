@@ -6,11 +6,11 @@ Status: PASS
 
 Approved Phase 4C components:
 
-- `src/solari_cua/eval/osworld_env.py`
-- `src/solari_cua/eval/osworld_mapper.py`
-- `src/solari_cua/eval/osworld_assertions.py`
-- `src/solari_cua/eval/tasks_osworld.py`
-- `src/solari_cua/eval/osworld_runner.py`
+- `src/arc_cua/eval/osworld_env.py`
+- `src/arc_cua/eval/osworld_mapper.py`
+- `src/arc_cua/eval/osworld_assertions.py`
+- `src/arc_cua/eval/tasks_osworld.py`
+- `src/arc_cua/eval/osworld_runner.py`
 - `tests/test_phase4c_osworld.py`
 
 Review notes:
@@ -30,11 +30,11 @@ Build the Live Production Integration & Final Scorecard layer.
 Work in:
 
 ```text
-solari-hybrid-cua/
+arc-hybrid-cua/
 ```
 
 Phase 5 connects the fully tested offline architecture to real-world production infrastructure:
-1. Real Solari Cloud MicroVMs/Browsers (via Solari REST API / SDK).
+1. Real Arc Cloud MicroVMs/Browsers (via Arc REST API / SDK).
 2. Real Cortex LLM (e.g., TypeSafe Jev, OpenAI, or Anthropic).
 3. Live Benchmark Orchestration (WebArena Docker / OSWorld VM).
 4. Final Production Cost & Success Scorecard.
@@ -45,7 +45,7 @@ Phase 5 connects the fully tested offline architecture to real-world production 
 
 Allowed:
 
-- Solari Cloud REST/SDK driver
+- Arc Cloud REST/SDK driver
 - Real Cortex LLM HTTP adapter with strict cost tracking
 - Live environment orchestrator (Docker/VM provisioning)
 - Production scorecard generator
@@ -60,25 +60,25 @@ Not allowed:
 
 ---
 
-## Task 1: Solari Cloud Driver
+## Task 1: Arc Cloud Driver
 
 Create:
 
 ```text
-src/solari_cua/cloud/solari_driver.py
+src/arc_cua/cloud/arc_driver.py
 ```
 
 Purpose:
 
-Connect to the real Solari Cloud API to provision and manage ephemeral MicroVMs, stealth browsers, and desktops.
+Connect to the real Arc Cloud API to provision and manage ephemeral MicroVMs, stealth browsers, and desktops.
 
 Requirements:
 
-1. Support environment variables: `SOLARI_API_KEY`, `SOLARI_REGION`.
+1. Support environment variables: `ARC_API_KEY`, `ARC_REGION`.
 2. Implement methods: `provision_browser()`, `provision_desktop()`, `get_cdp_endpoint()`, `get_vnc_stream()`, `terminate()`.
 3. Implement automatic session recording and replay URL capture.
-4. If `SOLARI_API_KEY` is missing, gracefully fallback to local/mock mode without crashing.
-5. Track Solari compute time (ms) for the final cost ledger.
+4. If `ARC_API_KEY` is missing, gracefully fallback to local/mock mode without crashing.
+5. Track Arc compute time (ms) for the final cost ledger.
 
 ---
 
@@ -87,7 +87,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/cortex/real_llm_cortex.py
+src/arc_cua/cortex/real_llm_cortex.py
 ```
 
 Purpose:
@@ -110,7 +110,7 @@ Requirements:
 Create:
 
 ```text
-src/solari_cua/eval/live_orchestrator.py
+src/arc_cua/eval/live_orchestrator.py
 ```
 
 Purpose:
@@ -141,7 +141,7 @@ Run a small subset of live tasks (e.g., 5 WebArena, 5 OSWorld) and generate the 
 
 Requirements:
 
-1. Calculate real total cost: Solari VM time + Real LLM tokens + Proxy/Storage costs.
+1. Calculate real total cost: Arc VM time + Real LLM tokens + Proxy/Storage costs.
 2. Calculate real wall-clock time and Step Efficiency Ratio (SER).
 3. Compare live Hybrid success rate vs. theoretical baseline.
 4. Output artifacts to `artifacts/production/`:
@@ -161,7 +161,7 @@ tests/test_phase5_production.py
 
 Required tests:
 
-1. Solari driver gracefully handles missing API keys.
+1. Arc driver gracefully handles missing API keys.
 2. Real LLM adapter correctly formats prompts and parses JSON.
 3. Cost ledger accurately calculates real token costs.
 4. Live orchestrator safely skips if Docker/KVM is missing.
@@ -175,7 +175,7 @@ Update `ARCHITECTURE.md` and `IMPLEMENTATION_PLAN.md` with Phase 5 completion, p
 
 Phase 5 is complete only if:
 
-1. Solari Cloud driver exists and handles missing keys safely.
+1. Arc Cloud driver exists and handles missing keys safely.
 2. Real Cortex LLM adapter exists and tracks token costs.
 3. Live orchestrator exists and handles missing Docker/KVM safely.
 4. Production scorecard generator exists.
@@ -199,7 +199,7 @@ Use this format:
 
 ## 1. Phase 5 Status
 
-- [ ] Solari Cloud driver
+- [ ] Arc Cloud driver
 - [ ] Real Cortex LLM adapter
 - [ ] Live environment orchestrator
 - [ ] Production scorecard generator
@@ -220,7 +220,7 @@ Include pass/fail count (must include the 125 baseline tests).
 
 ## 5. Production Cost Model
 
-Explain how real Solari + LLM costs are calculated.
+Explain how real Arc + LLM costs are calculated.
 
 ## 6. Final Project Status
 
@@ -228,7 +228,7 @@ Summarize the completion of Phases 1 through 5.
 
 ## 7. Remaining Blockers
 
-List blockers (e.g., waiting for live Solari API keys to run full benchmark).
+List blockers (e.g., waiting for live Arc API keys to run full benchmark).
 ```
 
 ---

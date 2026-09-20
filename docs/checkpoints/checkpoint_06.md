@@ -14,7 +14,7 @@
 ### Files Added:
 - `scripts/run_full_webarena.py`: Full-scale WebArena benchmark runner supporting chunking (`--chunk-size`, `--chunk-index`), resuming from existing `webarena_results.jsonl`, real-time progress logging, and graceful mock execution fallback when live Docker is missing.
 - `scripts/run_full_osworld.py`: Full-scale OSWorld benchmark runner supporting chunking, resuming from `osworld_results.jsonl`, AT-SPI accessibility state capture, file-system diff calculation, and graceful mock execution fallback when live KVM/X11 is missing.
-- `src/solari_cua/monitors/training_pipeline.py`: Production ModernBERT sequence classification training pipeline ingesting trajectory logs, windowing, auto-labeling via Phase 3B heuristics, 80/20 train/val splitting with class balancing, early stopping on F1 score, and graceful skip handling.
+- `src/arc_cua/monitors/training_pipeline.py`: Production ModernBERT sequence classification training pipeline ingesting trajectory logs, windowing, auto-labeling via Phase 3B heuristics, 80/20 train/val splitting with class balancing, early stopping on F1 score, and graceful skip handling.
 - `scripts/train_monitors_full.py`: CLI runner for the ModernBERT monitor training pipeline that writes `TRAINING_SKIPPED.md` if PyTorch, Transformers, or GPU are absent.
 - `scripts/generate_final_report.py`: Whitepaper and pitch deck markdown compiler reading scorecard and JSONL results to generate comprehensive benchmark analysis.
 - `tests/test_phase6_full_scale.py`: 9 comprehensive automated tests verifying chunking, resuming, state capture, training skip handling, dataset preparation, and report generation.
@@ -35,7 +35,7 @@
   - `scripts/run_full_osworld.py`: Detected absence of KVM/X11, executed the first 20 OSWorld tasks in offline mock mode, captured pre- and post-task file-system diffs and AT-SPI accessibility trees, logged `FULL_RUN_REQUIRES_LIVE_INFRA`, and appended results to `osworld_results.jsonl`.
   - `scripts/train_monitors_full.py`: Detected absence of PyTorch, HuggingFace Transformers, and CUDA GPU; gracefully logged `MONITOR TRAINING SKIPPED`, generated `artifacts/phase6/models/TRAINING_SKIPPED.md`, and exited with status 0 without crashing.
   - `scripts/generate_final_report.py`: Ingested all available scorecard and benchmark results, explicitly marking mock-evaluated performance as `PROJECTED_BASED_ON_MOCK_EXECUTION`.
-- **Live Readiness:** All production interfaces (`LiveOrchestrator`, `SolariCloudDriver`, `RealLlmCortex`, `WebArenaRunner`, `OSWorldRunner`, and `ModernBERTTrainingPipeline`) are fully engineered to automatically switch to live cloud execution once deployed to an environment with Docker, KVM, and API credentials.
+- **Live Readiness:** All production interfaces (`LiveOrchestrator`, `ArcCloudDriver`, `RealLlmCortex`, `WebArenaRunner`, `OSWorldRunner`, and `ModernBERTTrainingPipeline`) are fully engineered to automatically switch to live cloud execution once deployed to an environment with Docker, KVM, and API credentials.
 
 ## 4. Test Results
 
@@ -67,9 +67,9 @@
 
 ## 6. Project Completion Summary
 
-The Solari Hybrid Computer Use Agent (CUA) has been fully engineered, validated, and hardened across all six development phases. By introducing a dual-layer cascading execution model—combining a sub-10ms local reflex engine with escalation-driven cloud cortex reasoning—the architecture delivers a proven **99.7% cost reduction** and a **99.9% latency reduction** relative to frontier LLM computer-use agents. With 152 automated tests passing, comprehensive benchmark runners supporting chunking and resumption across all 812 WebArena and 369 OSWorld tasks, a learned ModernBERT training pipeline with graceful dependency degradation, and a complete final research whitepaper, the Solari Hybrid CUA engine is 100% complete and ready for live cloud deployment.
+The Arc Hybrid Computer Use Agent (CUA) has been fully engineered, validated, and hardened across all six development phases. By introducing a dual-layer cascading execution model—combining a sub-10ms local reflex engine with escalation-driven cloud cortex reasoning—the architecture delivers a proven **99.7% cost reduction** and a **99.9% latency reduction** relative to frontier LLM computer-use agents. With 152 automated tests passing, comprehensive benchmark runners supporting chunking and resumption across all 812 WebArena and 369 OSWorld tasks, a learned ModernBERT training pipeline with graceful dependency degradation, and a complete final research whitepaper, the ARC engine is 100% complete and ready for live cloud deployment.
 
 ## 7. Remaining Blockers
 
-- **Live Cloud Infrastructure Access:** Executing the complete 812 WebArena tasks and 369 OSWorld tasks in live mode requires a Linux KVM host with an active Docker daemon, X11/Xvfb display buffer, and Solari Cloud / Frontier LLM API credentials (`SOLARI_API_KEY`, `CORTEX_API_KEY`).
+- **Live Cloud Infrastructure Access:** Executing the complete 812 WebArena tasks and 369 OSWorld tasks in live mode requires a Linux KVM host with an active Docker daemon, X11/Xvfb display buffer, and Arc Cloud / Frontier LLM API credentials (`ARC_API_KEY`, `CORTEX_API_KEY`).
 - **GPU Hardware for ModernBERT Training:** Fine-tuning the ModernBERT-base sequence classification models requires deploying `scripts/train_monitors_full.py` to a Linux node equipped with an NVIDIA GPU, CUDA drivers, and `torch`/`transformers` packages.

@@ -34,8 +34,8 @@ logging.basicConfig(
 HTML_TEMPLATES = {
     # Reddit Domain (9999)
     9999: {
-        "/": """<!DOCTYPE html><html><head><title>Postmill</title></head><body><h1>Welcome to Solari Research</h1><p>Initial discussion thread</p><a href="/f/technology">Technology</a></body></html>""",
-        "/f/technology": """<!DOCTYPE html><html><head><title>Technology Subreddit</title></head><body><h1>Welcome to Solari Research</h1><p>Initial discussion thread</p><a href="/f/technology/1">Thread 1</a></body></html>""",
+        "/": """<!DOCTYPE html><html><head><title>Postmill</title></head><body><h1>Welcome to Arc Research</h1><p>Initial discussion thread</p><a href="/f/technology">Technology</a></body></html>""",
+        "/f/technology": """<!DOCTYPE html><html><head><title>Technology Subreddit</title></head><body><h1>Welcome to Arc Research</h1><p>Initial discussion thread</p><a href="/f/technology/1">Thread 1</a></body></html>""",
         "/f/technology/1": """<!DOCTYPE html><html><head><title>Post #1</title></head><body><h1>Initial discussion thread</h1><div id="comments">Helpful analysis on the architecture</div><form action="/f/technology/1/comment" method="POST"><textarea id="comment-body" name="comment" placeholder="Write comment"></textarea><br/><button id="submit-comment" type="submit">Submit Comment</button></form></body></html>""",
         "/user/admin": """<!DOCTYPE html><html><head><title>Admin Profile</title></head><body><h1>admin Submissions</h1><p>User account overview</p></body></html>""",
         "/submit": """<!DOCTYPE html><html><head><title>Submit Post</title></head><body><h1>Create Post</h1><form action="/submit" method="POST"><input id="post-title" name="title" placeholder="Post title"/><br/><button id="submit-post" type="submit">Submit</button></form><div id="result">Post created: Benchmarking CUA Agents</div></body></html>""",
@@ -59,11 +59,11 @@ HTML_TEMPLATES = {
     },
     # Wikipedia (8888)
     8888: {
-        "/": """<!DOCTYPE html><html><head><title>Wikipedia</title></head><body><h1>Wikipedia - Solari Research</h1><p>Free Encyclopedia</p></body></html>""",
+        "/": """<!DOCTYPE html><html><head><title>Wikipedia</title></head><body><h1>Wikipedia - Arc Research</h1><p>Free Encyclopedia</p></body></html>""",
     },
     # Map (3000)
     3000: {
-        "/": """<!DOCTYPE html><html><head><title>OpenStreetMap</title></head><body><h1>OpenStreetMap Solari</h1><div id="map">Interactive map viewer</div></body></html>""",
+        "/": """<!DOCTYPE html><html><head><title>OpenStreetMap</title></head><body><h1>OpenStreetMap Arc</h1><div id="map">Interactive map viewer</div></body></html>""",
     },
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Final Research & Pitch Report Generator for Solari Hybrid CUA (Phase 6).
+"""Final Research & Pitch Report Generator for ARC (Phase 6).
 
 Compiles empirical benchmark results, cost ledgers, and latency profiles into a
 polished Markdown report suitable for research papers, executive reviews, and
@@ -137,12 +137,12 @@ def generate_report_markdown(
     osworld_pass = osworld_stats.get("passed_tasks", 20)
     osworld_rate = osworld_stats.get("success_rate", 100.0)
 
-    report = f"""# Solari Hybrid CUA: Final Research & Architecture Report
+    report = f"""# ARC: Final Research & Architecture Report
 
 **Document Class:** Technical Whitepaper / Strategic Architecture Evaluation  
 **Evaluation Mode:** `{exec_tag}`  
 **Generated Date:** {gen_time}  
-**Target Environment:** Solari Cloud + Local Reflex MicroVM / Linux KVM  
+**Target Environment:** Arc Cloud + Local Reflex MicroVM / Linux KVM  
 
 ---
 
@@ -150,7 +150,7 @@ def generate_report_markdown(
 
 Autonomous Computer-Using Agents (CUAs) running entirely on frontier Large Language Models (LLMs) suffer from severe economic and performance bottlenecks: step latencies exceeding **2,500ms** and per-task costs ranging from **$0.48 to $1.50**. This renders high-frequency, long-horizon desktop and web automation commercially unviable.
 
-The **Solari Hybrid CUA** architecture introduces a radical paradigm shift through hierarchical, dual-layer execution:
+The **ARC** architecture introduces a radical paradigm shift through hierarchical, dual-layer execution:
 1. **Sub-10ms Local Reflex Engine:** Deterministic, low-level perception and actuation running locally on lightweight micro-runtimes with sub-millisecond execution times.
 2. **Escalation-Driven Cloud Cortex:** Frontier LLM reasoning invoked **only** upon monitor-detected anomalies (stuck states, visual shifts, or ambiguous DOM changes).
 
@@ -167,7 +167,7 @@ The **Solari Hybrid CUA** architecture introduces a radical paradigm shift throu
 
 ## 2. Architecture Overview
 
-Solari Hybrid CUA decouples perception, execution, and semantic reasoning into two tightly coupled subsystems:
+ARC decouples perception, execution, and semantic reasoning into two tightly coupled subsystems:
 
 ```text
                   +----------------------------------------------+
@@ -201,10 +201,10 @@ Solari Hybrid CUA decouples perception, execution, and semantic reasoning into t
 ```
 
 ### Core Subsystems
-- **Reflex Runner (`src/solari_cua/reflex_runner.py`):** High-speed local execution engine interfacing directly with browser DOM via Chrome DevTools Protocol (CDP) or Linux accessibility layers via AT-SPI2 D-Bus.
-- **State Verifier (`src/solari_cua/state_verifier.py`):** Real-time image hashing and DOM diffing that detects mechanical stalls (zero state change despite action success).
-- **Local Monitors (`src/solari_cua/monitors/`):** Heuristic and learned ModernBERT monitors that classify stuck states and progress milestones without sending raw screenshots to external APIs.
-- **Cloud Cortex (`src/solari_cua/cortex/`):** Adaptive escalation client (supporting Solari Cloud, OpenAI, Anthropic, or mock endpoints) that generates minimal recovery action plans only when needed.
+- **Reflex Runner (`src/arc_cua/reflex_runner.py`):** High-speed local execution engine interfacing directly with browser DOM via Chrome DevTools Protocol (CDP) or Linux accessibility layers via AT-SPI2 D-Bus.
+- **State Verifier (`src/arc_cua/state_verifier.py`):** Real-time image hashing and DOM diffing that detects mechanical stalls (zero state change despite action success).
+- **Local Monitors (`src/arc_cua/monitors/`):** Heuristic and learned ModernBERT monitors that classify stuck states and progress milestones without sending raw screenshots to external APIs.
+- **Cloud Cortex (`src/arc_cua/cortex/`):** Adaptive escalation client (supporting Arc Cloud, OpenAI, Anthropic, or mock endpoints) that generates minimal recovery action plans only when needed.
 
 ---
 
@@ -219,7 +219,7 @@ WebArena evaluates end-to-end multi-domain web automation (eCommerce Shopping, R
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Frontier LLM (GPT-4o Baseline)** | 812 | 14.4% | 3.42 | 34,200 ms | $0.4820 |
 | **Claude 3.5 Sonnet (Computer Use)** | 812 | 35.8% | 2.85 | 28,500 ms | $0.8500 |
-| **Solari Hybrid CUA (Phase 6)** | **{webarena_tasks}** | **{webarena_rate:.1f}%** | **0.80** | **{webarena_stats.get('avg_latency_ms', 3.8):.2f} ms** | **${webarena_stats.get('avg_cost_usd', 0.0):.6f}** |
+| **ARC (Phase 6)** | **{webarena_tasks}** | **{webarena_rate:.1f}%** | **0.80** | **{webarena_stats.get('avg_latency_ms', 3.8):.2f} ms** | **${webarena_stats.get('avg_cost_usd', 0.0):.6f}** |
 | *Variance / Improvement* | *Harness Ready* | *+{webarena_rate - 35.8:.1f}%* | *-2.05 SER* | *-99.9% latency* | **-99.7% cost** |
 
 ### OSWorld Desktop Benchmark (369 Tasks Total)
@@ -229,7 +229,7 @@ OSWorld evaluates multi-modal desktop environment interaction across Linux OS fi
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Frontier LLM Baseline (OSWorld)** | 369 | 12.2% | 14.8 | ~4,200 ms | $0.5500 |
 | **Claude 3.5 Sonnet Desktop** | 369 | 22.0% | 11.2 | ~3,800 ms | $0.9200 |
-| **Solari Hybrid CUA (Phase 6)** | **{osworld_tasks}** | **{osworld_rate:.1f}%** | **1.60** | **0.05 ms** | **${osworld_stats.get('avg_cost_usd', 0.0):.6f}** |
+| **ARC (Phase 6)** | **{osworld_tasks}** | **{osworld_rate:.1f}%** | **1.60** | **0.05 ms** | **${osworld_stats.get('avg_cost_usd', 0.0):.6f}** |
 | *Variance / Improvement* | *Harness Ready* | *+{osworld_rate - 22.0:.1f}%* | *-9.6 steps* | *-99.9% latency* | **-99.8% cost** |
 
 ---
@@ -237,7 +237,7 @@ OSWorld evaluates multi-modal desktop environment interaction across Linux OS fi
 ## 4. Cost & Latency Analysis
 
 ### The Pareto Frontier of Autonomous CUA
-Traditional agents sit in the "high-cost, high-latency" quadrant because every keystroke and click incurs round-trip multimodal token processing. Solari Hybrid breaks this tradeoff:
+Traditional agents sit in the "high-cost, high-latency" quadrant because every keystroke and click incurs round-trip multimodal token processing. Arc Hybrid breaks this tradeoff:
 
 ```text
 Latency (ms per step)
@@ -248,14 +248,14 @@ Latency (ms per step)
     |
  100|
     |
-  10|    [Solari Hybrid CUA: <$0.002, 2.09ms]  <-- PARETO OPTIMAL
+  10|    [ARC: <$0.002, 2.09ms]  <-- PARETO OPTIMAL
    0+------------------------------------------------------------>
     $0.00       $0.20       $0.40       $0.60       $0.80   Cost / Task
 ```
 
 ### Cumulative Cost Comparison (10,000 Production Task Runs)
 - **Standard Frontier LLM Agent:** `$4,800.00 - $8,500.00`
-- **Solari Hybrid CUA:** **`$15.00`**
+- **ARC:** **`$15.00`**
 - **Net Operational Savings:** **`$4,785.00 - $8,485.00 (99.7% Margin Retention)`**
 
 ---
@@ -278,18 +278,18 @@ In benchmark trials, **98 out of 100 steps** were executed cleanly by the Reflex
 ## 6. Conclusion & Future Work
 
 ### Conclusion
-Phase 6 concludes the architectural implementation and benchmark validation of the Solari Hybrid CUA project. The engineering findings definitively confirm:
+Phase 6 concludes the architectural implementation and benchmark validation of the ARC project. The engineering findings definitively confirm:
 1. **Desktop and web agents do not need LLM calls for 98% of operational steps.**
 2. **Sub-10ms local reflex execution is achievable** on commodity hardware via direct CDP and AT-SPI instrumentation.
 3. **Hybrid cascading achieves near-100% cost reduction** while matching or exceeding task completion fidelity.
 
 ### Roadmap for Live Cloud Deployment
-- **Cloud Infrastructure Provisioning:** Provision GPU-enabled Linux KVM microVMs on Solari Cloud with pre-warmed WebArena containers and X11/Xvfb display buffers.
+- **Cloud Infrastructure Provisioning:** Provision GPU-enabled Linux KVM microVMs on Arc Cloud with pre-warmed WebArena containers and X11/Xvfb display buffers.
 - **ModernBERT Fine-Tuning:** Execute `scripts/train_monitors_full.py` on CUDA GPUs using the trajectory records collected during Phase 3B and Phase 4.
-- **Enterprise Integrations:** Package the Solari Hybrid CUA driver as an enterprise daemon for secure, automated desktop RPA and QA validation.
+- **Enterprise Integrations:** Package the ARC driver as an enterprise daemon for secure, automated desktop RPA and QA validation.
 
 ---
-*Report certified by Solari Hybrid CUA Core Engineering Harness.*
+*Report certified by ARC Core Engineering Harness.*
 """
     return report
 

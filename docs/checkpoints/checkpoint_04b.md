@@ -13,15 +13,15 @@
 ## 2. Files Added/Updated
 
 ### Files Added:
-- `src/solari_cua/eval/webarena_env.py` — WebArena environment adapter (`WebArenaEnv`) supporting dual-mode (live Docker containers and offline in-memory SQLite `:memory:`) with `DatabaseDiffEngine` for dual-layer state attestation.
-- `src/solari_cua/eval/webarena_mapper.py` — Schema mapper converting external WebArena JSON/JSONL benchmark definitions into Solari `EvalTask` and `EvalAssertion` objects, with graceful `SKIP` handling for unsupported types.
-- `src/solari_cua/eval/webarena_assertions.py` — WebArena assertion adapter (`WebArenaAssertionAdapter`) implementing `url_match` (exact, prefix, regex, query reordering), `string_match` (fuzzy, exact, must_include), and `program_html` (database query and table diff checks).
-- `src/solari_cua/eval/tasks_webarena.py` — Curated representative subset of 12 WebArena tasks across Reddit, Shopping, and GitLab domains with all primary evaluation modalities.
-- `src/solari_cua/eval/webarena_runner.py` — WebArena evaluation runner (`WebArenaRunner`) and domain mock page (`MockWebArenaPage`) executing tasks through the Solari `HybridRunner`.
+- `src/arc_cua/eval/webarena_env.py` — WebArena environment adapter (`WebArenaEnv`) supporting dual-mode (live Docker containers and offline in-memory SQLite `:memory:`) with `DatabaseDiffEngine` for dual-layer state attestation.
+- `src/arc_cua/eval/webarena_mapper.py` — Schema mapper converting external WebArena JSON/JSONL benchmark definitions into Arc `EvalTask` and `EvalAssertion` objects, with graceful `SKIP` handling for unsupported types.
+- `src/arc_cua/eval/webarena_assertions.py` — WebArena assertion adapter (`WebArenaAssertionAdapter`) implementing `url_match` (exact, prefix, regex, query reordering), `string_match` (fuzzy, exact, must_include), and `program_html` (database query and table diff checks).
+- `src/arc_cua/eval/tasks_webarena.py` — Curated representative subset of 12 WebArena tasks across Reddit, Shopping, and GitLab domains with all primary evaluation modalities.
+- `src/arc_cua/eval/webarena_runner.py` — WebArena evaluation runner (`WebArenaRunner`) and domain mock page (`MockWebArenaPage`) executing tasks through the Arc `HybridRunner`.
 - `tests/test_phase4b_webarena.py` — Test suite containing 12 unit and integration tests covering mapper, assertion adapter, runner, mock database reset, diff engine, network isolation, and Playwright public API compliance.
 
 ### Files Updated:
-- `src/solari_cua/eval/__init__.py` — Exported Phase 4B WebArena components alongside Phase 4A evaluation contracts.
+- `src/arc_cua/eval/__init__.py` — Exported Phase 4B WebArena components alongside Phase 4A evaluation contracts.
 - `ARCHITECTURE.md` — Added Section 8 detailing Phase 4B architecture, task mapping strategy, assertion adapter logic, and mock vs live environment policy.
 - `IMPLEMENTATION_PLAN.md` — Updated with Phase 4B completion status, component inventory, empirical metrics, and risk controls.
 
@@ -55,8 +55,8 @@
 
 ## 6. Cross-Repo Patterns Used
 
-- **Dual-Layer State Verification (`coldstart/solari-cookbook/src/qa-framework/db-diff.ts`)**: Ported `DatabaseDiffEngine`, `TableSnapshot`, `RowUpdateDiff`, `TableDiff`, and assertion helpers (`assert_inserted`, `assert_deleted`, `assert_unchanged`) to Python in `webarena_env.py` to verify backend mutations directly against database rows.
-- **Ground-Truth Independent Verifier (`coldstart/solari-cookbook/src/verify/verifier.ts` & `checks.ts`)**: Adopted fail-closed assertion semantics, query normalization, and independent truth validation without relying on optimistic UI toasts.
+- **Dual-Layer State Verification (`coldstart/arc-cookbook/src/qa-framework/db-diff.ts`)**: Ported `DatabaseDiffEngine`, `TableSnapshot`, `RowUpdateDiff`, `TableDiff`, and assertion helpers (`assert_inserted`, `assert_deleted`, `assert_unchanged`) to Python in `webarena_env.py` to verify backend mutations directly against database rows.
+- **Ground-Truth Independent Verifier (`coldstart/arc-cookbook/src/verify/verifier.ts` & `checks.ts`)**: Adopted fail-closed assertion semantics, query normalization, and independent truth validation without relying on optimistic UI toasts.
 
 ## 7. Remaining Blockers
 

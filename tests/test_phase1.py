@@ -1,7 +1,7 @@
 """Comprehensive Unit and Benchmark Verification Suite for Phase 1 (Infrastructure & Perception).
 
 Tests:
-1. SolariVMManager:
+1. ArcVMManager:
    - MicroVM lifecycle (launch, snapshot, restore, terminate).
    - Memory overhead <= 128MB enforcement.
    - Zero cross-tenant socket leakage across multi-tenant cycles.
@@ -31,16 +31,16 @@ import pytest
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from solari_cua.vm_manager import SolariVMManager
-from solari_cua.cdp_extractor import CDP_AXTree_Extractor
-from solari_cua.at_spi_bridge import AT_SPI_Bridge, ATSPIEvent
+from arc_cua.vm_manager import ArcVMManager
+from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.at_spi_bridge import AT_SPI_Bridge, ATSPIEvent
 
 
-class TestSolariVMManager:
-    """Verification suite for Task 1.1: Solari Firecracker VM Manager."""
+class TestArcVMManager:
+    """Verification suite for Task 1.1: Arc Firecracker VM Manager."""
 
     def test_vm_lifecycle(self, tmp_path):
-        mgr = SolariVMManager(runtime_dir=tmp_path, simulate_hardware=True)
+        mgr = ArcVMManager(runtime_dir=tmp_path, simulate_hardware=True)
         try:
             # 1. Launch
             vm = mgr.launch("test-tenant-01", mem_size_mib=128)
@@ -76,7 +76,7 @@ class TestSolariVMManager:
 
     def test_zero_cross_tenant_socket_leakage_100_cycles(self, tmp_path):
         """Stress test verifying zero socket leakage across continuous fork/destroy cycles."""
-        mgr = SolariVMManager(runtime_dir=tmp_path, simulate_hardware=True)
+        mgr = ArcVMManager(runtime_dir=tmp_path, simulate_hardware=True)
         try:
             vm = mgr.launch("base-vm", mem_size_mib=128)
             snap = mgr.snapshot("base-vm", "base-snap", snapshot_type="Diff", use_uffd=True)
@@ -95,7 +95,7 @@ class TestSolariVMManager:
             mgr.close()
 
     def test_base_memory_overhead_constraint(self, tmp_path):
-        mgr = SolariVMManager(runtime_dir=tmp_path, simulate_hardware=True)
+        mgr = ArcVMManager(runtime_dir=tmp_path, simulate_hardware=True)
         try:
             vm = mgr.launch("constrained-vm", mem_size_mib=128)
             assert mgr.get_memory_overhead_mb("constrained-vm") <= 128.0
@@ -222,7 +222,7 @@ class TestATSPIBridge:
                 event_type="window:activate",
                 source_app="gnome-terminal",
                 widget_role="window",
-                widget_name="solari@microvm: ~/workspace",
+                widget_name="arc@microvm: ~/workspace",
                 timestamp=time.time(),
                 details={"window_id": 1000 + i},
             )

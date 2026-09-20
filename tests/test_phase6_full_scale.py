@@ -1,4 +1,4 @@
-"""Comprehensive Test Suite for Solari Hybrid CUA Phase 6.
+"""Comprehensive Test Suite for ARC Phase 6.
 
 Validates all Phase 6 deliverables:
 1. Full WebArena runner dataset generation, chunking, and resumption.
@@ -31,8 +31,8 @@ from scripts.run_full_webarena import (
     generate_full_webarena_tasks,
     read_completed_task_ids as webarena_read_completed,
 )
-from solari_cua.eval.schemas import EvalResult, EvalTask
-from solari_cua.monitors.training_pipeline import (
+from arc_cua.eval.schemas import EvalResult, EvalTask
+from arc_cua.monitors.training_pipeline import (
     ModernBERTTrainingPipeline,
     TrainingConfig,
     check_training_environment,

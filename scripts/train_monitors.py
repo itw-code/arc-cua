@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Optional Monitor Training Script for Solari Hybrid CUA (Phase 3B Task 5).
+"""Optional Monitor Training Script for ARC (Phase 3B Task 5).
 
 Trains a lightweight sequence classification encoder on Phase 3B labeled trajectory datasets:
 - Checks for optional dependencies (torch, transformers).

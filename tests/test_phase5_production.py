@@ -1,7 +1,7 @@
 """Tests for Phase 5 Live Production Integration & Final Scorecard.
 
 Verifies:
-1. Solari driver gracefully handles missing API keys (falls back to mock mode).
+1. Arc driver gracefully handles missing API keys (falls back to mock mode).
 2. Real LLM adapter correctly formats prompts and parses JSON recovery plans.
 3. Cost ledger accurately calculates real token costs across providers (OpenAI, Anthropic, Jev).
 4. Live orchestrator safely skips if Docker/KVM is missing without throwing exceptions.
@@ -22,24 +22,24 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from solari_cua.cloud.solari_driver import (
+from arc_cua.cloud.arc_driver import (
     SessionStatus,
     SessionType,
-    SolariCloudDriver,
-    SolariSession,
+    ArcCloudDriver,
+    ArcSession,
 )
-from solari_cua.cortex.real_llm_cortex import (
+from arc_cua.cortex.real_llm_cortex import (
     PROVIDER_PRICING,
     RealLlmCortex,
     TokenCostRecord,
     create_real_cortex_client,
 )
-from solari_cua.eval.live_orchestrator import (
+from arc_cua.eval.live_orchestrator import (
     HostCapabilities,
     LIVE_ORCHESTRATION_SKIPPED,
     LiveOrchestrator,
 )
-from solari_cua.schemas import (
+from arc_cua.schemas import (
     ActionStep,
     EscalationPayload,
     EscalationReason,
@@ -50,30 +50,30 @@ from solari_cua.schemas import (
 
 
 # =============================================================================
-# 1. Solari Cloud Driver Tests
+# 1. Arc Cloud Driver Tests
 # =============================================================================
 
-class TestSolariCloudDriver:
-    """Tests for SolariCloudDriver."""
+class TestArcCloudDriver:
+    """Tests for ArcCloudDriver."""
 
     def test_missing_api_key_defaults_to_mock(self, monkeypatch):
-        """Driver gracefully defaults to mock mode if SOLARI_API_KEY is unset."""
-        monkeypatch.delenv("SOLARI_API_KEY", raising=False)
-        driver = SolariCloudDriver(api_key=None)
+        """Driver gracefully defaults to mock mode if ARC_API_KEY is unset."""
+        monkeypatch.delenv("ARC_API_KEY", raising=False)
+        driver = ArcCloudDriver(api_key=None)
         assert driver.is_mock is True
         assert driver.api_key == ""
 
     def test_mock_browser_provisioning(self, monkeypatch):
         """Driver provisions mock browser session with CDP endpoint and replay URL."""
-        monkeypatch.delenv("SOLARI_API_KEY", raising=False)
-        driver = SolariCloudDriver()
+        monkeypatch.delenv("ARC_API_KEY", raising=False)
+        driver = ArcCloudDriver()
 
         session = driver.provision_browser(stealth=True)
         assert session.is_mock is True
         assert session.session_type == SessionType.BROWSER
         assert session.status == SessionStatus.RUNNING
         assert "devtools/browser" in session.cdp_endpoint
-        assert "https://cloud.solari.ai/replay" in session.replay_url
+        assert "https://cloud.arc.ai/replay" in session.replay_url
 
         # Check accessor
         assert driver.get_cdp_endpoint(session.session_id) == session.cdp_endpoint
@@ -81,8 +81,8 @@ class TestSolariCloudDriver:
 
     def test_mock_desktop_provisioning(self, monkeypatch):
         """Driver provisions mock desktop session with VNC stream."""
-        monkeypatch.delenv("SOLARI_API_KEY", raising=False)
-        driver = SolariCloudDriver()
+        monkeypatch.delenv("ARC_API_KEY", raising=False)
+        driver = ArcCloudDriver()
 
         session = driver.provision_desktop(resolution="1920x1080", os_flavor="ubuntu")
         assert session.is_mock is True
@@ -93,8 +93,8 @@ class TestSolariCloudDriver:
 
     def test_session_compute_duration_and_termination(self, monkeypatch):
         """Driver accurately tracks compute duration and freezes time upon termination."""
-        monkeypatch.delenv("SOLARI_API_KEY", raising=False)
-        driver = SolariCloudDriver()
+        monkeypatch.delenv("ARC_API_KEY", raising=False)
+        driver = ArcCloudDriver()
 
         session = driver.provision_browser()
         time.sleep(0.01)
@@ -111,8 +111,8 @@ class TestSolariCloudDriver:
 
     def test_terminate_all_active_sessions(self, monkeypatch):
         """Driver terminate_all safely terminates all open sessions."""
-        monkeypatch.delenv("SOLARI_API_KEY", raising=False)
-        driver = SolariCloudDriver()
+        monkeypatch.delenv("ARC_API_KEY", raising=False)
+        driver = ArcCloudDriver()
 
         s1 = driver.provision_browser()
         s2 = driver.provision_desktop()
@@ -123,21 +123,21 @@ class TestSolariCloudDriver:
         assert len(driver.list_active_sessions()) == 0
 
     def test_live_mode_with_mocked_http_dispatcher(self):
-        """Driver interacts with Solari Cloud API when API key is present."""
+        """Driver interacts with Arc Cloud API when API key is present."""
         calls = []
 
         def mock_requester(req: urllib.request.Request, timeout: float):
             calls.append(req)
             return {
                 "session_id": "remote-sess-001",
-                "cdp_endpoint": "wss://us-east-1.cloud.solari.ai/cdp/remote-sess-001",
-                "vnc_stream": "wss://us-east-1.cloud.solari.ai/vnc/remote-sess-001",
-                "replay_url": "https://cloud.solari.ai/replay/remote-sess-001",
+                "cdp_endpoint": "wss://us-east-1.cloud.arc.ai/cdp/remote-sess-001",
+                "vnc_stream": "wss://us-east-1.cloud.arc.ai/vnc/remote-sess-001",
+                "replay_url": "https://cloud.arc.ai/replay/remote-sess-001",
                 "region": "us-east-1",
             }
 
-        driver = SolariCloudDriver(
-            api_key="sk-solari-live-test-12345",
+        driver = ArcCloudDriver(
+            api_key="sk-arc-live-test-12345",
             region="us-east-1",
             http_requester=mock_requester,
         )
@@ -145,7 +145,7 @@ class TestSolariCloudDriver:
 
         session = driver.provision_browser(stealth=True)
         assert session.is_mock is False
-        assert session.cdp_endpoint == "wss://us-east-1.cloud.solari.ai/cdp/remote-sess-001"
+        assert session.cdp_endpoint == "wss://us-east-1.cloud.arc.ai/cdp/remote-sess-001"
         assert len(calls) == 1
         assert "Authorization" in calls[0].headers
 
@@ -205,7 +205,7 @@ class TestRealLlmCortex:
         sys_prompt, user_prompt = client.format_prompts(payload)
 
         # Check system prompt constraints
-        assert "Solari CUA Cortex Reasoning Engine" in sys_prompt
+        assert "ARC Cortex Reasoning Engine" in sys_prompt
         assert "REQUIRED JSON SCHEMA" in sys_prompt
         assert "CLICK" in sys_prompt
         assert "TYPE" in sys_prompt
@@ -410,7 +410,7 @@ class TestProductionScorecard:
         report_md = tmp_path / "production_report.md"
         assert report_md.exists()
         md_text = report_md.read_text(encoding="utf-8")
-        assert "Solari Hybrid CUA Production Scorecard" in md_text
+        assert "ARC Production Scorecard" in md_text
         assert "Executive Scorecard Summary" in md_text
         assert "Production Cost Accounting" in md_text
 

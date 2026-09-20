@@ -22,7 +22,7 @@ No more code to write. Only deployment and execution.
 
 | Credential | Where | Purpose |
 |---|---|---|
-| `SOLARI_API_KEY` | console.getsolari.com | MicroVM/browser provisioning |
+| `ARC_API_KEY` | console.getarc.com | MicroVM/browser provisioning |
 | `CORTEX_API_KEY` | OpenAI / Anthropic / TypeSafe | Real LLM escalation |
 | `CORTEX_PROVIDER` | Set to `openai`, `anthropic`, or `jev` | Provider selection |
 | `CORTEX_MODEL` | e.g. `gpt-4o`, `claude-sonnet-4`, `jev-s1` | Model selection |
@@ -60,7 +60,7 @@ playwright install chromium
 ## Step 3: Run Local Evaluation (No Cloud Needed)
 
 ```bash
-cd solari-hybrid-cua
+cd arc-hybrid-cua
 python scripts/report_phase4a.py
 ```
 
@@ -76,7 +76,7 @@ artifacts/phase4a/scorecard.json
 ## Step 4: Run WebArena Subset (Docker Required)
 
 ```bash
-export SOLARI_API_KEY=slr_live_...
+export ARC_API_KEY=slr_live_...
 export CORTEX_MODE=mock
 python scripts/run_full_webarena.py --chunk-size 20 --chunk-index 0
 ```
@@ -94,7 +94,7 @@ done
 ## Step 5: Run OSWorld Subset (KVM Required)
 
 ```bash
-export SOLARI_API_KEY=slr_live_...
+export ARC_API_KEY=slr_live_...
 export CORTEX_MODE=mock
 python scripts/run_full_osworld.py --chunk-size 20 --chunk-index 0
 ```

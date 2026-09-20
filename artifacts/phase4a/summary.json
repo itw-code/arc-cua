@@ -334,14 +334,14 @@
           "assertion": {
             "type": "visible_text",
             "selector": "div#form-result",
-            "expected": "Form submitted: solari_tester (tester@solari.local)",
+            "expected": "Form submitted: arc_tester (tester@arc.local)",
             "description": "Form result shows submitted username and email",
             "timeout_ms": 2000.0,
             "min_width": 1.0,
             "min_height": 1.0
           },
           "passed": true,
-          "actual": "Form submitted: solari_tester (tester@solari.local)",
+          "actual": "Form submitted: arc_tester (tester@arc.local)",
           "error_message": null,
           "latency_ms": 30.4
         },
@@ -367,11 +367,11 @@
           "step_number": 1,
           "verb": "TYPE",
           "target_selector": "input#user-name",
-          "value": "solari_tester",
+          "value": "arc_tester",
           "action_index": null,
           "latency_ms": 17.108900006860495,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916101.812504
         },
@@ -379,11 +379,11 @@
           "step_number": 1,
           "verb": "TYPE",
           "target_selector": "input#user-email",
-          "value": "tester@solari.local",
+          "value": "tester@arc.local",
           "action_index": null,
           "latency_ms": 10.775899980217218,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916101.8785632
         },
@@ -395,7 +395,7 @@
           "action_index": null,
           "latency_ms": 40.63160001533106,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916101.9648557
         }
@@ -517,7 +517,7 @@
             "min_height": 1.0
           },
           "passed": true,
-          "actual": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html#settings",
+          "actual": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html#settings",
           "error_message": null,
           "latency_ms": 0.01
         }
@@ -532,7 +532,7 @@
           "action_index": null,
           "latency_ms": 38.467699952889234,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html#settings",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html#settings",
           "error_message": null,
           "timestamp": 1789916103.3121371
         }
@@ -669,7 +669,7 @@
           "action_index": null,
           "latency_ms": 10.484300029929727,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916104.3136272
         },
@@ -681,7 +681,7 @@
           "action_index": null,
           "latency_ms": 39.795199991203845,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916104.3910844
         }
@@ -803,7 +803,7 @@
           "action_index": null,
           "latency_ms": 16.49309997446835,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916105.227066
         },
@@ -815,7 +815,7 @@
           "action_index": null,
           "latency_ms": 39.34249997837469,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916105.3611546
         }
@@ -952,7 +952,7 @@
           "action_index": null,
           "latency_ms": 23.433500027749687,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916106.4152877
         },
@@ -964,7 +964,7 @@
           "action_index": null,
           "latency_ms": 51.2622999958694,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916106.5140939
         }
@@ -1086,7 +1086,7 @@
           "action_index": null,
           "latency_ms": 36.94550000363961,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916107.5679274
         },
@@ -1098,7 +1098,7 @@
           "action_index": null,
           "latency_ms": 29.211000015493482,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916107.6585536
         },
@@ -1110,7 +1110,7 @@
           "action_index": null,
           "latency_ms": 33.52119994815439,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916107.7409163
         },
@@ -1122,7 +1122,7 @@
           "action_index": null,
           "latency_ms": 14.472800015937537,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916107.8059
         },
@@ -1134,7 +1134,7 @@
           "action_index": null,
           "latency_ms": 24.189100018702447,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916107.8902154
         },
@@ -1146,7 +1146,7 @@
           "action_index": null,
           "latency_ms": 37.05460001947358,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916107.9796736
         }
@@ -1246,14 +1246,14 @@
           "assertion": {
             "type": "page_title",
             "selector": null,
-            "expected": "Solari Hybrid CUA Evaluation Suite",
+            "expected": "ARC Evaluation Suite",
             "description": "Page title remains intact despite missing locator",
             "timeout_ms": 2000.0,
             "min_width": 1.0,
             "min_height": 1.0
           },
           "passed": true,
-          "actual": "Solari Hybrid CUA Evaluation Suite",
+          "actual": "ARC Evaluation Suite",
           "error_message": null,
           "latency_ms": 3.35
         }
@@ -1377,7 +1377,7 @@
           "action_index": null,
           "latency_ms": 36.50839999318123,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916110.0932035
         },
@@ -1389,7 +1389,7 @@
           "action_index": null,
           "latency_ms": 46.00380000192672,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916110.1782243
         },
@@ -1401,7 +1401,7 @@
           "action_index": null,
           "latency_ms": 55.1584999775514,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916110.3313282
         },
@@ -1413,7 +1413,7 @@
           "action_index": null,
           "latency_ms": 44.04389997944236,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916110.4819846
         },
@@ -1425,7 +1425,7 @@
           "action_index": null,
           "latency_ms": 155.02450003987178,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916110.6434188
         }
@@ -1547,7 +1547,7 @@
           "action_index": null,
           "latency_ms": 33.39280001819134,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916111.8839521
         },
@@ -1559,7 +1559,7 @@
           "action_index": null,
           "latency_ms": 23.717099975328892,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916111.9556537
         },
@@ -1571,7 +1571,7 @@
           "action_index": null,
           "latency_ms": 44.573299994226545,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916112.0407977
         },
@@ -1583,7 +1583,7 @@
           "action_index": null,
           "latency_ms": 34.191899991128594,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916112.124818
         },
@@ -1595,7 +1595,7 @@
           "action_index": null,
           "latency_ms": 166.3140999735333,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916112.294801
         }
@@ -1737,7 +1737,7 @@
           "action_index": null,
           "latency_ms": 48.84349997155368,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916113.9348764
         },
@@ -1749,7 +1749,7 @@
           "action_index": null,
           "latency_ms": 26.189299998804927,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916114.0127075
         },
@@ -1761,7 +1761,7 @@
           "action_index": null,
           "latency_ms": 24.74149997578934,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916114.088736
         },
@@ -1773,7 +1773,7 @@
           "action_index": null,
           "latency_ms": 6.135999981779605,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916114.139211
         },
@@ -1785,7 +1785,7 @@
           "action_index": null,
           "latency_ms": 27.29429997270927,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916114.2049437
         },
@@ -1797,7 +1797,7 @@
           "action_index": null,
           "latency_ms": 42.91720001492649,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916114.2868667
         }
@@ -1897,14 +1897,14 @@
           "assertion": {
             "type": "visible_text",
             "selector": "div#form-result",
-            "expected": "Form submitted: bob (bob@solari.local)",
+            "expected": "Form submitted: bob (bob@arc.local)",
             "description": "Form completed through milestone stages",
             "timeout_ms": 2000.0,
             "min_width": 1.0,
             "min_height": 1.0
           },
           "passed": true,
-          "actual": "Form submitted: bob (bob@solari.local)",
+          "actual": "Form submitted: bob (bob@arc.local)",
           "error_message": null,
           "latency_ms": 26.99
         },
@@ -1939,7 +1939,7 @@
           "action_index": null,
           "latency_ms": 15.555599995423108,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916115.3569226
         },
@@ -1947,11 +1947,11 @@
           "step_number": 1,
           "verb": "TYPE",
           "target_selector": "input#user-email",
-          "value": "bob@solari.local",
+          "value": "bob@arc.local",
           "action_index": null,
           "latency_ms": 10.440100042615086,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916115.4136124
         },
@@ -1963,7 +1963,7 @@
           "action_index": null,
           "latency_ms": 40.690199995879084,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html",
           "error_message": null,
           "timestamp": 1789916115.4994824
         }
@@ -2133,7 +2133,7 @@
           "action_index": null,
           "latency_ms": 28.205899987369776,
           "success": true,
-          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/solari-hybrid-cua/tests/fixtures/eval_site.html#overview",
+          "resulting_url": "file:///C:/Users/oneda/Projects/Research/General/arc-hybrid-cua/tests/fixtures/eval_site.html#overview",
           "error_message": null,
           "timestamp": 1789916123.329644
         }

@@ -1,9 +1,9 @@
 ---
-title: "Solari-Native Hybrid Computer Use Agent (CUA) - Implementation Plan & Specification"
+title: "Arc-Native Hybrid Computer Use Agent (CUA) - Implementation Plan & Specification"
 version: "1.0.0"
 date: "2026-09-20"
 author: "Principal AI Research Engineer & Systems Architect"
-target_runtime: "Solari Cloud MicroVMs / Linux AT-SPI / Chromium CDP"
+target_runtime: "Arc Cloud MicroVMs / Linux AT-SPI / Chromium CDP"
 architecture_type: "Asymmetric Hybrid (Reflex Engine + Cortex Escalation Cascade)"
 status: "READY_FOR_ORCHESTRATOR_REVIEW"
 metrics:
@@ -14,20 +14,20 @@ metrics:
   step_efficiency_ratio_target: "<=1.30"
 ---
 
-# Solari-Native Hybrid Computer Use Agent (CUA)
+# Arc-Native Hybrid Computer Use Agent (CUA)
 ## Engineering Architecture, Implementation Plan, and Verification Specification
 
 ---
 
 ## Executive Summary
 
-The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally prohibitive and high-latency "Vision Tax"—incurred by streaming high-resolution raster screenshots to frontier Vision-Language Models (VLMs) on every execution tick—with an asymmetric, two-tiered execution hierarchy integrated directly into ephemeral microVM runtimes. The architecture couples a zero-network, sub-millisecond **Reflex Engine** (executing deterministic DOM/Accessibility tree traversals, local selector caches, and an in-VM quantized SLM for routine interactions) with an event-driven **Cortex Engine** (a frontier reasoning API) that is invoked exclusively when triggered by trajectory anomaly monitors. By extracting structural UI state via Chrome DevTools Protocol (CDP) Accessibility trees and Linux AT-SPI D-Bus interfaces directly within Solari microVMs, and governing frontier model invocation through local ModernBERT-based loop and milestone monitors, the system achieves a **>75% reduction in API operational costs**, reduces median per-step latency from **~2,400 ms to <10 ms** for routine actions, and matches or exceeds frontier baseline task success rates on OSWorld and WebArena-Verified.
+The Arc-Native Hybrid Computer Use Agent (CUA) replaces the computationally prohibitive and high-latency "Vision Tax"—incurred by streaming high-resolution raster screenshots to frontier Vision-Language Models (VLMs) on every execution tick—with an asymmetric, two-tiered execution hierarchy integrated directly into ephemeral microVM runtimes. The architecture couples a zero-network, sub-millisecond **Reflex Engine** (executing deterministic DOM/Accessibility tree traversals, local selector caches, and an in-VM quantized SLM for routine interactions) with an event-driven **Cortex Engine** (a frontier reasoning API) that is invoked exclusively when triggered by trajectory anomaly monitors. By extracting structural UI state via Chrome DevTools Protocol (CDP) Accessibility trees and Linux AT-SPI D-Bus interfaces directly within Arc microVMs, and governing frontier model invocation through local ModernBERT-based loop and milestone monitors, the system achieves a **>75% reduction in API operational costs**, reduces median per-step latency from **~2,400 ms to <10 ms** for routine actions, and matches or exceeds frontier baseline task success rates on OSWorld and WebArena-Verified.
 
 ```
                     +-----------------------------------------------------------+
-                    |                 SOLARI CLOUD INFRASTRUCTURE               |
+                    |                 ARC CLOUD INFRASTRUCTURE               |
                     |  +-----------------------------------------------------+  |
-                    |  |       Solari MicroVM (Firecracker / Ephemeral)      |  |
+                    |  |       Arc MicroVM (Firecracker / Ephemeral)      |  |
                     |  |                                                     |  |
                     |  |  +-------------------+       +-------------------+  |  |
                     |  |  | Linux AT-SPI D-Bus|       | Headless Chromium |  |  |
@@ -83,22 +83,22 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 
 ---
 
-* **[Task 1.1: Solari MicroVM SDK Integration & Snapshot-Fork Orchestrator]**
-  * *Action:* Implement the lifecycle manager binding the agent orchestrator to Solari’s ephemeral Firecracker MicroVM backend. Configure memory copy-on-write snapshotting using Linux `userfaultfd` (UFFD) to enable sub-10ms environment cloning for speculative execution branches and parallel trajectory exploration.
+* **[Task 1.1: Arc MicroVM SDK Integration & Snapshot-Fork Orchestrator]**
+  * *Action:* Implement the lifecycle manager binding the agent orchestrator to Arc’s ephemeral Firecracker MicroVM backend. Configure memory copy-on-write snapshotting using Linux `userfaultfd` (UFFD) to enable sub-10ms environment cloning for speculative execution branches and parallel trajectory exploration.
   * *Research Justification:* Agache et al. (NSDI 2020), *"Firecracker: Lightweight Virtualization for Serverless Applications."* MicroVM snapshot restoration decouples agent trial-and-error from persistent state destruction, reducing VM instantiation overhead from $>10\,\text{s}$ (standard container/full virtualization) to $<5\,\text{ms}$.
   * *Benchmark Baseline Target:* MicroVM snapshot restore latency $\le 5.0\,\text{ms}$; base memory overhead $\le 128\,\text{MB}$ per active sandbox fork; zero cross-tenant socket leakage across 1,000 continuous cycles.
 
 ---
 
 * **[Task 1.2: Zero-Copy Headless Browser CDP Accessibility (AXTree) Pipeline]**
-  * *Action:* Engineer a persistent Unix Domain Socket (UDS) bridge connecting directly to Solari's stealth Chromium process via the Chrome DevTools Protocol (`Accessibility.getFullAXTree` and `DOM.getDocument`). Implement a native C++/Rust DOM sanitizer that strips non-semantic layout wrappers (`div`, `span` without handlers), removes hidden subtrees (`aria-hidden="true"`, `display: none`), and outputs a linearized, compact YAML-style Accessibility Tree.
+  * *Action:* Engineer a persistent Unix Domain Socket (UDS) bridge connecting directly to Arc's stealth Chromium process via the Chrome DevTools Protocol (`Accessibility.getFullAXTree` and `DOM.getDocument`). Implement a native C++/Rust DOM sanitizer that strips non-semantic layout wrappers (`div`, `span` without handlers), removes hidden subtrees (`aria-hidden="true"`, `display: none`), and outputs a linearized, compact YAML-style Accessibility Tree.
   * *Research Justification:* Zhou et al. (ICLR 2024), *"WebArena: A Realistic Web Environment for Building Autonomous Agents"*; Deng et al. (NeurIPS 2023), *"Mind2Web: Towards a Generalist Agent for the Web."* Structured accessibility trees reduce token representation by **84%** compared to raw HTML while retaining $>98\%$ of actionable affordances, bypassing image tokenization completely for standard web navigation.
   * *Benchmark Baseline Target:* End-to-end tree extraction and sanitization latency $\le 0.8\,\text{ms}$ (versus $450\,\text{ms}$ JPEG render/encode); representation budget $\le 1,200$ tokens for complex pages (e.g., GitLab, Amazon).
 
 ---
 
 * **[Task 1.3: Linux OS-Level AT-SPI D-Bus Event & Hierarchy Bridge]**
-  * *Action:* Develop a native Linux daemon within the Solari VM image that interfaces with the Assistive Technology Service Provider Interface (`AT-SPI2`) over the session D-Bus (`org.a11y.Bus`). Expose real-time OS-level UI widget hierarchies (covering GTK, Qt, and Electron applications) and subscribe to system-wide `window:activate`, `object:state-changed`, and `focus:` events.
+  * *Action:* Develop a native Linux daemon within the Arc VM image that interfaces with the Assistive Technology Service Provider Interface (`AT-SPI2`) over the session D-Bus (`org.a11y.Bus`). Expose real-time OS-level UI widget hierarchies (covering GTK, Qt, and Electron applications) and subscribe to system-wide `window:activate`, `object:state-changed`, and `focus:` events.
   * *Research Justification:* Xie et al. (NeurIPS 2024), *"OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks to Operating Systems."* Reading desktop GUI state via the accessibility API eliminates the need for full-screen frame differencing, providing precise bounding boxes, widget roles, and interaction states across Linux desktop applications.
   * *Benchmark Baseline Target:* Full desktop tree serialization $\le 2.0\,\text{ms}$; event dispatch latency $\le 0.5\,\text{ms}$; zero lost state transitions during fast application switching (up to 60 Hz).
 
@@ -126,7 +126,7 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 ---
 
 * **[Task 2.2: Local Quantized SLM Deployment for In-VM Action Selection]**
-  * *Action:* Deploy an INT4 AWQ/GGUF-quantized small open multimodal/language model (Qwen2-VL-2B or UI-TARS-2B) into the Solari MicroVM runtime using `llama.cpp` or optimized `vLLM` with AVX-512/AMX CPU offloading. Constrain the model’s generation using Context-Free Grammar (CFG) decoding via JSON-schema-guided sampling to restrict outputs to valid environment actions.
+  * *Action:* Deploy an INT4 AWQ/GGUF-quantized small open multimodal/language model (Qwen2-VL-2B or UI-TARS-2B) into the Arc MicroVM runtime using `llama.cpp` or optimized `vLLM` with AVX-512/AMX CPU offloading. Constrain the model’s generation using Context-Free Grammar (CFG) decoding via JSON-schema-guided sampling to restrict outputs to valid environment actions.
   * *Research Justification:* Wang et al. (2024), *"Qwen2-VL: To See the World More Clearly"*; Qin et al. (ByteDance, 2025), *"UI-TARS: An Open-Source End-to-End GUI Agent"*; Hong et al. (CVPR 2024), *"CogAgent: A Visual Language Model for GUI Agents."* Local quantized 2B-parameter models achieve single-step UI grounding performance competitive with 70B+ parameter models on single-hop interaction tasks when conditioned on parsed DOM/A11y context.
   * *Benchmark Baseline Target:* Local inference time $\le 120\,\text{ms}$ per single-action generation (a $>15\times$ speedup over frontier APIs); single-step grounding accuracy $\ge 82\%$ on standard web forms and menu hierarchies.
 
@@ -142,31 +142,31 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 * **[Task 2.4: Sub-Millisecond Event Dispatcher & Direct OS Input Synthesizer]**
   * *Action:* Build a high-speed Linux input synthesizer bypassing the X11/Wayland display server pipeline via the `uinput` kernel module (for desktop mouse/keyboard synthesis) and direct CDP `Input.dispatchMouseEvent` / `Input.dispatchKeyEvent` (for web contexts). Implement realistic Bézier-curve cursor motion and humanized keystroke timing profiles locally within the driver.
   * *Research Justification:* Xie et al. (2024, OSWorld); Drouin et al. (2024), *"WorkArena: How Capable Are Web Agents at Solving Enterprise Tasks?"* Kernel-level and CDP-level synthetic event injection avoids anti-bot automation flags (e.g., `navigator.webdriver = true`) while maintaining sub-millisecond execution control loops.
-  * *Benchmark Baseline Target:* Input dispatch latency $\le 0.15\,\text{ms}$; 100% bypass rate on standard enterprise anti-bot fingerprint checks across Solari stealth browser profiles.
+  * *Benchmark Baseline Target:* Input dispatch latency $\le 0.15\,\text{ms}$; 100% bypass rate on standard enterprise anti-bot fingerprint checks across Arc stealth browser profiles.
 
 ---
 ### Phase 3: The "Cortex" Engine (Event-Driven Step-Level Cascading)
 
 **Phase 3A Status: COMPLETED (Verified via 18/18 Unit/Integration Tests & N=1000 Empirical Benchmarks)**  
 *Deliverables:*
-- `src/solari_cua/monitors/stuck_monitor.py` (Deterministic 7-pattern sliding window loop detector; $p_{95}=0.0058\,\text{ms}$)
-- `src/solari_cua/monitors/milestone_monitor.py` (Heuristic goal advancement detector; $p_{95}=0.0034\,\text{ms}$)
-- `src/solari_cua/monitors/escalation_controller.py` (Policy governor with hysteresis, cooldown, and budgets; $p_{95}=0.0019\,\text{ms}$)
-- `src/solari_cua/cortex/cortex_interface.py` & `mock_cortex.py` (Typed recovery plan synthesis; $p_{95}=0.0030\,\text{ms}$)
-- `src/solari_cua/cortex/recovery_compiler.py` (Strict verb & locator safety validation; $p_{95}=0.0026\,\text{ms}$)
-- `src/solari_cua/hybrid_runner.py` (Reflex/Cortex orchestration with extended telemetry; $p_{95}=0.0084\,\text{ms}$ step overhead)
+- `src/arc_cua/monitors/stuck_monitor.py` (Deterministic 7-pattern sliding window loop detector; $p_{95}=0.0058\,\text{ms}$)
+- `src/arc_cua/monitors/milestone_monitor.py` (Heuristic goal advancement detector; $p_{95}=0.0034\,\text{ms}$)
+- `src/arc_cua/monitors/escalation_controller.py` (Policy governor with hysteresis, cooldown, and budgets; $p_{95}=0.0019\,\text{ms}$)
+- `src/arc_cua/cortex/cortex_interface.py` & `mock_cortex.py` (Typed recovery plan synthesis; $p_{95}=0.0030\,\text{ms}$)
+- `src/arc_cua/cortex/recovery_compiler.py` (Strict verb & locator safety validation; $p_{95}=0.0026\,\text{ms}$)
+- `src/arc_cua/hybrid_runner.py` (Reflex/Cortex orchestration with extended telemetry; $p_{95}=0.0084\,\text{ms}$ step overhead)
 - `tests/test_phase3_monitors.py` (18/18 tests passing; public Playwright compliance verified)
 
 
 **Phase 3B Status: COMPLETED (Verified via 15/15 Phase 3B Tests, Live Headless Chromium E2E, and Empirical Benchmarks)**  
 *Deliverables:*
-- `src/solari_cua/datasets/trajectory_collector.py` (Structured trajectory & 5-step sliding window logger with credential redaction; $p_{95}=0.0048\,\text{ms}$)
-- `src/solari_cua/datasets/labeler.py` & `scripts/label_phase3.py` (Deterministic heuristic stuck/milestone auto-labeling; throughput $>230,000\,\text{records/sec}$)
-- `src/solari_cua/monitors/model_interface.py` & `heuristic_adapter.py` (Standardized pluggable `MonitorModel` abstraction; $p_{95}=0.0475\,\text{ms}$)
-- `src/solari_cua/monitors/feature_builder.py` (16-feature deterministic extraction vector; $p_{95}=0.0410\,\text{ms}$)
-- `src/solari_cua/monitors/transformer_adapter.py` & `scripts/train_monitors.py` (Optional learned monitor support with graceful `LEARNED_MONITOR_UNAVAILABLE` fallback)
-- `src/solari_cua/monitors/semantic_progress.py` (Pluggable goal advancement with dense embedding & silent heuristic fallback)
-- `src/solari_cua/cortex/http_cortex.py` (Production HTTP client with mock, dry_run, and real modes, exponential backoff, and RecoveryCompiler validation)
+- `src/arc_cua/datasets/trajectory_collector.py` (Structured trajectory & 5-step sliding window logger with credential redaction; $p_{95}=0.0048\,\text{ms}$)
+- `src/arc_cua/datasets/labeler.py` & `scripts/label_phase3.py` (Deterministic heuristic stuck/milestone auto-labeling; throughput $>230,000\,\text{records/sec}$)
+- `src/arc_cua/monitors/model_interface.py` & `heuristic_adapter.py` (Standardized pluggable `MonitorModel` abstraction; $p_{95}=0.0475\,\text{ms}$)
+- `src/arc_cua/monitors/feature_builder.py` (16-feature deterministic extraction vector; $p_{95}=0.0410\,\text{ms}$)
+- `src/arc_cua/monitors/transformer_adapter.py` & `scripts/train_monitors.py` (Optional learned monitor support with graceful `LEARNED_MONITOR_UNAVAILABLE` fallback)
+- `src/arc_cua/monitors/semantic_progress.py` (Pluggable goal advancement with dense embedding & silent heuristic fallback)
+- `src/arc_cua/cortex/http_cortex.py` (Production HTTP client with mock, dry_run, and real modes, exponential backoff, and RecoveryCompiler validation)
 - `tests/test_phase3b_live.py` & `scripts/smoke_phase3b.py` (Real headless Chromium hybrid smoke test validating live stuck detection and recovery)
 - `scripts/benchmark_phase3b.py` (Comprehensive metric benchmarking confirming 100% of architectural targets met)
 - `tests/test_phase3b_components.py` (14 unit/integration tests) & `tests/test_phase3b_live.py` (1 live browser integration test)
@@ -224,14 +224,14 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 ---
 
 * **[Task 4.1: OSWorld Execution-Based Desktop Testbed Deployment]**
-  * *Action:* Containerize and deploy the complete OSWorld benchmark suite (369 real-world desktop tasks across LibreOffice, Thunderbird, Chrome, VS Code, GIMP, and OS-level terminal environments) onto Solari MicroVM fleets. Instrument custom state evaluation assertions that inspect real environment state (file systems, database records, application configs) upon task completion.
+  * *Action:* Containerize and deploy the complete OSWorld benchmark suite (369 real-world desktop tasks across LibreOffice, Thunderbird, Chrome, VS Code, GIMP, and OS-level terminal environments) onto Arc MicroVM fleets. Instrument custom state evaluation assertions that inspect real environment state (file systems, database records, application configs) upon task completion.
   * *Research Justification:* Xie et al. (NeurIPS 2024), *"OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks to Operating Systems."* OSWorld provides an execution-based evaluation environment for OS tasks, removing the subjective bias of LLM-as-a-judge evaluators by grading real execution artifacts.
   * *Benchmark Baseline Target:* Achieve $\ge 32.0\%$ task success rate (surpassing raw GPT-4V and matching or exceeding frontier-grade standalone agents), while reducing mean task monetary cost from $\$0.85$ to $\le \$0.18$ per completed task.
 
 ---
 
 * **[Task 4.2: WebArena-Verified & WorkArena End-to-End Evaluation Harness]**
-  * *Action:* Integrate the WebArena-Verified benchmark (e-commerce, social forums, collaborative software development, content management) and ServiceNow WorkArena enterprise workflows into the Solari stealth browser harness. Configure strict evaluation assertions comparing URL states, database mutations, and external API calls against ground truth.
+  * *Action:* Integrate the WebArena-Verified benchmark (e-commerce, social forums, collaborative software development, content management) and ServiceNow WorkArena enterprise workflows into the Arc stealth browser harness. Configure strict evaluation assertions comparing URL states, database mutations, and external API calls against ground truth.
   * *Research Justification:* Zhou et al. (ICLR 2024, WebArena); Koh et al. (ACL 2024), *"VisualWebArena: Evaluating Multimodal Web Agents on Realistic Tasks"*; Drouin et al. (2024, WorkArena). WebArena-Verified eliminates labeling errors from the original WebArena dataset, establishing an authoritative benchmark for enterprise-grade autonomous web agents.
   * *Benchmark Baseline Target:* Reach $\ge 38.5\%$ end-to-end task success rate on WebArena-Verified; reduce average task completion wall-clock time by $\ge 65\%$ ($<20\,\text{s}$ average vs. $60\,\text{s}-120\,\text{s}$ on baseline step-by-step VLM loops).
 
@@ -246,9 +246,9 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 
 ---
 
-## Metric Comparison Table: Solari Hybrid vs. Baseline Approaches
+## Metric Comparison Table: Arc Hybrid vs. Baseline Approaches
 
-| Metric / Dimension | Traditional VLM Agent (Claude 3.5 Sonnet / GPT-4o Step-by-Step) | Local Pure SLM Agent (UI-TARS-7B / Qwen2-VL-7B Local) | **Solari-Native Hybrid CUA (Reflex + Cortex Cascading)** | Target Source / Justification |
+| Metric / Dimension | Traditional VLM Agent (Claude 3.5 Sonnet / GPT-4o Step-by-Step) | Local Pure SLM Agent (UI-TARS-7B / Qwen2-VL-7B Local) | **Arc-Native Hybrid CUA (Reflex + Cortex Cascading)** | Target Source / Justification |
 | :--- | :--- | :--- | :--- | :--- |
 | **Median Step Latency ($p_{50}$)** | $1,800\,\text{ms} - 3,500\,\text{ms}$ | $250\,\text{ms} - 600\,\text{ms}$ | **$<10\,\text{ms}$ (Reflex) / $1,400\,\text{ms}$ (Escalated)** | Agache et al. (2020), Zhou et al. (2024) |
 | **Per-Task Operational Cost** | $\$0.40 - \$1.50$ | $\approx \$0.00$ (Local hardware amortized) | **$\le \$0.10$ ($>75\%$ cost reduction)** | Wei et al. (2026), Chen et al. (2023) |
@@ -287,7 +287,7 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 ### Risk 2: Linux AT-SPI D-Bus Desynchronization and Wayland Security Sandboxing
 * **Failure Mode:** Under modern Linux desktop configurations running Wayland compositors, global input synthesis and cross-application accessibility tree extraction are restricted by default security sandboxing policies. Furthermore, multi-threaded desktop applications (e.g., GIMP, LibreOffice) can drop or lag D-Bus state synchronization during heavy I/O operations, causing the agent to interact with stale accessibility trees.
 * **Literature Grounding:** Documented extensively by Xie et al. (2024) during the construction of the OSWorld benchmark, where visual-only agents frequently outperformed pure accessibility agents on desktop OS tasks due to dropped or inconsistent AT-SPI updates.
-* **Mitigation Strategy:** Configure Solari MicroVM images with a standardized, hardened **X11 / Headless Xvfb display architecture** backed by a direct D-Bus session bus. This avoids Wayland's cross-client inspection restrictions while keeping resource utilization low. Layer this with an active state-polling verification hook: before an action is dispatched, query `XSync` and the AT-SPI `object:state-changed` queue to guarantee the UI thread has settled before the Reflex Engine commits synthetic inputs.
+* **Mitigation Strategy:** Configure Arc MicroVM images with a standardized, hardened **X11 / Headless Xvfb display architecture** backed by a direct D-Bus session bus. This avoids Wayland's cross-client inspection restrictions while keeping resource utilization low. Layer this with an active state-polling verification hook: before an action is dispatched, query `XSync` and the AT-SPI `object:state-changed` queue to guarantee the UI thread has settled before the Reflex Engine commits synthetic inputs.
 
 ### Risk 3: Cascading Hysteresis, Chatter, and Premature Escalations
 * **Failure Mode:** The Cortex escalation loop suffers from control-system "chatter" (hysteresis instability). In this failure mode, the local ModernBERT Stuck Monitor escalates to the frontier API prematurely due to transient network latency or multi-step async animations, or the system oscillates rapidly between Reflex and Cortex, draining token budgets and re-introducing network latency bottlenecks.
@@ -304,7 +304,7 @@ The Solari-Native Hybrid Computer Use Agent (CUA) replaces the computationally p
 When an orchestrator or autonomous subagent consumes this plan:
 1. **Per-Phase Signoff:** Complete all tasks in Phase 1 before initializing Phase 2 dependencies. The Reflex Engine relies directly on the zero-copy AXTree UDS bridge.
 2. **Benchmark Verification Gate:** Task execution is verified only when benchmark telemetry meets or exceeds the specified *Benchmark Baseline Target*.
-3. **Escalation Logging:** Log all step routing decisions to `telemetry.parquet` within the Solari MicroVM for offline fine-tuning of the ModernBERT monitor.
+3. **Escalation Logging:** Log all step routing decisions to `telemetry.parquet` within the Arc MicroVM for offline fine-tuning of the ModernBERT monitor.
 
 ---
 
@@ -312,16 +312,16 @@ When an orchestrator or autonomous subagent consumes this plan:
 
 ### Status: COMPLETE (PASS)
 
-Phase 4A provides the empirical validation harness for the Solari Hybrid CUA prior to external benchmark ingestion (WebArena/OSWorld).
+Phase 4A provides the empirical validation harness for the ARC prior to external benchmark ingestion (WebArena/OSWorld).
 
 #### Components Delivered:
-1. **Evaluation Schemas (`src/solari_cua/eval/schemas.py`)**: Structured contracts for `EvalTask`, `EvalAssertion`, `EvalResult`, `CostRecord`, `ScorecardSummary`, and `EvalRunSummary`.
+1. **Evaluation Schemas (`src/arc_cua/eval/schemas.py`)**: Structured contracts for `EvalTask`, `EvalAssertion`, `EvalResult`, `CostRecord`, `ScorecardSummary`, and `EvalRunSummary`.
 2. **Local Fixture Site (`tests/fixtures/eval_site.html`)**: Fully local, zero-network test bench exposing 12 functional UI patterns (forms, tabs, dropdowns, scroll-to-reveal, inputs, no-ops, recovery triggers, milestone sequences, and hidden/trap elements).
-3. **Synthetic Task Suite (`src/solari_cua/eval/tasks_local.py`)**: 13 declarative evaluation tasks covering healthy, stuck, recovery, and negative verification pathways.
-4. **Success Assertion Engine (`src/solari_cua/eval/assertions.py`)**: Multi-modal verification supporting URL, text, element state, input value, page title, and SimHash divergence with Zero-Pixel Trap defense (adapted from ColdStart `qa-framework/assertions.ts`).
-5. **Evaluation Runner (`src/solari_cua/eval/runner.py`)**: Multi-mode execution engine supporting `reflex_only` and `hybrid` modes with headless Chromium and deterministic fallback (`MockEvalPage`).
-6. **Cost Ledger (`src/solari_cua/eval/cost.py`)**: Accounting engine quantifying reflex execution, mock cortex calls, and compute infrastructure runtimes.
-7. **Scorecard Builder (`src/solari_cua/eval/scorecard.py`)**: Aggregates run-level telemetry, computes latency percentiles ($p_{50}, p_{95}, p_{99}$), and renders structured JSON and Markdown comparison scorecards.
+3. **Synthetic Task Suite (`src/arc_cua/eval/tasks_local.py`)**: 13 declarative evaluation tasks covering healthy, stuck, recovery, and negative verification pathways.
+4. **Success Assertion Engine (`src/arc_cua/eval/assertions.py`)**: Multi-modal verification supporting URL, text, element state, input value, page title, and SimHash divergence with Zero-Pixel Trap defense (adapted from ColdStart `qa-framework/assertions.ts`).
+5. **Evaluation Runner (`src/arc_cua/eval/runner.py`)**: Multi-mode execution engine supporting `reflex_only` and `hybrid` modes with headless Chromium and deterministic fallback (`MockEvalPage`).
+6. **Cost Ledger (`src/arc_cua/eval/cost.py`)**: Accounting engine quantifying reflex execution, mock cortex calls, and compute infrastructure runtimes.
+7. **Scorecard Builder (`src/arc_cua/eval/scorecard.py`)**: Aggregates run-level telemetry, computes latency percentiles ($p_{50}, p_{95}, p_{99}$), and renders structured JSON and Markdown comparison scorecards.
 8. **Report Generator (`scripts/report_phase4a.py`)**: Runs evaluation runs and writes all 5 artifacts to `artifacts/phase4a/`.
 9. **Benchmark Suite (`scripts/benchmark_phase4a.py`)**: Measures runner overhead, assertion latency, and scorecard build latency against empirical target thresholds.
 
@@ -340,14 +340,14 @@ Phase 4A provides the empirical validation harness for the Solari Hybrid CUA pri
 
 ### Status: COMPLETE (PASS)
 
-Phase 4B connects the Solari evaluation harness to real-world benchmark tasks from WebArena-Verified without requiring live multi-gigabyte Docker infrastructure.
+Phase 4B connects the Arc evaluation harness to real-world benchmark tasks from WebArena-Verified without requiring live multi-gigabyte Docker infrastructure.
 
 #### Components Delivered:
-1. **WebArena Environment Adapter (`src/solari_cua/eval/webarena_env.py`)**: Dual-mode environment manager supporting offline in-memory SQLite and live Docker container endpoints. Includes `DatabaseDiffEngine` for dual-layer state attestation.
-2. **WebArena Task Schema Mapper (`src/solari_cua/eval/webarena_mapper.py`)**: Converts external WebArena JSON/JSONL tasks to internal `EvalTask` and `EvalAssertion` structures with graceful `SKIP` handling for unsupported evaluation types.
-3. **WebArena Assertion Adapter (`src/solari_cua/eval/webarena_assertions.py`)**: Comprehensive assertion engine supporting `url_match` (exact, prefix, regex, query-order normalization), `string_match` (fuzzy, exact, must_include), and `program_html` (SQL querying and table diff verification).
-4. **Curated Subset Task Suite (`src/solari_cua/eval/tasks_webarena.py`)**: 12 representative tasks spanning Reddit, Shopping, and GitLab domains with all primary evaluation modalities.
-5. **WebArena Eval Runner (`src/solari_cua/eval/webarena_runner.py`)**: End-to-end integration runner uniting `WebArenaEnv`, `MockWebArenaPage`, `HybridRunner`, and `WebArenaAssertionAdapter`.
+1. **WebArena Environment Adapter (`src/arc_cua/eval/webarena_env.py`)**: Dual-mode environment manager supporting offline in-memory SQLite and live Docker container endpoints. Includes `DatabaseDiffEngine` for dual-layer state attestation.
+2. **WebArena Task Schema Mapper (`src/arc_cua/eval/webarena_mapper.py`)**: Converts external WebArena JSON/JSONL tasks to internal `EvalTask` and `EvalAssertion` structures with graceful `SKIP` handling for unsupported evaluation types.
+3. **WebArena Assertion Adapter (`src/arc_cua/eval/webarena_assertions.py`)**: Comprehensive assertion engine supporting `url_match` (exact, prefix, regex, query-order normalization), `string_match` (fuzzy, exact, must_include), and `program_html` (SQL querying and table diff verification).
+4. **Curated Subset Task Suite (`src/arc_cua/eval/tasks_webarena.py`)**: 12 representative tasks spanning Reddit, Shopping, and GitLab domains with all primary evaluation modalities.
+5. **WebArena Eval Runner (`src/arc_cua/eval/webarena_runner.py`)**: End-to-end integration runner uniting `WebArenaEnv`, `MockWebArenaPage`, `HybridRunner`, and `WebArenaAssertionAdapter`.
 6. **Comprehensive Test Suite (`tests/test_phase4b_webarena.py`)**: 12 automated unit and integration tests covering mapper, assertion adapter, runner, mock database reset, diff engine, zero external network calls, and public Playwright API compliance.
 
 #### Empirical Results:
@@ -364,14 +364,14 @@ Phase 4B connects the Solari evaluation harness to real-world benchmark tasks fr
 
 ### Status: COMPLETE (PASS)
 
-Phase 4C connects the Solari evaluation harness to real-world desktop benchmark tasks from OSWorld (Xie et al., 2024), focusing on OS file operations, terminal command execution, and desktop application accessibility without requiring live multi-gigabyte VM infrastructure.
+Phase 4C connects the Arc evaluation harness to real-world desktop benchmark tasks from OSWorld (Xie et al., 2024), focusing on OS file operations, terminal command execution, and desktop application accessibility without requiring live multi-gigabyte VM infrastructure.
 
 #### Components Delivered:
-1. **OSWorld Environment Adapter (`src/solari_cua/eval/osworld_env.py`)**: Dual-mode environment manager supporting offline in-memory POSIX file system, simulated shell command execution, and AT-SPI accessibility hierarchy integration with `src/solari_cua/at_spi_bridge.py`.
-2. **OSWorld Task Schema Mapper (`src/solari_cua/eval/osworld_mapper.py`)**: Ingests and maps OSWorld JSON/JSONL benchmark definitions into `EvalTask` and `EvalAssertion` schemas with graceful `SKIP` handling for unsupported evaluation types.
-3. **OSWorld Assertion Adapter (`src/solari_cua/eval/osworld_assertions.py`)**: Comprehensive desktop assertion engine supporting `file_exist` (positive and negative deletion checks), `file_content_match` (substring, regex, exact, lines_include), `terminal_output_match` (stdout/stderr and command history), and `at_spi_state_match` (widget role, name, and accessibility state flags).
-4. **Curated Desktop Subset Task Suite (`src/solari_cua/eval/tasks_osworld.py`)**: 12 representative tasks spanning OS File System (`os_fs`), Terminal (`terminal`), and Desktop Apps (`desktop` - VS Code, GNOME Terminal) with all primary desktop evaluation modalities.
-5. **OSWorld Eval Runner (`src/solari_cua/eval/osworld_runner.py`)**: End-to-end integration runner uniting `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and `OSWorldAssertionAdapter`.
+1. **OSWorld Environment Adapter (`src/arc_cua/eval/osworld_env.py`)**: Dual-mode environment manager supporting offline in-memory POSIX file system, simulated shell command execution, and AT-SPI accessibility hierarchy integration with `src/arc_cua/at_spi_bridge.py`.
+2. **OSWorld Task Schema Mapper (`src/arc_cua/eval/osworld_mapper.py`)**: Ingests and maps OSWorld JSON/JSONL benchmark definitions into `EvalTask` and `EvalAssertion` schemas with graceful `SKIP` handling for unsupported evaluation types.
+3. **OSWorld Assertion Adapter (`src/arc_cua/eval/osworld_assertions.py`)**: Comprehensive desktop assertion engine supporting `file_exist` (positive and negative deletion checks), `file_content_match` (substring, regex, exact, lines_include), `terminal_output_match` (stdout/stderr and command history), and `at_spi_state_match` (widget role, name, and accessibility state flags).
+4. **Curated Desktop Subset Task Suite (`src/arc_cua/eval/tasks_osworld.py`)**: 12 representative tasks spanning OS File System (`os_fs`), Terminal (`terminal`), and Desktop Apps (`desktop` - VS Code, GNOME Terminal) with all primary desktop evaluation modalities.
+5. **OSWorld Eval Runner (`src/arc_cua/eval/osworld_runner.py`)**: End-to-end integration runner uniting `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and `OSWorldAssertionAdapter`.
 6. **Comprehensive Test Suite (`tests/test_phase4c_osworld.py`)**: 13 automated unit and integration tests covering mapper, assertion adapter, runner, environment reset, zero external network calls, and public Playwright API compliance.
 
 #### Empirical Results:
@@ -391,10 +391,10 @@ Phase 4C connects the Solari evaluation harness to real-world desktop benchmark 
 Phase 5 connects the fully tested offline architecture to real-world production infrastructure, enabling live MicroVM management, real frontier LLM reasoning, benchmark orchestration, and definitive cost/efficiency accounting.
 
 #### Components Delivered:
-1. **Solari Cloud Driver (`src/solari_cua/cloud/solari_driver.py`)**: REST API and SDK driver for provisioning and managing ephemeral MicroVMs, stealth browsers, and desktop sandboxes. Captures CDP endpoints, VNC streams, and replay URLs. Gracefully falls back to mock mode if `SOLARI_API_KEY` is missing and tracks compute duration in milliseconds.
-2. **Real Cortex LLM Adapter (`src/solari_cua/cortex/real_llm_cortex.py`)**: Frontier reasoning adapter supporting TypeSafe Jev, OpenAI GPT-4o, and Anthropic Claude. Enforces strict `CORTEX_MODE=real` safety gate, formats structured JSON prompt schemas, validates output through `RecoveryCompiler`, and computes exact token costs via provider pricing tables.
-3. **Live Environment Orchestrator (`src/solari_cua/eval/live_orchestrator.py`)**: Virtualization and container lifecycle manager supporting WebArena `docker-compose` and OSWorld QEMU/KVM. Implements `wait_for_healthy()` polling and `reset_state()` database/snapshot restores, logging `LIVE_ORCHESTRATION_SKIPPED` when host virtualization is absent.
-4. **Production Scorecard Generator (`scripts/report_production.py`)**: End-to-end benchmark reporting pipeline quantifying Solari MicroVM compute costs, LLM token costs, proxy/storage expenses, wall-clock latencies, and Step Efficiency Ratio (SER) vs. human gold paths.
+1. **Arc Cloud Driver (`src/arc_cua/cloud/arc_driver.py`)**: REST API and SDK driver for provisioning and managing ephemeral MicroVMs, stealth browsers, and desktop sandboxes. Captures CDP endpoints, VNC streams, and replay URLs. Gracefully falls back to mock mode if `ARC_API_KEY` is missing and tracks compute duration in milliseconds.
+2. **Real Cortex LLM Adapter (`src/arc_cua/cortex/real_llm_cortex.py`)**: Frontier reasoning adapter supporting TypeSafe Jev, OpenAI GPT-4o, and Anthropic Claude. Enforces strict `CORTEX_MODE=real` safety gate, formats structured JSON prompt schemas, validates output through `RecoveryCompiler`, and computes exact token costs via provider pricing tables.
+3. **Live Environment Orchestrator (`src/arc_cua/eval/live_orchestrator.py`)**: Virtualization and container lifecycle manager supporting WebArena `docker-compose` and OSWorld QEMU/KVM. Implements `wait_for_healthy()` polling and `reset_state()` database/snapshot restores, logging `LIVE_ORCHESTRATION_SKIPPED` when host virtualization is absent.
+4. **Production Scorecard Generator (`scripts/report_production.py`)**: End-to-end benchmark reporting pipeline quantifying Arc MicroVM compute costs, LLM token costs, proxy/storage expenses, wall-clock latencies, and Step Efficiency Ratio (SER) vs. human gold paths.
 5. **Production Test Suite (`tests/test_phase5_production.py`)**: 18 automated unit and integration tests covering missing API key handling, prompt formatting, JSON parsing, token cost calculations, live orchestrator skips, and scorecard artifact generation.
 6. **Production Artifacts (`artifacts/production/`)**: Generated `final_scorecard.json`, `production_report.md`, and `live_trajectory_logs.jsonl`.
 
@@ -412,7 +412,7 @@ Phase 5 connects the fully tested offline architecture to real-world production 
 
 ### Status: COMPLETE (PASS)
 
-Phase 6 transitions the Solari Hybrid CUA project from the base architecture into full-scale research execution, delivering automated benchmark runners for complete datasets, learned monitor training pipelines, and whitepaper-grade final reporting.
+Phase 6 transitions the ARC project from the base architecture into full-scale research execution, delivering automated benchmark runners for complete datasets, learned monitor training pipelines, and whitepaper-grade final reporting.
 
 #### Components Delivered:
 1. **Full WebArena Benchmark Runner (`scripts/run_full_webarena.py`)**:
@@ -426,7 +426,7 @@ Phase 6 transitions the Solari Hybrid CUA project from the base architecture int
    - Captures pre- and post-task file system snapshots to compute exact file diffs (`added`, `removed`, `modified`).
    - Captures AT-SPI accessibility state (`active_window`, `focused_widget`, `total_node_count`, `actionable_count`) before and after each task.
    - Probes live KVM/X11 display and falls back to first 20 tasks in mock mode, logging `FULL_RUN_REQUIRES_LIVE_INFRA`.
-3. **ModernBERT Monitor Training Pipeline (`src/solari_cua/monitors/training_pipeline.py` & `scripts/train_monitors_full.py`)**:
+3. **ModernBERT Monitor Training Pipeline (`src/arc_cua/monitors/training_pipeline.py` & `scripts/train_monitors_full.py`)**:
    - Ingests all `trajectory_logs.jsonl` files from `artifacts/` and windows execution transitions.
    - Auto-labels dataset using deterministic Phase 3B heuristics for stuck and milestone conditions.
    - Implements 80/20 train/test split, inverse-frequency class balancing, and validation F1-based early stopping.

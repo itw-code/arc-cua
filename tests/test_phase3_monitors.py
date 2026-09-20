@@ -39,25 +39,25 @@ import pytest
 # Ensure src is in python path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from solari_cua.cdp_extractor import AXNode, SanitizedAXTree
-from solari_cua.cortex import (
+from arc_cua.cdp_extractor import AXNode, SanitizedAXTree
+from arc_cua.cortex import (
     CortexClient,
     MockCortexClient,
     RecoveryCompilationError,
     RecoveryCompiler,
 )
-from solari_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
-from solari_cua.hybrid_runner import HybridRunner
-from solari_cua.locator_resolver import LocatorResolver
-from solari_cua.monitors import (
+from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.hybrid_runner import HybridRunner
+from arc_cua.locator_resolver import LocatorResolver
+from arc_cua.monitors import (
     EscalationController,
     MilestoneMonitor,
     StepTelemetry,
     StuckMonitor,
 )
-from solari_cua.playwright_executor import PlaywrightExecutor
-from solari_cua.reflex_runner import ReflexRunner, ReflexStatus
-from solari_cua.schemas import (
+from arc_cua.playwright_executor import PlaywrightExecutor
+from arc_cua.reflex_runner import ReflexRunner, ReflexStatus
+from arc_cua.schemas import (
     ActionStep,
     DecisionType,
     EscalationPayload,
@@ -69,9 +69,9 @@ from solari_cua.schemas import (
     TelemetryRecord,
     UIState,
 )
-from solari_cua.session_guard import SessionGuard
-from solari_cua.state_verifier import StateVerifier
-from solari_cua.telemetry import TelemetryCollector, compute_simhash64
+from arc_cua.session_guard import SessionGuard
+from arc_cua.state_verifier import StateVerifier
+from arc_cua.telemetry import TelemetryCollector, compute_simhash64
 
 
 # ============================================================================
@@ -158,7 +158,7 @@ class MockMouse:
 class MockPlaywrightPage:
     """Mock of Playwright Page exposing only public methods."""
 
-    def __init__(self, url: str = "https://app.solari.local/dashboard", default_present: bool = True):
+    def __init__(self, url: str = "https://app.arc.local/dashboard", default_present: bool = True):
         self.url = url
         self.keyboard = MockKeyboard()
         self.mouse = MockMouse()
@@ -306,7 +306,7 @@ def test_06_milestone_monitor_detects_url_milestone():
         success=True,
         state_changed=True,
         url_changed=True,
-        url="https://app.solari.local/dashboard/overview",
+        url="https://app.arc.local/dashboard/overview",
     )
     goal = {"goal": "Login and navigate to dashboard", "expected_url": "/dashboard"}
     sig = monitor.evaluate(step, goal=goal)
@@ -350,7 +350,7 @@ def test_08_milestone_monitor_does_not_trigger_on_error_state():
         error_message="500 Internal Server Error",
         state_changed=True,
         url_changed=True,
-        url="https://app.solari.local/error",
+        url="https://app.arc.local/error",
     )
     sig = monitor.evaluate(step, goal="Navigate to overview")
 
@@ -370,7 +370,7 @@ def test_09_escalation_controller_requires_consecutive_stuck_signals():
         consecutive_stuck_required=2,
         local_recovery_enabled=False,
     )
-    from solari_cua.schemas import StuckSignal
+    from arc_cua.schemas import StuckSignal
 
     # First stuck signal: must CONTINUE (Rule 1)
     sig1 = StuckSignal(stuck_score=0.85, is_stuck=True, reason="noise")
@@ -388,7 +388,7 @@ def test_09_escalation_controller_requires_consecutive_stuck_signals():
 def test_10_escalation_controller_escalates_immediately_on_hard_failure():
     """Test 10: Hard failures escalate immediately without waiting for consecutive steps."""
     controller = EscalationController()
-    from solari_cua.schemas import StuckSignal
+    from arc_cua.schemas import StuckSignal
 
     sig = StuckSignal(stuck_score=0.0, is_stuck=False)
 
@@ -402,7 +402,7 @@ def test_10_escalation_controller_escalates_immediately_on_hard_failure():
 def test_11_escalation_controller_enforces_cooldown():
     """Test 11: Escalation Controller enforces cooldown after recovery."""
     controller = EscalationController(cooldown_steps=3)
-    from solari_cua.schemas import StuckSignal
+    from arc_cua.schemas import StuckSignal
 
     controller.activate_cooldown(steps=3)
     high_stuck = StuckSignal(stuck_score=0.90, is_stuck=True, reason="noise")
@@ -429,7 +429,7 @@ def test_11_escalation_controller_enforces_cooldown():
 def test_12_escalation_controller_respects_max_escalation_budget():
     """Test 12: Escalation Controller aborts when max escalation budget is exceeded."""
     controller = EscalationController(max_escalations_per_task=2)
-    from solari_cua.schemas import StuckSignal
+    from arc_cua.schemas import StuckSignal
 
     sig = StuckSignal(stuck_score=0.0, is_stuck=False)
 
@@ -627,7 +627,7 @@ def test_17_hybrid_runner_does_not_call_external_network_in_mock_mode(monkeypatc
 
 def test_18_public_playwright_api_compliance():
     """Test 18: Verify Phase 3 codebase contains strictly zero private Playwright internals."""
-    src_dir = pathlib.Path(__file__).parent.parent / "src" / "solari_cua"
+    src_dir = pathlib.Path(__file__).parent.parent / "src" / "arc_cua"
     monitors_dir = src_dir / "monitors"
     cortex_dir = src_dir / "cortex"
 

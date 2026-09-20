@@ -1,11 +1,11 @@
-# Solari Hybrid CUA Production Scorecard & Benchmark Report
+# ARC Production Scorecard & Benchmark Report
 
 > Generated: `2026-09-20T22:12:07.756306`  
-> Benchmark Harness: `Solari Hybrid CUA v1.0 (Phases 1 - 5 Production)`  
+> Benchmark Harness: `ARC v1.0 (Phases 1 - 5 Production)`  
 
 ## Executive Scorecard Summary
 
-| Metric | Solari Hybrid Production | Frontier LLM Baseline | Status / Target |
+| Metric | Arc Hybrid Production | Frontier LLM Baseline | Status / Target |
 | :--- | :--- | :--- | :--- |
 | **Overall Success Rate** | **100.0%** (10/10) | ~13.3% | Target Exceeded |
 | **WebArena Success Rate** | **100.0%** (5/5) | 14.4% (GPT-4) | **+85.6%** |
@@ -18,7 +18,7 @@
 
 | Component | Host Detection | Execution Mode | Notes |
 | :--- | :--- | :--- | :--- |
-| **Solari Cloud Driver** | `LIVE` | Ephemeral MicroVM & Browser | `SOLARI_API_KEY` graceful fallback |
+| **Arc Cloud Driver** | `LIVE` | Ephemeral MicroVM & Browser | `ARC_API_KEY` graceful fallback |
 | **Cortex Reasoning** | `MOCK` | Frontier LLM Adapter | Strict JSON schema + cost tracking |
 | **Docker Daemon** | `AVAILABLE` | WebArena Container Cluster | `Docker daemon running and responsive` |
 | **KVM Virtualization** | `NOT_DETECTED` | OSWorld QEMU Hardware Accel | `KVM acceleration device (/dev/kvm) not present on this host OS` |
@@ -27,7 +27,7 @@
 
 | Cost Component | Usage Quantity | Unit Rate | Subtotal (USD) |
 | :--- | :--- | :--- | :--- |
-| **Solari MicroVM Compute** | 4343.5 ms | $0.036 / hr ($1e-8/ms) | $0.000043 |
+| **Arc MicroVM Compute** | 4343.5 ms | $0.036 / hr ($1e-8/ms) | $0.000043 |
 | **Cortex LLM Tokens** | 0 tokens | Provider Pricing Table | $0.000000 |
 | **Stealth Proxy & Storage** | 10 task sessions | $0.0015 / task | $0.015000 |
 | **Local Reflex Steps** | 12 actions | $0.0000 (Local Engine) | $0.000000 |

@@ -2,12 +2,12 @@
 """Production Scorecard & Live Integration Report Generator (Phase 5 Task 4).
 
 Executes a representative subset of WebArena and OSWorld benchmark tasks
-against the Solari Hybrid CUA architecture:
-- Integrates SolariCloudDriver for ephemeral MicroVM/browser session management.
+against the ARC architecture:
+- Integrates ArcCloudDriver for ephemeral MicroVM/browser session management.
 - Integrates RealLlmCortex (or mock/fallback) for reasoning escalation.
 - Probes and orchestrates live Docker/KVM infrastructure via LiveOrchestrator.
 - Computes comprehensive production metrics:
-  * Real total cost: Solari VM time + Real LLM tokens + Proxy/Storage costs.
+  * Real total cost: Arc VM time + Real LLM tokens + Proxy/Storage costs.
   * Real wall-clock latency percentiles (p50, p95, p99).
   * Step Efficiency Ratio (SER = Agent Steps / Human Gold Steps).
   * Performance delta against theoretical frontier LLM baselines.
@@ -43,16 +43,16 @@ if env_file.exists():
                 _k, _v = _line.split("=", 1)
                 os.environ.setdefault(_k.strip(), _v.strip())
 
-from solari_cua.cloud.solari_driver import SolariCloudDriver
-from solari_cua.cortex.real_llm_cortex import PROVIDER_PRICING, RealLlmCortex, create_real_cortex_client
-from solari_cua.datasets.trajectory_collector import TrajectoryCollector
-from solari_cua.eval.live_orchestrator import LIVE_ORCHESTRATION_SKIPPED, LiveOrchestrator
-from solari_cua.eval.osworld_runner import OSWorldRunner
-from solari_cua.eval.schemas import EvalResult
-from solari_cua.eval.tasks_osworld import create_osworld_subset
-from solari_cua.eval.tasks_webarena import create_webarena_subset
-from solari_cua.eval.webarena_runner import WebArenaRunner
-from solari_cua.telemetry import compute_percentiles
+from arc_cua.cloud.arc_driver import ArcCloudDriver
+from arc_cua.cortex.real_llm_cortex import PROVIDER_PRICING, RealLlmCortex, create_real_cortex_client
+from arc_cua.datasets.trajectory_collector import TrajectoryCollector
+from arc_cua.eval.live_orchestrator import LIVE_ORCHESTRATION_SKIPPED, LiveOrchestrator
+from arc_cua.eval.osworld_runner import OSWorldRunner
+from arc_cua.eval.schemas import EvalResult
+from arc_cua.eval.tasks_osworld import create_osworld_subset
+from arc_cua.eval.tasks_webarena import create_webarena_subset
+from arc_cua.eval.webarena_runner import WebArenaRunner
+from arc_cua.telemetry import compute_percentiles
 
 logging.basicConfig(
     level=logging.INFO,
@@ -84,8 +84,8 @@ def run_production_evaluation(
     start_run_time = time.time()
 
     # 1. Initialize Cloud Driver
-    cloud_driver = SolariCloudDriver()
-    logger.info(f"SolariCloudDriver initialized [is_mock={cloud_driver.is_mock}]")
+    cloud_driver = ArcCloudDriver()
+    logger.info(f"ArcCloudDriver initialized [is_mock={cloud_driver.is_mock}]")
 
     # 2. Initialize Live Orchestrator
     orchestrator = LiveOrchestrator()
@@ -207,10 +207,10 @@ def run_production_evaluation(
     avg_step_latency_ms = (lat_dist.mean / (total_agent_steps / total_tasks)) if total_agent_steps > 0 else 5.0
 
     # 9. Cost Ledger Calculations
-    # Solari MicroVM compute cost ($0.036/hr = $0.00000001 per ms)
+    # Arc MicroVM compute cost ($0.036/hr = $0.00000001 per ms)
     total_compute_ms = cloud_driver.get_total_compute_time_ms()
-    solari_vm_rate_per_ms = 0.00000001
-    solari_compute_cost = total_compute_ms * solari_vm_rate_per_ms
+    arc_vm_rate_per_ms = 0.00000001
+    arc_compute_cost = total_compute_ms * arc_vm_rate_per_ms
 
     # Real LLM token cost
     cortex_tokens = 0
@@ -228,7 +228,7 @@ def run_production_evaluation(
     storage_cost_per_task = 0.0005
     proxy_storage_cost = total_tasks * (proxy_cost_per_task + storage_cost_per_task)
 
-    total_cost_usd = solari_compute_cost + cortex_cost_usd + proxy_storage_cost
+    total_cost_usd = arc_compute_cost + cortex_cost_usd + proxy_storage_cost
     avg_cost_per_task = total_cost_usd / total_tasks if total_tasks > 0 else 0.0
 
     # Baseline comparison deltas
@@ -249,7 +249,7 @@ def run_production_evaluation(
         "run_metadata": {
             "platform": platform.platform(),
             "python_version": platform.python_version(),
-            "solari_cloud_mode": "mock" if cloud_driver.is_mock else "live",
+            "arc_cloud_mode": "mock" if cloud_driver.is_mock else "live",
             "cortex_mode": cortex_mode,
             "total_tasks_evaluated": total_tasks,
             "webarena_tasks": len(webarena_results),
@@ -276,8 +276,8 @@ def run_production_evaluation(
             "duration_p99_ms": round(lat_dist.p99, 2),
         },
         "cost_metrics": {
-            "solari_compute_ms": round(total_compute_ms, 2),
-            "solari_compute_cost_usd": round(solari_compute_cost, 6),
+            "arc_compute_ms": round(total_compute_ms, 2),
+            "arc_compute_cost_usd": round(arc_compute_cost, 6),
             "cortex_tokens_used": cortex_tokens,
             "cortex_cost_usd": round(cortex_cost_usd, 6),
             "proxy_storage_cost_usd": round(proxy_storage_cost, 6),
@@ -323,16 +323,16 @@ def _generate_markdown_report(
     infra = data["infrastructure"]
 
     lines = []
-    lines.append("# Solari Hybrid CUA Production Scorecard & Benchmark Report")
+    lines.append("# ARC Production Scorecard & Benchmark Report")
     lines.append("")
     lines.append(f"> Generated: `{data['timestamp']}`  ")
-    lines.append(f"> Benchmark Harness: `Solari Hybrid CUA v1.0 (Phases 1 - 5 Production)`  ")
+    lines.append(f"> Benchmark Harness: `ARC v1.0 (Phases 1 - 5 Production)`  ")
     lines.append("")
 
     # Executive Summary
     lines.append("## Executive Scorecard Summary")
     lines.append("")
-    lines.append("| Metric | Solari Hybrid Production | Frontier LLM Baseline | Status / Target |")
+    lines.append("| Metric | Arc Hybrid Production | Frontier LLM Baseline | Status / Target |")
     lines.append("| :--- | :--- | :--- | :--- |")
     lines.append(f"| **Overall Success Rate** | **{succ['overall_success_rate']*100:.1f}%** ({succ['overall_successful_tasks']}/{run_meta['total_tasks_evaluated']}) | ~13.3% | Target Exceeded |")
     lines.append(f"| **WebArena Success Rate** | **{succ['webarena_success_rate']*100:.1f}%** ({succ['webarena_successful_tasks']}/{run_meta['webarena_tasks']}) | 14.4% (GPT-4) | **+{comp['webarena_delta']:.1f}%** |")
@@ -347,7 +347,7 @@ def _generate_markdown_report(
     lines.append("")
     lines.append("| Component | Host Detection | Execution Mode | Notes |")
     lines.append("| :--- | :--- | :--- | :--- |")
-    lines.append(f"| **Solari Cloud Driver** | `{run_meta['solari_cloud_mode'].upper()}` | Ephemeral MicroVM & Browser | `SOLARI_API_KEY` graceful fallback |")
+    lines.append(f"| **Arc Cloud Driver** | `{run_meta['arc_cloud_mode'].upper()}` | Ephemeral MicroVM & Browser | `ARC_API_KEY` graceful fallback |")
     lines.append(f"| **Cortex Reasoning** | `{run_meta['cortex_mode'].upper()}` | Frontier LLM Adapter | Strict JSON schema + cost tracking |")
     lines.append(f"| **Docker Daemon** | `{'AVAILABLE' if infra['docker_available'] else 'NOT_DETECTED'}` | WebArena Container Cluster | `{infra['docker_reason']}` |")
     lines.append(f"| **KVM Virtualization** | `{'AVAILABLE' if infra['kvm_available'] else 'NOT_DETECTED'}` | OSWorld QEMU Hardware Accel | `{infra['kvm_reason']}` |")
@@ -358,7 +358,7 @@ def _generate_markdown_report(
     lines.append("")
     lines.append("| Cost Component | Usage Quantity | Unit Rate | Subtotal (USD) |")
     lines.append("| :--- | :--- | :--- | :--- |")
-    lines.append(f"| **Solari MicroVM Compute** | {cost['solari_compute_ms']:.1f} ms | $0.036 / hr ($1e-8/ms) | ${cost['solari_compute_cost_usd']:.6f} |")
+    lines.append(f"| **Arc MicroVM Compute** | {cost['arc_compute_ms']:.1f} ms | $0.036 / hr ($1e-8/ms) | ${cost['arc_compute_cost_usd']:.6f} |")
     lines.append(f"| **Cortex LLM Tokens** | {cost['cortex_tokens_used']} tokens | Provider Pricing Table | ${cost['cortex_cost_usd']:.6f} |")
     lines.append(f"| **Stealth Proxy & Storage** | {run_meta['total_tasks_evaluated']} task sessions | $0.0015 / task | ${cost['proxy_storage_cost_usd']:.6f} |")
     lines.append(f"| **Local Reflex Steps** | {eff['total_agent_steps']} actions | $0.0000 (Local Engine) | $0.000000 |")
@@ -384,7 +384,7 @@ def _generate_markdown_report(
 
 def main() -> int:
     """CLI entrypoint for production reporting."""
-    parser = argparse.ArgumentParser(description="Solari Hybrid CUA Production Scorecard Generator")
+    parser = argparse.ArgumentParser(description="ARC Production Scorecard Generator")
     parser.add_argument("--webarena-count", type=int, default=5, help="Number of WebArena tasks to evaluate")
     parser.add_argument("--osworld-count", type=int, default=5, help="Number of OSWorld tasks to evaluate")
     parser.add_argument("--output-dir", type=pathlib.Path, default=REPO_ROOT / "artifacts" / "production", help="Output directory")

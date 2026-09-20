@@ -20,23 +20,23 @@
 ## 2. Files Added/Updated
 
 ### Files Added:
-1. `src/solari_cua/monitors/__init__.py`: Monitors subsystem entry point exporting `StuckMonitor`, `StepTelemetry`, `MilestoneMonitor`, and `EscalationController`.
-2. `src/solari_cua/monitors/stuck_monitor.py`: Deterministic sliding-window monitor evaluating 7 failure patterns with sub-10ms latency.
-3. `src/solari_cua/monitors/milestone_monitor.py`: Heuristic goal advancement detector with pluggable `SemanticProgressEstimator` interface.
-4. `src/solari_cua/monitors/escalation_controller.py`: Policy governor managing state transitions, hysteresis, cooldown, and budgets.
-5. `src/solari_cua/cortex/__init__.py`: Cortex package entry point exporting interfaces, mock client, and compiler.
-6. `src/solari_cua/cortex/cortex_interface.py`: Abstract contract `CortexClient` for escalation recovery reasoning.
-7. `src/solari_cua/cortex/mock_cortex.py`: Deterministic offline Mock Cortex generating typed `RecoveryPlan` objects.
-8. `src/solari_cua/cortex/recovery_compiler.py`: Strict compiler validating supported verbs, targets, and safety invariants into `ActionStep` sequences.
-9. `src/solari_cua/hybrid_runner.py`: Orchestrator combining Phase 2 Reflex automation with Phase 3 monitors and recovery execution.
+1. `src/arc_cua/monitors/__init__.py`: Monitors subsystem entry point exporting `StuckMonitor`, `StepTelemetry`, `MilestoneMonitor`, and `EscalationController`.
+2. `src/arc_cua/monitors/stuck_monitor.py`: Deterministic sliding-window monitor evaluating 7 failure patterns with sub-10ms latency.
+3. `src/arc_cua/monitors/milestone_monitor.py`: Heuristic goal advancement detector with pluggable `SemanticProgressEstimator` interface.
+4. `src/arc_cua/monitors/escalation_controller.py`: Policy governor managing state transitions, hysteresis, cooldown, and budgets.
+5. `src/arc_cua/cortex/__init__.py`: Cortex package entry point exporting interfaces, mock client, and compiler.
+6. `src/arc_cua/cortex/cortex_interface.py`: Abstract contract `CortexClient` for escalation recovery reasoning.
+7. `src/arc_cua/cortex/mock_cortex.py`: Deterministic offline Mock Cortex generating typed `RecoveryPlan` objects.
+8. `src/arc_cua/cortex/recovery_compiler.py`: Strict compiler validating supported verbs, targets, and safety invariants into `ActionStep` sequences.
+9. `src/arc_cua/hybrid_runner.py`: Orchestrator combining Phase 2 Reflex automation with Phase 3 monitors and recovery execution.
 10. `tests/test_phase3_monitors.py`: 18 comprehensive tests covering all monitor, controller, compiler, and runner invariants.
 11. `scripts/benchmark_phase3.py`: Automated benchmarking script measuring p50, p95, and p99 percentiles across 1,000 samples.
 
 ### Files Updated:
-1. `src/solari_cua/schemas.py`: Added `MonitorSignals`, `StuckSignal`, `MilestoneSignal`, `EscalationDecision`, `RecoveryPlan`, `CortexResponse`, `HybridRunResult`, and extended `TelemetryRecord` with Phase 3 fields.
-2. `src/solari_cua/telemetry.py`: Added Phase 3 metric buffers, monitor summary calculation, and credential-sanitized JSONL export.
-3. `src/solari_cua/reflex_runner.py`: Enhanced action normalization to accept `target` alongside `target_selector`/`selector`, and included target/verb metadata in action failure escalation payloads.
-4. `src/solari_cua/__init__.py`: Exposed all Phase 3 classes and functions.
+1. `src/arc_cua/schemas.py`: Added `MonitorSignals`, `StuckSignal`, `MilestoneSignal`, `EscalationDecision`, `RecoveryPlan`, `CortexResponse`, `HybridRunResult`, and extended `TelemetryRecord` with Phase 3 fields.
+2. `src/arc_cua/telemetry.py`: Added Phase 3 metric buffers, monitor summary calculation, and credential-sanitized JSONL export.
+3. `src/arc_cua/reflex_runner.py`: Enhanced action normalization to accept `target` alongside `target_selector`/`selector`, and included target/verb metadata in action failure escalation payloads.
+4. `src/arc_cua/__init__.py`: Exposed all Phase 3 classes and functions.
 5. `ARCHITECTURE.md`: Documented Phase 3A monitor architecture, controller policy, compiler rules, and hybrid execution flow.
 6. `IMPLEMENTATION_PLAN.md`: Marked Phase 3A deliverables completed with benchmark summaries.
 
@@ -110,7 +110,7 @@ The Escalation Controller evaluates the system state after every step and transi
 
 ## 7. Cross-Repo Patterns Used
 
-Translated patterns from `coldstart/solari-cookbook/`:
+Translated patterns from `coldstart/arc-cookbook/`:
 1. **Role-Based Configuration & Mock Decoupling (`model-router.ts`)**: Decoupled the fast, routine action executor (Reflex) from high-capacity recovery reasoning (Cortex), enforcing default mock mode for offline execution.
 2. **Fixed-Window Loop & Terminal Guardrails (`agent/loop.ts`)**: Implemented sliding-window step evaluations with terminal condition branches (`done`, `aborted`, `stuck`), and consecutive zero-delta detection.
 3. **Structured Telemetry & Redacted Tracing (`agent/trace.ts`)**: Structured per-step JSONL telemetry logging with automated redaction of sensitive credentials (passwords, tokens, API keys).
