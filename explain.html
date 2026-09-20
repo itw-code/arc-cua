@@ -270,7 +270,7 @@
         <!-- Buttons Row -->
         <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
           <div class="flex items-center gap-2">
-            <button id="play-pause-btn" onclick="togglePlay()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black flex items-center gap-1.5 transition">
+            <button id="play-pause-btn" onclick="togglePlay()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-black flex items-center gap-1.5 transition shadow-[0_0_12px_rgba(245,158,11,.35)]">
               <span id="play-btn-icon">⏸</span>
               <span id="play-btn-text">PAUSE</span>
             </button>
@@ -414,8 +414,8 @@
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    // Mature UI sound engine: soft confirmation blip + low completion tick.
-    // Sine/triangle only, short envelopes, conservative gain — no zaps or pops.
+    // Cyber UI sound engine: digital blip + chiptune completion chime.
+    // Square/sawtooth only, short decay, low gain — punchy but never loud.
     function playConfirmSound() {
       if (!soundEnabled) return;
       initAudio();
@@ -424,16 +424,16 @@
         const t = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(520, t);
-        osc.frequency.exponentialRampToValueAtTime(660, t + 0.07);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, t);
+        osc.frequency.setValueAtTime(1320, t + 0.04);
         gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.exponentialRampToValueAtTime(0.08, t + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.045, t + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(t);
-        osc.stop(t + 0.13);
+        osc.stop(t + 0.1);
       } catch (e) {}
     }
 
@@ -445,16 +445,16 @@
         const t = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(392, t);
-        osc.frequency.setValueAtTime(523.25, t + 0.09);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(523.25, t);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, t + 0.12);
         gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.exponentialRampToValueAtTime(0.07, t + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        gain.gain.exponentialRampToValueAtTime(0.055, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(t);
-        osc.stop(t + 0.24);
+        osc.stop(t + 0.2);
       } catch (e) {}
     }
     function toggleSound() {
