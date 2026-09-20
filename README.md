@@ -1,1 +1,0 @@
-# ARC Showcase Pages
