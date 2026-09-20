@@ -403,6 +403,17 @@
   </main>
 
   <script>
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
     // Mature UI sound engine: soft confirmation blip + low completion tick.
     // Sine/triangle only, short envelopes, conservative gain — no zaps or pops.
     function playConfirmSound() {
