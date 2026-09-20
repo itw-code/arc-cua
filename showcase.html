@@ -161,8 +161,8 @@
         <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-blue-400 border-2 border-void"></span>
       </div>
       <div>
-        <div class="font-extrabold text-lg tracking-tight leading-none">
-          ARC
+        <div class="font-extrabold text-lg tracking-tight leading-none flex items-center gap-1.5">
+          ARC <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 tracking-normal">ON SOLARI</span>
         </div>
         <div class="text-[10px] font-mono text-muted tracking-[.22em] uppercase mt-1">Reflex + Cortex · 2.31 ms</div>
       </div>
@@ -207,14 +207,14 @@
         </div>
 
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] text-white">
-          Arc Hybrid CUA
+          ARC Architecture
           <span class="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-blue-400 to-blue-600">
-            Sub-10ms Reflex. 99.7% Cost Reduction.
+            Sub-10ms Reflex on Solari MicroVMs
           </span>
         </h1>
 
         <p class="mt-6 text-lg text-slate-300 leading-relaxed max-w-2xl">
-          Monolithic Computer-Using Agents incur a crushing <span class="text-red-400 font-semibold">vision tax</span>: sending high-resolution screenshots over the WAN to frontier LLMs for every keystroke. ARC decouples perception from reasoning through a dual-layer cascade: <strong>sub-10ms local reflex execution</strong> with cloud LLM escalation <em>only</em> on verified anomalies.
+          Monolithic Computer-Using Agents incur a crushing <span class="text-red-400 font-semibold">vision tax</span>: sending high-resolution screenshots over the WAN to frontier LLMs for every keystroke. ARC decouples perception from reasoning by executing directly inside the <strong>Solari MicroVM</strong>: <strong>sub-10ms local reflex execution</strong> with cloud LLM escalation <em>only</em> on verified anomalies.
         </p>
 
         <!-- CTA Buttons -->
@@ -482,7 +482,7 @@
           <div class="inline-flex p-1 rounded-xl bg-black/50 border border-white/10 gap-1 font-mono text-xs">
             <button id="view-compare-btn" onclick="setArchitectureView('compare')" class="px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold transition">Compare</button>
             <button id="view-trad-btn" onclick="setArchitectureView('trad')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Traditional</button>
-            <button id="view-primary-btn" onclick="setArchitectureView('primary')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Arc</button>
+            <button id="view-arc-btn" onclick="setArchitectureView('arc')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Arc</button>
           </div>
         </div>
 
@@ -569,8 +569,8 @@
             </div>
           </div>
 
-          <!-- Panel 2: Arc Hybrid CUA -->
-          <div id="arch-panel-primary" class="rounded-2xl glass-card-primary p-5 sm:p-6 flex flex-col justify-between">
+          <!-- Panel 2: ARC -->
+          <div id="arch-panel-arc" class="rounded-2xl glass-card-primary p-5 sm:p-6 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between pb-4 border-b border-blue-500/20 mb-4">
                 <div>
@@ -1504,12 +1504,12 @@
     // =========================================================================
     function setArchitectureView(view) {
       const panelTrad = document.getElementById('arch-panel-trad');
-      const panelPrimary = document.getElementById('arch-panel-primary');
+      const panelArc = document.getElementById('arch-panel-arc') || document.getElementById('arch-panel-primary');
       const btnCompare = document.getElementById('view-compare-btn');
       const btnTrad = document.getElementById('view-trad-btn');
-      const btnPrimary = document.getElementById('view-primary-btn');
+      const btnArc = document.getElementById('view-arc-btn') || document.getElementById('view-primary-btn');
 
-      [btnCompare, btnTrad, btnPrimary].forEach(btn => {
+      [btnCompare, btnTrad, btnArc].forEach(btn => {
         if (btn) {
           btn.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
         }
@@ -1517,16 +1517,16 @@
 
       if (view === 'compare') {
         if (panelTrad) panelTrad.style.display = '';
-        if (panelPrimary) panelPrimary.style.display = '';
+        if (panelArc) panelArc.style.display = '';
         if (btnCompare) btnCompare.className = 'px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold transition';
       } else if (view === 'trad') {
         if (panelTrad) panelTrad.style.display = '';
-        if (panelPrimary) panelPrimary.style.display = 'none';
+        if (panelArc) panelArc.style.display = 'none';
         if (btnTrad) btnTrad.className = 'px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 font-bold transition';
       } else if (view === 'arc') {
         if (panelTrad) panelTrad.style.display = 'none';
-        if (panelPrimary) panelPrimary.style.display = '';
-        if (btnPrimary) btnPrimary.className = 'px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 font-bold transition';
+        if (panelArc) panelArc.style.display = '';
+        if (btnArc) btnArc.className = 'px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 font-bold transition';
       }
     }
 
