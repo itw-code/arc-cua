@@ -1,0 +1,10 @@
+# Ignore source and test folders left over in working tree
+.env
+.env.*
+src/
+scripts/
+tests/
+artifacts/
+docs/
+node_modules/
+.pytest_cache/
