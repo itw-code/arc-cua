@@ -62,6 +62,19 @@ All figures derived from empirical evaluation and production scorecards (see [`a
 
 ---
 
+## References
+
+Sourced works actually underlying the claims above. Benchmark task definitions follow WebArena and OSWorld; perception/cost methods follow Mind2Web and the monitor-model literature. All repository-measured figures (2.31 ms avg latency, $0.0015/task, 100% mock success, 94.2%/98.1%/100% monitor rates) come from this repository's own scorecard — not from these papers. External GPT-4o/Sonnet comparison rows are this repo's recorded baselines, not paper results. Full context in [`docs/REFERENCES.md`](./docs/REFERENCES.md).
+
+| Work | Citation | Role in this repo |
+|---|---|---|
+| WebArena | Zhou et al., 2024 — https://arxiv.org/abs/2307.13854 | Task definitions for the 812-task web automation benchmark; comparison context only |
+| OSWorld | Xie et al., 2024 — https://arxiv.org/abs/2404.07972 | Task definitions for the 369-task desktop benchmark; execution-based grading rationale |
+| Mind2Web | Deng et al., 2023 — https://arxiv.org/abs/2306.06070 | Pruned accessibility-tree representation method behind the token/cost argument |
+| ModernBERT | Warner et al., 2024 — https://arxiv.org/abs/2412.09535 | Bidirectional-encoder reference for the trajectory monitor design (training pipeline is built; CUDA fine-tuning is a roadmap item) |
+
+---
+
 ## Quickstart
 
 ### 1. Installation
