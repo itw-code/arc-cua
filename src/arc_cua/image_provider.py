@@ -81,6 +81,7 @@ class ArcImageProvider:
         # 1. Template name resolution
         template = (
             template_name
+            or os.environ.get("SOLARI_BASE_TEMPLATE")
             or os.environ.get("ARC_BASE_TEMPLATE")
             or "base"
         )
@@ -89,8 +90,8 @@ class ArcImageProvider:
         kernel_path: Optional[Path] = None
         if kernel_override:
             kernel_path = Path(kernel_override)
-        elif os.environ.get("ARC_KERNEL_PATH"):
-            kernel_path = Path(os.environ["ARC_KERNEL_PATH"])
+        elif os.environ.get("SOLARI_KERNEL_PATH") or os.environ.get("ARC_KERNEL_PATH"):
+            kernel_path = Path(os.environ.get("SOLARI_KERNEL_PATH") or os.environ["ARC_KERNEL_PATH"])
         else:
             kernel_path = self._find_in_search_paths([
                 f"vmlinux-{template}",
@@ -103,8 +104,8 @@ class ArcImageProvider:
         rootfs_path: Optional[Path] = None
         if rootfs_override:
             rootfs_path = Path(rootfs_override)
-        elif os.environ.get("ARC_ROOTFS_PATH"):
-            rootfs_path = Path(os.environ["ARC_ROOTFS_PATH"])
+        elif os.environ.get("SOLARI_ROOTFS_PATH") or os.environ.get("ARC_ROOTFS_PATH"):
+            rootfs_path = Path(os.environ.get("SOLARI_ROOTFS_PATH") or os.environ["ARC_ROOTFS_PATH"])
         else:
             rootfs_path = self._find_in_search_paths([
                 f"rootfs-{template}.ext4",
