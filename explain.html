@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Solari Hybrid CUA — Explained Like You're 5 (Bang-Motion Edition)</title>
+  <title>Solari Hybrid CUA — Motion Explainer (Reflex + Cortex)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -87,22 +87,39 @@
   <!-- Top Bar -->
   <header class="relative z-30 max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <a href="showcase.html" class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center font-black text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 transition-transform">
-        <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <a href="showcase.html" class="relative w-11 h-11 shrink-0 block hover:scale-105 transition-transform" aria-label="Back to showcase">
+        <svg viewBox="0 0 44 44" class="w-11 h-11" role="img" aria-label="Solari Hybrid CUA logo">
+          <defs>
+            <linearGradient id="solari-logo-fast-x" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#34D399"/>
+              <stop offset="100%" stop-color="#059669"/>
+            </linearGradient>
+            <linearGradient id="solari-logo-think-x" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#0EA5E9"/>
+            </linearGradient>
+          </defs>
+          <rect x="1" y="1" width="42" height="42" rx="11" fill="#0A0F1C" stroke="rgba(52,211,153,.45)" stroke-width="1.5"/>
+          <path d="M22 8 L32 17 L26 17 L30 27 L22 27 L22 35 L12 20 L19 20 Z" fill="url(#solari-logo-fast-x)"/>
+          <circle cx="31.5" cy="30.5" r="5.2" fill="#0A0F1C" stroke="url(#solari-logo-think-x)" stroke-width="1.8"/>
+          <circle cx="31.5" cy="30.5" r="1.7" fill="#38BDF8"/>
+        </svg>
+        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-void"></span>
       </a>
       <div>
-        <div class="font-extrabold text-base sm:text-lg tracking-tight flex items-center gap-2">
-          SOLARI <span class="text-amber-400">MOTION EXPLAINER</span>
+        <div class="font-extrabold text-base sm:text-lg tracking-tight leading-none">
+          SOLARI <span class="text-emerald-400">HYBRID&nbsp;CUA</span>
         </div>
-        <div class="text-[10px] font-mono text-muted tracking-widest uppercase">The Hot Stove Reflex Analogy</div>
+        <div class="text-[10px] font-mono text-muted tracking-[.22em] uppercase mt-1">Motion Explainer · Reflex + Cortex</div>
       </div>
     </div>
 
     <div class="flex items-center gap-3">
-      <button id="sound-toggle-btn" onclick="toggleSound()" class="px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-        <span id="sound-label">Audio: ON</span>
+      <button id="sound-toggle-btn" onclick="toggleSound()" class="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition" aria-label="Toggle interface sounds">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400" id="sound-dot"></span>
+        <span id="sound-label">Sound: On</span>
       </button>
-      <a href="showcase.html" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+      <a href="showcase.html" class="px-3.5 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold transition">
         Technical Report
       </a>
     </div>
@@ -144,7 +161,7 @@
       <div class="flex items-center justify-between pb-4 border-b border-white/10 text-xs font-mono text-slate-400">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-          <span class="text-white font-bold" id="current-scene-title">SCENE 1: THE SILLY ROBOT</span>
+          <span class="text-white font-bold" id="current-scene-title">SCENE 1: THE COST OF PHONING HOME</span>
         </div>
         <div class="flex items-center gap-3">
           <span id="timecode-display" class="text-amber-300 font-bold">00:04 / 00:25</span>
@@ -199,7 +216,7 @@
             We Gave Software Human Reflexes
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Solari uses a <strong>Local Reflex Engine</strong> running right on the machine. <strong class="text-emerald-400">98 out of 100 actions</strong> happen in <strong>2.31 milliseconds</strong> with zero internet calls and zero dollar bills.
+            Solari uses a <strong>Local Reflex Engine</strong> running on the host machine. <strong class="text-emerald-400">98 out of 100 actions</strong> complete in <strong>2.31 ms avg</strong> with zero network calls and zero marginal cost.
           </p>
           <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono text-xs">
             [EMPIRICAL DELTA] 99.69% Cheaper · Sub-10ms Verified
@@ -216,7 +233,7 @@
             What If We Hit a Locked Door?
           </h2>
           <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-            When a button doesn't work or an unexpected popup appears, the <strong>Stuck Monitor</strong> flags an anomaly. <em>Now</em> we wake up the thinking brain (Cortex) to solve the puzzle in 1 step, then sprint again.
+            When an action fails or an unexpected state appears, the <strong>Stuck Monitor</strong> flags the anomaly. The Cortex reasoning tier then synthesizes a targeted recovery plan, and local execution resumes.
           </p>
           <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-950/40 border border-teal-500/30 text-teal-300 font-mono text-xs">
             [DUAL-TIER CASCADE] 98% Local Reflex / 2% Cloud Escalation
@@ -237,7 +254,7 @@
             Solari Hybrid: <span class="text-emerald-400 font-black text-lg">$15.00</span> (99.7% margin preserved).
           </p>
           <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-950/60 to-teal-950/60 border border-emerald-500/40 text-white font-mono text-xs font-bold">
-            [VERIFIED HARNESS] 152 Core Tests Passing · Production Ready
+            [VERIFIED HARNESS] 152 Core Tests Passing · PROJECTED_BASED_ON_MOCK_EXECUTION
           </div>
         </div>
 
@@ -384,75 +401,66 @@
     </div>
 
   </main>
-
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT: Bang-Motion Choreography Engine & Web Audio Synth            -->
-  <!-- ========================================================================= -->
-  <script>
-    // Audio Synthesizer (Synthesized Beeps & Zaps via Web Audio API)
-    let audioCtx = null;
-    let soundEnabled = true;
-
-    function initAudio() {
-      if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) audioCtx = new AudioContext();
-      }
-    }
-
-    function playZapSound() {
+    // Mature UI sound engine: soft confirmation blip + low completion tick.
+    // Sine/triangle only, short envelopes, conservative gain — no zaps or pops.
+    function playConfirmSound() {
       if (!soundEnabled) return;
       initAudio();
       if (!audioCtx) return;
       try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.16);
-      } catch (e) {}
-    }
-
-    function playPopSound() {
-      if (!soundEnabled) return;
-      initAudio();
-      if (!audioCtx) return;
-      try {
+        const t = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(520, t);
+        osc.frequency.exponentialRampToValueAtTime(660, t + 0.07);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.08, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.11);
+        osc.start(t);
+        osc.stop(t + 0.13);
       } catch (e) {}
     }
 
+    function playCompleteSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      try {
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(392, t);
+        osc.frequency.setValueAtTime(523.25, t + 0.09);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.07, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.24);
+      } catch (e) {}
+    }
     function toggleSound() {
       soundEnabled = !soundEnabled;
       const label = document.getElementById('sound-label');
-      if (label) label.textContent = soundEnabled ? 'Audio: ON' : 'Audio: OFF';
+      const dot = document.getElementById('sound-dot');
+      if (label) label.textContent = soundEnabled ? 'Sound: On' : 'Sound: Off';
+      if (dot) dot.className = soundEnabled ? 'w-1.5 h-1.5 rounded-full bg-emerald-400' : 'w-1.5 h-1.5 rounded-full bg-slate-600';
     }
-
     // =========================================================================
     // Bang-Motion Scene Choreography Engine
     // =========================================================================
+
     const scenes = [
-      { id: 'scene-1', title: 'SCENE 1: THE SILLY ROBOT', timecode: '00:00 / 00:25' },
-      { id: 'scene-2', title: 'SCENE 2: THE HOT STOVE', timecode: '00:05 / 00:25' },
-      { id: 'scene-3', title: 'SCENE 3: THE SOLARI SECRET', timecode: '00:10 / 00:25' },
-      { id: 'scene-4', title: 'SCENE 4: WHEN DO WE THINK?', timecode: '00:15 / 00:25' },
-      { id: 'scene-5', title: 'SCENE 5: THE PIGGY BANK', timecode: '00:20 / 00:25' }
+      { id: 'scene-1', title: 'SCENE 1: THE COST OF PHONING HOME', timecode: '00:00 / 00:25' },
+      { id: 'scene-2', title: 'SCENE 2: THE REFLEX PRINCIPLE', timecode: '00:05 / 00:25' },
+      { id: 'scene-3', title: 'SCENE 3: LOCAL EXECUTION AT SCALE', timecode: '00:10 / 00:25' },
+      { id: 'scene-4', title: 'SCENE 4: ESCALATION ON ANOMALY', timecode: '00:15 / 00:25' },
+      { id: 'scene-5', title: 'SCENE 5: COST AT SCALE', timecode: '00:20 / 00:25' }
     ];
 
     let currentSceneIdx = 0;
@@ -489,7 +497,7 @@
         }
       });
 
-      playPopSound();
+      playConfirmSound();
     }
 
     function nextScene() {
@@ -589,7 +597,7 @@
 
       // 1. SOLARI WINS INSTANTLY (2.31 ms)
       setTimeout(() => {
-        playZapSound();
+        playCompleteSound();
         solariBar.style.width = '100%';
         solariTimer.textContent = '2.31 ms';
         solariFinalTime.textContent = '2.31 ms [OK]';

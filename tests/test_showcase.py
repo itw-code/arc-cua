@@ -201,7 +201,7 @@ def test_explain_html_headless_browser():
         page.goto(file_url, wait_until="load")
 
         title = page.title()
-        assert "ELI5" in title or "Bang-Motion" in title
+        assert "Motion Explainer" in title and "Solari Hybrid CUA" in title
 
         # Verify scenes exist
         assert page.locator("#scene-1").count() == 1
