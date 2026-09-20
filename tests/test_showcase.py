@@ -27,6 +27,7 @@ MANDATORY_SECTIONS = [
     "monitors",
     "timeline",
     "roadmap",
+    "references",
 ]
 
 
@@ -55,6 +56,12 @@ def test_showcase_html_exists_and_structure():
     # Verify benchmark tables
     assert "WebArena" in html_content
     assert "OSWorld" in html_content
+
+    # Verify sourced references section (advisor requirement)
+    assert "2307.13854" in html_content, "Missing WebArena arXiv reference"
+    assert "2404.07972" in html_content, "Missing OSWorld arXiv reference"
+    assert "2306.06070" in html_content, "Missing Mind2Web arXiv reference"
+    assert "2412.09535" in html_content, "Missing ModernBERT arXiv reference"
 
 
 def test_showcase_html_headless_browser():

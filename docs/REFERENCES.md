@@ -66,17 +66,7 @@ written so reviewers can trace each design decision back to its stated source.
 
 ## How our measured results relate to these sources
 
-- **Baseline cost/latency bands shown in the plan's comparison table** (e.g.
-  "$0.40–$1.50/task", "1,800–3,500 ms/step") are *repository planning targets*
-  assembled in `IMPLEMENTATION_PLAN.md`, not values quoted verbatim from any
-  single paper above. The benchmark papers (#1–#4) define the task methodology
-  and published baseline bands the plan argues against; our harness-measured
-  counterparts live in the Phase 4A/5 artifacts.
-- **$0.0015/task, 2.31 ms/step, SER 0.80** → measured by our own harness
-  (`artifacts/production/final_scorecard.json`, labeled
-  `PROJECTED_BASED_ON_MOCK_EXECUTION`); the *methods* trace to #5 (tree
-  pruning), #9/#13–#15 (deterministic local execution), and #16–#20
-  (escalate-only cascading concepts).
-- **94.2% / 98.1% / 100% monitor prevention rates** → measured by our Phase
-  3/5 suites using the detection formulations of #16–#19.
-- **Sub-5 ms VM snapshot/restore** → Firecracker + UFFD design concept from #21.
+- **Baseline cost/latency bands shown in the plan's comparison table** (e.g. "$0.40–$1.50/task", "1,800–3,500 ms/step") are repository planning targets assembled in `IMPLEMENTATION_PLAN.md` — not values quoted verbatim from any paper above. Numeric repository targets (≤5 ms UFFD restore, ≤1,200 tokens/step, monitor recall/accuracy percentages, ≤18% escalation budget, latency and SER budgets) are likewise this repo's own design targets, grounded in the rationale of the cited works but not measured by them.
+- **$0.0015/task, 2.31 ms avg latency, SER 0.80** are measured by our own harness (`artifacts/production/final_scorecard.json`, labeled `PROJECTED_BASED_ON_MOCK_EXECUTION`). Link them only to repository artifacts — never to the papers.
+- **94.2% / 98.1% / 100% monitor prevention rates** are measured by our Phase 3/5 suites using detection concepts related to #16–#19 — the papers supply rationale, not these numbers.
+- **Sub-5 ms VM snapshot/restore target** is this repo's own design goal using the Firecracker + UFFD concept from #21 — not a value the Firecracker paper measured for this project.

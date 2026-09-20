@@ -141,16 +141,30 @@
   <!-- Global Navigation Header -->
   <nav class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-700 grid place-items-center font-black text-black shadow-[0_0_20px_rgba(16,185,129,0.4)]">
-        <svg class="w-6 h-6 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      <div class="relative w-11 h-11 shrink-0">
+        <svg viewBox="0 0 44 44" class="w-11 h-11" role="img" aria-label="Solari Hybrid CUA logo">
+          <defs>
+            <linearGradient id="solari-logo-fast" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#34D399"/>
+              <stop offset="100%" stop-color="#059669"/>
+            </linearGradient>
+            <linearGradient id="solari-logo-think" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#0EA5E9"/>
+            </linearGradient>
+          </defs>
+          <rect x="1" y="1" width="42" height="42" rx="11" fill="#0A0F1C" stroke="rgba(52,211,153,.45)" stroke-width="1.5"/>
+          <path d="M22 8 L32 17 L26 17 L30 27 L22 27 L22 35 L12 20 L19 20 Z" fill="url(#solari-logo-fast)"/>
+          <circle cx="31.5" cy="30.5" r="5.2" fill="#0A0F1C" stroke="url(#solari-logo-think)" stroke-width="1.8"/>
+          <circle cx="31.5" cy="30.5" r="1.7" fill="#38BDF8"/>
         </svg>
+        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-void"></span>
       </div>
       <div>
-        <div class="font-extrabold text-lg tracking-tight flex items-center gap-2">
-          SOLARI <span class="text-emerald-400">HYBRID CUA</span>
+        <div class="font-extrabold text-lg tracking-tight leading-none">
+          SOLARI <span class="text-emerald-400">HYBRID&nbsp;CUA</span>
         </div>
-        <div class="text-[10px] font-mono text-muted tracking-widest uppercase">Dual-Tier Agent Architecture</div>
+        <div class="text-[10px] font-mono text-muted tracking-[.22em] uppercase mt-1">Reflex + Cortex · 2.31 ms</div>
       </div>
     </div>
     <div class="hidden md:flex items-center gap-5 text-sm text-slate-300 font-medium">
@@ -577,7 +591,7 @@
               <div class="space-y-2 text-xs font-mono" id="live-solari-steps">
                 <div class="flex items-center justify-between px-2.5 pb-1 text-[10px] text-slate-500">
                   <span>PIPELINE STAGE</span>
-                  <span>MEASURED P50 · 2.31 ms AGGREGATE</span>
+                  <span>MEASURED AVG · 2.31 ms AGGREGATE</span>
                 </div>
                 <div class="p-2.5 rounded-lg bg-black/40 border border-emerald-500/20 flex items-center justify-between text-slate-300" data-solari-step="0">
                   <div class="flex items-center gap-2">
@@ -761,6 +775,8 @@
       <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">Autonomous Benchmark Results</h2>
       <p class="mt-3 text-slate-400 text-sm sm:text-base">
         Empirical evaluation comparing Solari Hybrid against leading autonomous agents on industry-standard WebArena (web automation) and OSWorld (desktop automation).
+        Task definitions follow Zhou et al. (WebArena) and Xie et al. (OSWorld) — see <a class="underline decoration-emerald-500/50 text-emerald-300 hover:text-emerald-200" href="./docs/REFERENCES.md">docs/REFERENCES.md</a>.
+        Repository-measured figures (2.31 ms avg latency, $0.0015/task, 100% mock success) come from this repo's scorecard, not from those papers; external GPT-4o/Sonnet rows are this repo's recorded comparison values, not paper results.
       </p>
       <div class="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono">
         <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -1256,10 +1272,67 @@
     </div>
   </section>
 
+  <!-- ========================================================================= -->
+  <!-- 8. REFERENCES                                                            -->
+  <!-- ========================================================================= -->
+  <section id="references" class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="text-xs font-mono font-bold tracking-widest text-emerald-400 uppercase mb-2">Evidence Provenance</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">Sourced References</h2>
+      <p class="mt-3 text-slate-400 text-sm sm:text-base">
+        The works below actually underlie this page's claims. Benchmark task definitions follow WebArena and OSWorld; perception and cost methods follow Mind2Web; the monitor design references ModernBERT.
+        All repository-measured figures (2.31 ms avg latency, $0.0015/task, 100% mock success, 94.2%/98.1%/100% monitor rates) are this repository's own scorecard results — not published-paper results.
+      </p>
+      <div class="mt-4 inline-flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/25 text-amber-300 text-[11px] font-mono text-left">
+        <span><strong>STATUS: PROJECTED_BASED_ON_MOCK_EXECUTION.</strong> External GPT-4o/Sonnet comparison rows are this repo's recorded baselines, not paper-measured values. Full provenance with verification status in <a class="underline decoration-amber-500/50 hover:text-amber-200" href="./docs/REFERENCES.md">docs/REFERENCES.md</a>.</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
+      <div class="p-5 rounded-2xl glass-card border border-white/10">
+        <div class="text-[10px] font-mono text-blue-300 tracking-widest uppercase mb-1">Benchmark task definitions</div>
+        <div class="font-bold text-white text-sm">WebArena — Zhou et al., 2024</div>
+        <div class="text-xs text-slate-400 mt-1">A Realistic Web Environment for Building Autonomous Agents · ICLR 2024</div>
+        <a class="text-xs font-mono text-emerald-300 hover:text-emerald-200 break-all" href="https://arxiv.org/abs/2307.13854" target="_blank" rel="noopener">arxiv.org/abs/2307.13854</a>
+      </div>
+      <div class="p-5 rounded-2xl glass-card border border-white/10">
+        <div class="text-[10px] font-mono text-purple-300 tracking-widest uppercase mb-1">Benchmark task definitions</div>
+        <div class="font-bold text-white text-sm">OSWorld — Xie et al., 2024</div>
+        <div class="text-xs text-slate-400 mt-1">Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments · NeurIPS 2024</div>
+        <a class="text-xs font-mono text-emerald-300 hover:text-emerald-200 break-all" href="https://arxiv.org/abs/2404.07972" target="_blank" rel="noopener">arxiv.org/abs/2404.07972</a>
+      </div>
+      <div class="p-5 rounded-2xl glass-card border border-white/10">
+        <div class="text-[10px] font-mono text-emerald-300 tracking-widest uppercase mb-1">Perception / cost method</div>
+        <div class="font-bold text-white text-sm">Mind2Web — Deng et al., 2023</div>
+        <div class="text-xs text-slate-400 mt-1">Towards a Generalist Agent for the Web · NeurIPS 2023</div>
+        <a class="text-xs font-mono text-emerald-300 hover:text-emerald-200 break-all" href="https://arxiv.org/abs/2306.06070" target="_blank" rel="noopener">arxiv.org/abs/2306.06070</a>
+      </div>
+      <div class="p-5 rounded-2xl glass-card border border-white/10">
+        <div class="text-[10px] font-mono text-teal-300 tracking-widest uppercase mb-1">Monitor-model reference</div>
+        <div class="font-bold text-white text-sm">ModernBERT — Warner et al., 2024</div>
+        <div class="text-xs text-slate-400 mt-1">Smarter, Better, Faster, Longer: A Modern Bidirectional Encoder · 2024 · design reference for the trajectory monitor (CUDA fine-tuning is a roadmap item)</div>
+        <a class="text-xs font-mono text-emerald-300 hover:text-emerald-200 break-all" href="https://arxiv.org/abs/2412.09535" target="_blank" rel="noopener">arxiv.org/abs/2412.09535</a>
+      </div>
+    </div>
+  </section>
   <!-- Footer -->
-  <footer class="relative z-10 border-t border-white/5 py-8 text-center text-xs text-slate-500 font-mono">
-    <div class="max-w-7xl mx-auto px-4">
-      Solari Hybrid Computer Use Agent · Engineering Complete (152/152 tests passing) · 2026 Solari Research
+  <footer class="relative z-10 border-t border-white/5 py-8 text-xs text-slate-500 font-mono">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <svg viewBox="0 0 44 44" class="w-8 h-8" role="img" aria-label="Solari Hybrid CUA logo">
+          <rect x="1" y="1" width="42" height="42" rx="11" fill="#0A0F1C" stroke="rgba(52,211,153,.45)" stroke-width="1.5"/>
+          <path d="M22 8 L32 17 L26 17 L30 27 L22 27 L22 35 L12 20 L19 20 Z" fill="#34D399"/>
+          <circle cx="31.5" cy="30.5" r="5.2" fill="#0A0F1C" stroke="#38BDF8" stroke-width="1.8"/>
+          <circle cx="31.5" cy="30.5" r="1.7" fill="#38BDF8"/>
+        </svg>
+        <div class="text-left leading-tight">
+          <div class="font-extrabold text-slate-200 text-sm tracking-tight">SOLARI <span class="text-emerald-400">HYBRID CUA</span></div>
+          <div class="tracking-[.2em] uppercase text-[10px]">Reflex + Cortex · 2.31 ms</div>
+        </div>
+      </div>
+      <div class="text-center sm:text-right">
+        Engineering Complete (152/152 tests passing) · 2026 Solari Research
+      </div>
     </div>
   </footer>
 

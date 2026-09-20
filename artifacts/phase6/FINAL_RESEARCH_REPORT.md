@@ -150,4 +150,7 @@ Phase 6 concludes the architectural implementation and benchmark validation of t
 - **Enterprise Integrations:** Package the Solari Hybrid CUA driver as an enterprise daemon for secure, automated desktop RPA and QA validation.
 
 ---
-*Report certified by Solari Hybrid CUA Core Engineering Harness.*
+
+## 7. References
+
+Sourced works actually underlying this report's claims. Benchmark task definitions follow WebArena (Zhou et al., 2024 — https://arxiv.org/abs/2307.13854) and OSWorld (Xie et al., 2024 — https://arxiv.org/abs/2404.07972). Perception/cost methods follow Mind2Web (Deng et al., 2023 — https://arxiv.org/abs/2306.06070); the trajectory monitor design references ModernBERT (Warner et al., 2024 — https://arxiv.org/abs/2412.09535). All repository-measured figures in Sections 3–5 (2.31 ms avg latency, $0.0015/task, 98.3%/100% mock success, 94.2%/98.1%/100% monitor rates) are this repository's own `PROJECTED_BASED_ON_MOCK_EXECUTION` scorecard results — not published-paper results. External GPT-4o/Sonnet comparison rows are this repo's recorded baselines, not paper-measured values. Full provenance in `docs/REFERENCES.md`.
