@@ -1,16 +1,16 @@
 # ARC MCP vs Solari MCP — head-to-head (2026-09-27)
 
 **Verdict:**
-- **Success and tokens:** on 7 grounding tasks ARC succeeded on 7 and Solari's official MCP on 6, and ARC's tools handed the agent **3.3× fewer perception tokens** (8,444 vs 28,264).
-- **Protocol traffic:** ARC sent **10× fewer DevTools Protocol commands** (391 vs 3,868).
-- **Speed:** ARC is **not faster**. Its counted tool calls took 99 s in total against Solari's 78 s.
+- **Success and tokens:** on 7 grounding tasks ARC succeeded on 7 and Solari's official MCP on 6, and ARC's tools handed the agent **3.3× fewer perception tokens** (8,438 vs 28,198).
+- **Protocol traffic:** ARC sent **15× fewer DevTools Protocol commands** (255 vs 3,868).
+- **Speed:** ARC's counted tool calls now take **70 s against Solari's 86 s**. Before the round-trip fix below, ARC was the slower one (99 s vs 78 s).
 - **Real model:** a small, fast LLM driving ARC through a coding agent succeeded on all 13 task runs that reached the model, in 3–5 tool calls and about 25 s each.
 
 Raw data:
-- Head-to-head: `artifacts/benchmarks/vs_solari_mcp_20260927-030500.{json,md}`
+- Head-to-head: `artifacts/benchmarks/vs_solari_mcp_20260927-035501.{json,md}` (after the round-trip fix; Part A below is from `vs_solari_mcp_20260927-030500`, whose page reads the fix doesn't affect)
 - LLM agent: `artifacts/benchmarks/llm_agent_omp_20260927-032435.{json,md}` and `llm_agent_omp_20260927-033001.{json,md}`
 - Scripts: `scripts/benchmark_vs_solari_mcp.py`, `scripts/benchmark_llm_agent_omp.py`
-- Previous run (no timing): `vs_solari_mcp_20260926-215606`
+- Before the round-trip fix: `vs_solari_mcp_20260927-030500`. Before timing was added: `vs_solari_mcp_20260926-215606`.
 
 ## Setup
 
@@ -44,24 +44,34 @@ Raw data:
 
 | Task | ARC | Solari | ARC calls / tokens / s / CDP | Solari calls / tokens / s / CDP |
 |---|:-:|:-:|---:|---:|
-| HN: click "new" | ✅ | ✅ | 3 / 1,240 / 9.6 / 41 | 3 / 5,608 / 9.0 / 964 |
-| HN: 2nd "N comments" link | ✅ | ✅ | 3 / 1,240 / 9.1 / 41 | 3 / 5,608 / 9.2 / 964 |
-| Wikipedia: search | ✅ | ❌ | 5 / 2,568 / 24.4 / 83 | 3 / 7,519 / 15.3 / 70 |
-| httpbin: fill form, pick radio, submit | ✅ | ✅ | 5 / 468 / 22.0 / 98 | 5 / 359 / 16.5 / 84 |
-| GitHub: Issues tab | ✅ | ✅ | 3 / 1,223 / 13.1 / 42 | 3 / 6,160 / 10.5 / 1,395 |
-| Python docs: "Coroutines and tasks" | ✅ | ✅ | 3 / 1,239 / 11.1 / 41 | 3 / 2,255 / 8.6 / 347 |
-| TodoMVC: add item | ✅ | ✅ | 4 / 466 / 9.7 / 45 | 3 / 755 / 9.0 / 44 |
-| **Total** | **7/7** | **6/7** | **26 / 8,444 / 99.0 / 391** | **23 / 28,264 / 78.1 / 3,868** |
+| HN: click "new" | ✅ | ✅ | 3 / 1,237 / 6.9 / 28 | 3 / 5,575 / 9.0 / 964 |
+| HN: 2nd "N comments" link | ✅ | ✅ | 3 / 1,237 / 6.2 / 28 | 3 / 5,575 / 10.3 / 964 |
+| Wikipedia: search | ✅ | ❌ | 5 / 2,568 / 21.6 / 51 | 3 / 7,519 / 16.4 / 70 |
+| httpbin: fill form, pick radio, submit | ✅ | ✅ | 5 / 468 / 12.3 / 65 | 5 / 359 / 18.8 / 84 |
+| GitHub: Issues tab | ✅ | ✅ | 3 / 1,223 / 9.0 / 29 | 3 / 6,160 / 11.2 / 1,395 |
+| Python docs: "Coroutines and tasks" | ✅ | ✅ | 3 / 1,239 / 7.9 / 28 | 3 / 2,255 / 10.1 / 347 |
+| TodoMVC: add item | ✅ | ✅ | 4 / 466 / 6.3 / 26 | 3 / 755 / 10.3 / 44 |
+| **Total** | **7/7** | **6/7** | **26 / 8,438 / 70.2 / 255** | **23 / 28,198 / 86.1 / 3,868** |
 
 **Why Solari missed Wikipedia:** at 800 px Wikipedia collapses its search box behind a button. The HTML still contains `input[name=search]`, so the HTML-reading policy typed into a box that wasn't visible. HTML doesn't show visibility. The accessibility tree does, so ARC's policy clicked the `Search` button and read the tree that click returned.
 
 **Where the CDP gap comes from:** Solari's `read_page("links")` walks the DOM from the client, which costs 964 commands on Hacker News and 1,395 on GitHub. Its `html` read is cheap (44–84 commands per task), about the same as ARC. ARC fetches the whole accessibility tree in a few commands.
 
-**Why ARC is still slower on Solari:** each round trip to a Solari browser costs roughly 0.2–1 s, and ARC spends its time in two places:
-- **`arc_inspect` waits for the page to settle.** It waits for network idle (bounded) so client-rendered pages aren't read half-hydrated. That wait is what caught the Wikipedia toggle and TodoMVC correctly, but it costs time on static pages.
-- **`arc_act` extracts the tree before and after every action.** That's how it detects no-ops and returns the new page.
+**Speed, and the round-trip fix:** every CDP message to a Solari browser is a network round trip of about 0.2–0.5 s, so ARC's speed is set by how many of them it makes. The first timed run had ARC at 99 s against Solari's 78 s. A profile of one Hacker News click showed why:
+- **Tree extraction took 1.4 s.** Each extraction opened a new CDP session and re-enabled two domains before its two real calls.
+- **Node pinning took 1.5 s,** over five round trips.
+- **Settling took two extra extractions.** Confirming the page had settled after an action re-read the tree twice more.
 
-Removing the pre-action extraction when the agent has just inspected is the next optimisation.
+The fix reuses one CDP session per page, pins in two round trips, and counts the post-action snapshot as the first settle read. Measured on the same click:
+
+| Stage | Before | After |
+|---|---:|---:|
+| Tree extraction | 1.3–1.8 s | 0.7 s |
+| Pin node | 1.5 s | 0.4 s |
+| `arc_act`, no returned tree | 6.9 s | 4.0 s |
+| `arc_act`, returned tree | 10.8 s | 4.9 s |
+
+ARC is now faster on 6 of 7 tasks. The exception is Wikipedia, where it makes two more calls (open the search toggle, then fill). Solari's own totals varied between runs (78 s, then 86 s), so read the tool times as ±10%.
 
 ## Part C — a real LLM agent on ARC
 

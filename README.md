@@ -127,7 +127,7 @@ claude mcp add --scope user arc -- arc-cua-mcp
 - For other MCP hosts, use the same command over stdio: `{"command": "arc-cua-mcp"}`.
 - `arc_act` returns the page after the action, with fresh `[#N]` indices, so an agent needs one `arc_inspect` per page rather than one per step.
 - Agent skill: [`skills/solari-hybrid-cua/SKILL.md`](./skills/solari-hybrid-cua/SKILL.md). Benchmarks in [`docs/BENCHMARK_VS_SOLARI_MCP.md`](./docs/BENCHMARK_VS_SOLARI_MCP.md):
-  - **vs Solari's MCP** (scripted policies): 7/7 vs 6/7 tasks, 3.3× fewer perception tokens, 10× fewer DevTools Protocol commands, but about 27% more time in tool calls on Solari.
+  - **vs Solari's MCP** (scripted policies): 7/7 vs 6/7 tasks, 3.3× fewer perception tokens, 15× fewer DevTools Protocol commands, and 70 s vs 86 s in tool calls on Solari browsers.
   - **A small, fast LLM driving ARC** through the Oh My Pi agent (see Part C of that doc).
 
 ---
