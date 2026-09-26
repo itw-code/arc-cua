@@ -133,7 +133,8 @@ def run_episode(session: Any, client: ChatClient, goal: str, url: str, max_steps
     ep = Episode(goal=goal)
     start = time.perf_counter()
     try:
-        session.open(url=url)
+        # Keep whatever backend the caller opened (switching backend would restart the browser).
+        session.open(url=url, backend=session.backend or "local")
         tree = f"URL: {session.page.url}\n" + session.inspect(settle_ms=settle_ms)["text"]
         extra = ""
         history: List[str] = []
