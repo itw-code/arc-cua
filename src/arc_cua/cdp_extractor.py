@@ -261,15 +261,21 @@ class AXNode:
         indent = "  " * indent_level
         action_tag = f"[#{self.index}] " if self.index is not None else ""
         states_str = f" [{', '.join(self.states)}]" if self.states else ""
-        val_str = f" value={json.dumps(self.value)}" if self.value else ""
-        desc_str = f" desc={json.dumps(self.description)}" if self.description else ""
+
+        # ensure_ascii=False: escaping turns every non-ASCII character (NBSP, accents,
+        # CJK) into a 6-character \uXXXX sequence that is unreadable and costs tokens.
+        def q(text: Any) -> str:
+            return json.dumps(text, ensure_ascii=False)
+
+        val_str = f" value={q(self.value)}" if self.value else ""
+        desc_str = f" desc={q(self.description)}" if self.description and self.description != self.name else ""
         loc_str = ""
         if self.is_actionable and _css_is_informative(self.css_selector):
-            loc_str = f" css={json.dumps(self.css_selector)}"
+            loc_str = f" css={q(self.css_selector)}"
         if self.bbox:
             loc_str += f" bbox=[{self.bbox[0]},{self.bbox[1]},{self.bbox[2]},{self.bbox[3]}]"
 
-        name_part = f" {json.dumps(self.name)}" if self.name else ""
+        name_part = f" {q(self.name)}" if self.name else ""
         line = f"{indent}- {action_tag}{self.role}{name_part}{val_str}{desc_str}{loc_str}{states_str}"
         return line
 
@@ -488,23 +494,82 @@ class CDP_AXTree_Extractor:
             # Pass budget exhausted: render the state the last pass produced.
             yaml_lines, json_nodes, spans, yaml_text, estimated_tokens = _render(dropped_ids)
 
-        # Eviction estimates savings from each node's own lines, but a container whose
-        # children are all evicted also disappears, so passes overshoot. Undo the most
-        # recent evictions for as long as the tree still fits (binary search: each probe
-        # is one re-serialization).
+        # Once any affordance has been evicted, content still on the page is spending
+        # budget a link could use - including wrappers the affordance pass just emptied,
+        # which the loop never revisits because that pass already met the budget. Sweep
+        # all affordance-free content; the refill below restores links first, then
+        # content, while the tree still fits.
+        if truncated and any(
+            n.index is not None and id(n) in dropped_ids for n in self._iter_nodes(sanitized_roots)
+        ):
+            sweep = self._select_budget_evictions(sanitized_roots, spans, yaml_lines, dropped_ids, all_content=True)
+            dropped_ids.update(sweep)
+            drop_order.extend(sweep)
+            yaml_lines, json_nodes, spans, yaml_text, estimated_tokens = _render(dropped_ids)
+
+        # Refill. Passes overshoot (a container whose children are all evicted disappears
+        # too, uncounted), and later passes can evict the wrappers of links evicted
+        # earlier. Restore affordances first, top of the page first - each with any
+        # evicted ancestor it needs to render - then content, most recent eviction
+        # first, for as long as the tree still fits (binary search over that order;
+        # each probe is one re-serialization).
         if truncated and drop_order and estimated_tokens < effective_cap:
-            lo, hi = 0, len(drop_order)
+            parent: Dict[int, int] = {}
+            position: Dict[int, int] = {}
+            by_id: Dict[int, AXNode] = {}
+            stack = [(r, None) for r in reversed(sanitized_roots)]
+            while stack:
+                node, par = stack.pop()
+                by_id[id(node)] = node
+                position[id(node)] = len(position)
+                if par is not None:
+                    parent[id(node)] = par
+                stack.extend((c, id(node)) for c in reversed(node.children))
+
+            def _restore(dropped: Set[int], restored: Set[int], nid: int) -> None:
+                """Un-evict `nid` and the evicted ancestors it needs to render.
+
+                A restored ancestor keeps its other children evicted, so a link comes
+                back with only its path of wrapper lines, not the ancestor's content.
+                """
+                path = [nid]
+                p = parent.get(nid)
+                while p is not None:
+                    path.append(p)
+                    p = parent.get(p)
+                on_path = set(path)
+                for node_id in path:
+                    if node_id in dropped:
+                        dropped.discard(node_id)
+                        if node_id != nid:
+                            for child in by_id[node_id].children:
+                                if id(child) not in on_path and id(child) not in restored:
+                                    dropped.add(id(child))
+                    restored.add(node_id)
+
+            affordances = sorted((n for n in drop_order if by_id[n].index is not None), key=position.__getitem__)
+            content = [n for n in reversed(drop_order) if by_id[n].index is None]
+            order = affordances + content
+
+            def _apply(k: int) -> Set[int]:
+                dropped, restored = set(dropped_ids), set()
+                for nid in order[:k]:
+                    _restore(dropped, restored, nid)
+                return dropped
+
+            lo, hi = 0, len(order)
             best = None
             while lo < hi:
                 mid = (lo + hi + 1) // 2
-                trial = _render(dropped_ids - set(drop_order[-mid:]))
+                trial_dropped = _apply(mid)
+                trial = _render(trial_dropped)
                 if trial[4] <= effective_cap:
-                    lo, best = mid, trial
+                    lo, best = mid, (trial_dropped, trial)
                 else:
                     hi = mid - 1
-            if lo and best is not None:
-                dropped_ids -= set(drop_order[-lo:])
-                yaml_lines, json_nodes, spans, yaml_text, estimated_tokens = best
+            if best is not None:
+                dropped_ids = best[0]
+                yaml_lines, json_nodes, spans, yaml_text, estimated_tokens = best[1]
             truncated = bool(dropped_ids)
 
         dropped_roles, dropped_actionable_count, dropped_node_count, dropped_actionable_detail = (
@@ -603,6 +668,7 @@ class CDP_AXTree_Extractor:
         spans: List[Tuple[AXNode, int, int]],
         yaml_lines: List[str],
         already_dropped: Set[int],
+        all_content: bool = False,
     ) -> List[int]:
         """Choose whole subtrees to evict until the linearized YAML fits MAX_TOKENS.
 
@@ -617,6 +683,8 @@ class CDP_AXTree_Extractor:
             spans: (node, start_line, end_line) for every serialized node.
             yaml_lines: Current serialized lines, used to measure the reduction.
             already_dropped: Node ids excluded by an earlier eviction pass.
+            all_content: Return every affordance-free unit, ignoring the budget (the
+                post-loop sweep; the refill then restores what fits).
 
         Returns:
             Ids of the nodes evicted by this pass, in eviction order.
@@ -644,26 +712,53 @@ class CDP_AXTree_Extractor:
         # 2. Candidates are the deepest unprotected nodes: evicting a parent that also
         # has a candidate child would discard more than the budget requires.
         candidates: List[AXNode] = []
+        emits: Dict[int, bool] = {}
 
-        def _collect(node: AXNode) -> bool:
-            if id(node) in already_dropped:
-                return False
-            has_candidate_child = False
+        def _emits(node: AXNode) -> bool:
+            """Memoized `_survives`: would serializing `node` print any line?"""
+            key = id(node)
+            if key not in emits:
+                if key in already_dropped:
+                    emits[key] = False
+                elif not node.children or self._has_own_content(node):
+                    emits[key] = True
+                else:
+                    emits[key] = any(_emits(c) for c in node.children)
+            return emits[key]
+
+        acts: Dict[int, int] = {}
+
+        def _acts(node: AXNode) -> int:
+            """Affordances this subtree would still print."""
+            key = id(node)
+            if key not in acts:
+                acts[key] = 0 if not _emits(node) else (
+                    (1 if node.index is not None else 0) + sum(_acts(c) for c in node.children)
+                )
+            return acts[key]
+
+        def _collect(node: AXNode) -> None:
+            # Units of eviction: a whole subtree with no affordance in it (content), or a
+            # single affordance with its own inline children (<a><code>..</code></a>).
+            # Leaf-only candidates evicted links before the named wrappers around them
+            # ever became leaves; a node printing nothing is already gone.
+            if not _emits(node):
+                return
+            if id(node) not in protected:
+                a = _acts(node)
+                if a == 0 or (a == 1 and node.index is not None):
+                    candidates.append(node)
+                    return
             for child in node.children:
-                if _collect(child):
-                    has_candidate_child = True
-            if id(node) in protected:
-                return False
-            if has_candidate_child:
-                return True
-            candidates.append(node)
-            return True
+                _collect(child)
 
         for root in roots:
             _collect(root)
 
         # Containers emptied by an earlier pass emit nothing and have no span.
         candidates = [n for n in candidates if id(n) in span_by_id]
+        if all_content:
+            return [id(n) for n in candidates if n.index is None]
         if not candidates:
             return []
 
@@ -949,6 +1044,14 @@ class CDP_AXTree_Extractor:
             children=sanitized_children,
         )
         return [clean_node]
+
+    @staticmethod
+    def _iter_nodes(roots: List[AXNode]):
+        stack = list(roots)
+        while stack:
+            node = stack.pop()
+            yield node
+            stack.extend(node.children)
 
     @staticmethod
     def _has_own_content(node: AXNode) -> bool:

@@ -64,6 +64,59 @@ def test_evicted_indices_remain_addressable():
     assert visible | evicted == set(range(1, 201))
 
 
+def test_names_are_not_json_escaped_and_desc_is_not_repeated():
+    nodes = [
+        ax(1, "RootWebArea", "Café", [2, 3]),
+        ax(2, "link", "96 comments", backendDOMNodeId=20),
+        ax(3, "generic", "Run example", [], description={"value": "Run example"}),
+    ]
+    tree = CDP_AXTree_Extractor().sanitize(nodes)
+    assert '"Café"' in tree.yaml_linearized
+    assert '"96 comments"' in tree.yaml_linearized
+    assert "\\u00" not in tree.yaml_linearized
+    assert "desc=" not in tree.yaml_linearized
+
+
+def test_links_inside_named_wrappers_outrank_the_wrappers():
+    """MDN shape: generic "Run example..." > link "Play". When links must go, the wrappers
+    they leave behind must not keep the budget that the refill could give back to links."""
+    kids = []
+    nodes = [ax(1, "RootWebArea", "Docs", [])]
+    for i in range(120):
+        wrap, link = 100 + i, 1000 + i
+        kids.append(wrap)
+        nodes += [
+            ax(wrap, "generic", f"Run example number {i} in the playground (opens in new tab)", [link]),
+            ax(link, "link", f"Play {i}", backendDOMNodeId=link),
+        ]
+    nodes[0]["childIds"] = [str(k) for k in kids]
+    tree = CDP_AXTree_Extractor().sanitize(nodes)
+    assert tree.truncated and tree.estimated_tokens <= 1200
+    wrappers_without_link = [
+        l for l in tree.yaml_linearized.splitlines() if l.strip().startswith('- generic "Run example')
+    ]
+    # Every wrapper line kept must be carrying its link.
+    assert len(wrappers_without_link) <= tree.actionable_count
+    assert tree.actionable_count >= 25
+
+
+def test_cap_holds_when_links_wrap_unnamed_inline_text():
+    """MDN shape: link > code > StaticText. Once the text is evicted the unnamed <code>
+    prints nothing; it must not shield its link from eviction (was 8,753 tokens on MDN)."""
+    nodes = [ax(1, "RootWebArea", "Docs", [10 + i for i in range(300)])]
+    for i in range(300):
+        link, code, text = 10 + i, 1000 + i, 5000 + i
+        nodes += [
+            ax(link, "link", f"HTMLInputElement.property_number_{i}", [code], backendDOMNodeId=link),
+            ax(code, "code", "", [text]),
+            ax(text, "StaticText", f"property_number_{i} with a long enough label"),
+        ]
+    tree = CDP_AXTree_Extractor().sanitize(nodes)
+    assert tree.truncated
+    assert tree.estimated_tokens <= 1200, tree.estimated_tokens
+    assert tree.actionable_count > 20
+
+
 # --- live Chromium -----------------------------------------------------------------------------
 
 @pytest.fixture
@@ -102,6 +155,17 @@ def test_duplicate_text_links_click_the_exact_row(session):
     result = session.act("click", index=idx)
     assert result["success"] is True, result
     assert session.page.text_content("#last-action") == "hide 3"
+
+
+def test_query_finds_evicted_affordances(session):
+    full = session.inspect(settle_ms=1000)
+    assert "Story number 38" not in full["text"] or full["truncated"]
+    found = session.inspect(settle_ms=500, query="story number 38")
+    line = next(l for l in found["text"].splitlines() if "Story number 38" in l)
+    idx = int(line.split("[#", 1)[1].split("]", 1)[0])
+    result = session.act("click", index=idx)
+    assert result["success"] is True
+    assert session.page.text_content("#last-action") == "story 38"
 
 
 def test_evicted_index_listed_in_notice_is_actionable(session):
