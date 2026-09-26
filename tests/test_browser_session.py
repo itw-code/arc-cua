@@ -110,3 +110,26 @@ def test_close_is_idempotent(session):
     assert session.close()["closed"] is True
     assert session.close()["closed"] is False
     assert session.status()["open"] is False
+
+
+def test_observe_returns_post_action_tree_with_live_indices(session):
+    tree = session.inspect(settle_ms=2000)
+    result = session.act("click", index=index_of(tree, "Submit Form"), observe=True)
+    assert result["tree"].startswith("URL: ") and "# AXTree" in result["tree"]
+    # The returned tree's indices are now the current map: act on one without inspecting.
+    line = next(l for l in result["tree"].splitlines() if "Submit Form" in l and "[#" in l)
+    again = session.act("click", index=int(line.split("[#", 1)[1].split("]", 1)[0]))
+    assert again["success"] is True and "tree" not in again
+
+
+SOFT_NAV_URL = (pathlib.Path(__file__).parent / "fixtures" / "soft_nav_site.html").resolve().as_uri()
+
+
+def test_observe_waits_for_client_routed_link_navigation(session):
+    """GitHub shape: the link pushes its URL after a fetch, so the tree taken right after
+    the click is the old page. The returned tree must show where the click led."""
+    session.act("goto", value=SOFT_NAV_URL)
+    tree = session.inspect(settle_ms=1000)
+    result = session.act("click", index=index_of(tree, "Issues 159"), observe=True)
+    assert result["url_changed"] is True and result["url"].endswith("?tab=issues")
+    assert "Open issues" in result["tree"] and "New issue" in result["tree"]
