@@ -88,6 +88,7 @@ def main() -> None:
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--tasks", default="", help="comma-separated task names (default: all)")
     parser.add_argument("--max-steps", type=int, default=10)
+    parser.add_argument("--backend", choices=["local", "solari"], default="local", help="solari needs SOLARI_API_KEY")
     parser.add_argument("--settle-ms", type=float, default=3000.0, help="ARC settle budget per page/action")
     parser.add_argument("--pause", type=float, default=0.0, help="seconds between tasks (free tiers rate-limit per minute)")
     parser.add_argument("--extra", default="", help='JSON merged into each request, e.g. {"reasoning_effort": "none"}')
@@ -100,7 +101,7 @@ def main() -> None:
     tasks = [t for t in TASKS if not wanted or t[0] in wanted]
 
     session = BrowserSession()
-    session.open(url="about:blank")  # warm browser: task times exclude Chromium start-up
+    session.open(url="about:blank", backend=args.backend)  # warm browser: task times exclude Chromium start-up
     rows: List[Dict[str, Any]] = []
     try:
         for model in [m for m in args.models.split(",") if m]:
@@ -113,7 +114,7 @@ def main() -> None:
                         # instantly; start a fresh browser so one blip costs one task.
                         session.shutdown()
                         session = BrowserSession()
-                        session.open(url="about:blank")
+                        session.open(url="about:blank", backend=args.backend)
                     # A run the model itself gave up on never counts, even if the end state happens to match.
                     ok = judge(check, ep.final_url, ep.final_tree) and ep.error is None and ep.failed_reason is None
                     row = {
@@ -126,6 +127,7 @@ def main() -> None:
                                     for s in ep.steps],
                         "model_ms_per_step": [round(s.model_ms) for s in ep.steps],
                         "final_url": ep.final_url,
+                        "backend": args.backend,
                         "input_tokens": sum(s.input_tokens for s in ep.steps),
                         "output_tokens": sum(s.output_tokens for s in ep.steps),
                     }
