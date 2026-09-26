@@ -15,6 +15,7 @@ called `open()`. The MCP server guarantees this with a single worker thread.
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -304,15 +305,21 @@ class BrowserSession:
 
     # --- perception & action -----------------------------------------------------------------
 
-    def inspect(self, settle_ms: float = 5000.0) -> Dict[str, Any]:
-        """Extract the token-budgeted AXTree and remember its `[#N]` map for `act`."""
+    def inspect(self, settle_ms: float = 5000.0, query: Optional[str] = None) -> Dict[str, Any]:
+        """Extract the token-budgeted AXTree and remember its `[#N]` map for `act`.
+
+        With `query`, return instead every affordance on the page - including ones the
+        budget evicted - whose role or name contains all of the query's words. This is
+        how an agent finds a named element on a truncated page.
+        """
         self._require_open()
         tree, attempts = settle_and_extract(self.page, self._extractor, settle_ms)
         self._index_map = dict(tree.action_index_map)
         self._evicted_map = dict(tree.evicted_index_map)
         self._inspected_yaml = tree.yaml_linearized
+        text = format_tree(tree, attempts, settle_ms) if not query else self._format_matches(query)
         return {
-            "text": format_tree(tree, attempts, settle_ms),
+            "text": text,
             "url": self.page.url,
             "actionable_count": tree.actionable_count,
             "estimated_tokens": tree.estimated_tokens,
@@ -322,6 +329,22 @@ class BrowserSession:
             "settle_attempts": attempts,
             "action_index_map": self._index_map,
         }
+
+    def _format_matches(self, query: str, limit: int = 60) -> str:
+        words = [w for w in query.lower().split() if w]
+        known = {**self._evicted_map, **self._index_map}
+        hits = [
+            (idx, e) for idx, e in sorted(known.items())
+            if all(w in f"{e.get('role', '')} {e.get('name') or ''}".lower() for w in words)
+        ]
+        lines = [f"# Matches for {json.dumps(query, ensure_ascii=False)}: {len(hits)} of {len(known)} affordances"
+                 + (f" (first {limit} shown)" if len(hits) > limit else "")]
+        for idx, e in hits[:limit]:
+            name = json.dumps(e.get("name") or "", ensure_ascii=False)
+            lines.append(f"- [#{idx}] {e.get('role')} {name}")
+        if not hits:
+            lines.append("(no affordance matches; plain text is not searched - try other words or arc_inspect without query)")
+        return "\n".join(lines)
 
     def _mark_boxes(self, full_page: bool) -> List[Dict[str, Any]]:
         """Boxes (CSS px, relative to the captured image) for every known [#N].

@@ -31,7 +31,8 @@ ARC drives one browser for you and shows it as a compact accessibility tree.
 Loop: arc_open(url) -> arc_inspect -> arc_act on a [#N] index -> arc_inspect again after the page changes.
 - arc_inspect output is capped (~1200 tokens). "Truncated" plus '# !' manifest lines means content was
   dropped: plain text goes first, links/buttons last. Indices named in '# !DROPPED-ACTIONABLE [#N]' still
-  work with arc_act. Don't assume something is absent from a truncated tree.
+  work with arc_act. On a truncated tree, find a named element with arc_inspect(query="words") before
+  concluding it is absent.
 - arc_act reports state_changed. stall_suspected=true means repeated actions did nothing: stop repeating,
   re-inspect, and pick a different element.
 - page_changed_since_inspect=true means [#N] indices may be stale: re-run arc_inspect before the next index action.
@@ -112,13 +113,15 @@ def build_server(worker: Optional[BrowserWorker] = None) -> Tuple[MCPServer, Bro
                                        visible=visible, stealth=stealth))
 
     @server.tool()
-    async def arc_inspect(settle_ms: float = 5000.0) -> str:
+    async def arc_inspect(settle_ms: float = 5000.0, query: Optional[str] = None) -> str:
         """Return the current page as a token-budgeted accessibility tree with [#N] action indices.
 
         Waits up to settle_ms for client-rendered pages to hydrate. Lines like
         `[#3] button "Submit" css="#submit"` are actionable; pass 3 as arc_act's index.
+        query: instead of the tree, list every link/button/field on the whole page whose
+        role or name contains all these words - including ones a truncated tree dropped.
         """
-        result = await worker.call("inspect", settle_ms=settle_ms)
+        result = await worker.call("inspect", settle_ms=settle_ms, query=query)
         return f"URL: {result['url']}\n{result['text']}"
 
     @server.tool()

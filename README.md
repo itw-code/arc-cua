@@ -125,6 +125,7 @@ claude mcp add --scope user arc -- arc-cua-mcp
 
 - For `backend="solari"`, set `SOLARI_API_KEY` in the environment Claude Code starts from. The server inherits it, so the key never needs to appear in MCP config. Solari browsers are billed hourly until `arc_close`; the server also releases them on shutdown.
 - For other MCP hosts, use the same command over stdio: `{"command": "arc-cua-mcp"}`.
+- Agent skill: [`skills/solari-hybrid-cua/SKILL.md`](./skills/solari-hybrid-cua/SKILL.md). Head-to-head vs Solari's MCP: [`docs/BENCHMARK_VS_SOLARI_MCP.md`](./docs/BENCHMARK_VS_SOLARI_MCP.md) (7/7 vs 6/7 tasks, 3.4× fewer perception tokens; scripted policies, small sample).
 
 ---
 

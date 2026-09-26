@@ -213,3 +213,20 @@ All notable technical achievements, deliverables, and performance benchmarks acr
   - `tests/test_screenshot.py` (5) and `tests/test_cli_cleanup.py` (2): process-tree death and profile removal verified on Windows; foreign directories are refused.
 - **Live result (Solari, via `arc-cua-mcp` over stdio):** marked Hacker News screenshot, 800×600 viewport, 125 marks aligned with their elements, ~90 KB, 5.1 s including the automatic inspect.
 - **Final Test Count:** 230 passed, 1 skipped (opt-in live Solari test).
+
+---
+
+## Phase 13: Agent Skill and Head-to-Head vs Solari MCP
+
+- **Objective:** Ship the agent-facing skill for the MCP tools, and measure ARC against Solari's official MCP server on real pages and tasks.
+- **Key Deliverables:**
+  - `skills/solari-hybrid-cua/SKILL.md`: rewritten around the `arc_*` loop (open → inspect → act → verify end state → close), with a CLI fallback. It drops the stale guidance (`arc-cua run`, omp `mode`, "dropped indices are unreachable"). 221 → 72 lines. Synced to `~/.agents/skills/solari-hybrid-cua/`.
+  - `scripts/benchmark_vs_solari_mcp.py` + `docs/BENCHMARK_VS_SOLARI_MCP.md`: both servers on Solari fast-pool browsers over stdio, with scripted grounding policies. ARC 7/7 tasks vs Solari 6/7; 8,310 vs 28,332 perception tokens (3.4×).
+  - Extractor fixes found by the benchmark's first run:
+    - Eviction units are now whole affordance-free subtrees or single affordances, instead of leaves. An unnamed `<code>` inside a link no longer shields the link. MDN went from 8,753 tokens (cap broken) to 1,061.
+    - Affordance-first refill in document order: a restored link brings back only its wrapper path.
+    - Post-loop content sweep, so wrappers emptied by the affordance pass return their budget to links.
+    - The sanitizer on MDN takes 0.48 s.
+  - YAML names use `ensure_ascii=False` (no `\u00a0` escapes), and `desc=` is omitted when it repeats the name.
+  - `arc_inspect(query=…)` lists every affordance on the page, visible or evicted, whose role/name contains the query's words.
+- **Final Test Count:** 234 passed, 1 skipped (opt-in live Solari test). `test_phase1.py::TestATSPIBridge::test_event_subscription_and_dispatch_latency` failed once under full-suite load and passed 3/3 on rerun; it is a pre-existing timing assertion in untouched code.
