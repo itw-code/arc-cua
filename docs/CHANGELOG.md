@@ -230,3 +230,37 @@ All notable technical achievements, deliverables, and performance benchmarks acr
   - YAML names use `ensure_ascii=False` (no `\u00a0` escapes), and `desc=` is omitted when it repeats the name.
   - `arc_inspect(query=…)` lists every affordance on the page, visible or evicted, whose role/name contains the query's words.
 - **Final Test Count:** 234 passed, 1 skipped (opt-in live Solari test). `test_phase1.py::TestATSPIBridge::test_event_subscription_and_dispatch_latency` failed once under full-suite load and passed 3/3 on rerun; it is a pre-existing timing assertion in untouched code.
+
+## Phase 14: Observe-on-Act, Benchmark Timing, and a Real LLM Agent
+
+- **Objective:** Cut the `arc_inspect` round trip after every action, measure time and protocol traffic, and test ARC with a real (small, fast) model choosing the actions.
+- **Key Deliverables:**
+  - **Observe-on-act.** `arc_act` returns the page after the action (`observe=true` by default), and its `[#N]` indices become current. An agent now needs one `arc_inspect` per page instead of one per step. `observe=false` skips the tree.
+  - **Settling after actions.** A clicked link that hasn't navigated gets up to 2 s to change the URL (client-routed sites push it after a fetch). Then ARC polls until the tree differs from the post-click snapshot and holds steady for two reads, since network idle doesn't reset for in-page navigations. Found when the LLM agent clicked GitHub's Issues tab and was shown the old page.
+  - **Head-to-head timing.** `scripts/benchmark_vs_solari_mcp.py` now reports summed tool-call latency and DevTools Protocol commands, counted from each server's own debug log in a temp dir. ARC vs Solari MCP:
+    - 7/7 vs 6/7 tasks
+    - 8,444 vs 28,264 perception tokens
+    - 391 vs 3,868 CDP commands
+    - 99 s vs 78 s in tool calls: ARC is slower on Solari, because of its settle waits and its pre- and post-action tree reads.
+  - **LLM agent run.** `scripts/benchmark_llm_agent_omp.py` runs the same tasks through the Oh My Pi agent with only the ARC tools, using `laguna-xs-2-1:free` via Kenari. 13/13 runs that reached the model succeeded, in 3–5 tool calls and about 25 s each. One further run was rejected by the provider before starting.
+  - Skill, README and `docs/BENCHMARK_VS_SOLARI_MCP.md` updated.
+- **Final Test Count:** 235 passed, 1 skipped, 1 failed. The failure is `test_phase2_reflex.py::test_benchmark_state_verification_simhash_n100`, a pre-existing timing threshold (p50 3.5 ms against a 3.0 ms limit) that fails on the previous commit too on this machine.
+
+## Phase 15: Fewer Round Trips to Remote Browsers
+
+- **Objective:** Close the speed gap Phase 14 measured. ARC spent 99 s in tool calls against Solari MCP's 78 s.
+- **Diagnosis:** a stage profile on a Solari browser, where each CDP message costs about 0.2–0.5 s:
+  - Tree extraction took 1.4 s, because each one opened a new CDP session (never detached) and re-enabled two domains.
+  - Pinning a node took 1.5 s, over five round trips.
+  - Settling after an action re-extracted twice.
+- **Key Deliverables:**
+  - One cached CDP session per page (`page_cdp` / `cdp_send`), with Accessibility and DOM enabled once and a single reattach on failure. Extraction takes two round trips.
+  - Pinning clears the old pin and sets the new one in the same `Runtime.callFunctionOn`: two round trips.
+  - Post-action settling counts the verifier's snapshot as the first read, so a synchronously changed page costs one confirming extraction.
+  - Measured on one Hacker News click:
+    - Extraction: 1.4 s → 0.7 s
+    - Pin: 1.5 s → 0.4 s
+    - `arc_act` without the returned tree: 6.9 s → 4.0 s
+    - `arc_act` with the returned tree: 10.8 s → 4.9 s
+  - Head-to-head: ARC 70 s vs Solari MCP 86 s in tool calls, and 255 vs 3,868 CDP commands. ARC is faster on 6 of 7 tasks.
+- **Final Test Count:** 235 passed, 1 skipped, 1 failed (the same pre-existing `simhash_n100` timing threshold as Phase 14).
