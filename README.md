@@ -113,12 +113,28 @@ Open `showcase.html` in any web browser to view the interactive cost/latency sim
 Open `explain.html` for the high-energy Bang-Motion visual explainer using the Hot Stove reflex analogy!
 ---
 
+## Use with Claude Code (MCP)
+
+ARC ships an MCP server, `arc-cua-mcp`, with five tools: `arc_open`, `arc_inspect`, `arc_act`, `arc_screenshot` (with `[#N]` marks, for canvas and visual checks), and `arc_close`. It complements Solari's own MCP server (`@solarisdk/mcp`): ARC adds a hard-budgeted accessibility tree with `[#N]` indices, verified actions, and stall detection, and it can drive a local Chromium, a Solari cloud browser, or any CDP endpoint.
+
+```bash
+pip install -e ".[mcp]"
+playwright install chromium
+claude mcp add --scope user arc -- arc-cua-mcp
+```
+
+- For `backend="solari"`, set `SOLARI_API_KEY` in the environment Claude Code starts from. The server inherits it, so the key never needs to appear in MCP config. Solari browsers are billed hourly until `arc_close`; the server also releases them on shutdown.
+- For other MCP hosts, use the same command over stdio: `{"command": "arc-cua-mcp"}`.
+- Agent skill: [`skills/solari-hybrid-cua/SKILL.md`](./skills/solari-hybrid-cua/SKILL.md). Head-to-head vs Solari's MCP: [`docs/BENCHMARK_VS_SOLARI_MCP.md`](./docs/BENCHMARK_VS_SOLARI_MCP.md) (7/7 vs 6/7 tasks, 3.4× fewer perception tokens; scripted policies, small sample).
+
+---
+
 ## Documentation Index
 
 | Section | Document | Description |
 |---|---|---|
 | **Changelog** | [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) | Chronological phase history, deliverables, and metrics across all 6 phases |
-| **Checkpoints** | [`docs/checkpoints/INDEX.md`](./docs/checkpoints/INDEX.md) | Timeline index and audit record for all 10 development checkpoints |
+| **Checkpoints** | [`docs/checkpoints/INDEX.md`](./docs/checkpoints/INDEX.md) | Timeline index and audit record for all 11 development checkpoints |
 | **Artifacts** | [`artifacts/INDEX.md`](./artifacts/INDEX.md) | Catalog of evaluation datasets, JSONL streams, and performance scorecards |
 | **Architecture** | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
 | **Implementation** | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
