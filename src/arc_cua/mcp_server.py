@@ -28,14 +28,16 @@ logger = logging.getLogger("arc_cua.mcp_server")
 
 INSTRUCTIONS = """\
 ARC drives one browser for you and shows it as a compact accessibility tree.
-Loop: arc_open(url) -> arc_inspect -> arc_act on a [#N] index -> arc_inspect again after the page changes.
+Loop: arc_open(url) -> arc_inspect -> arc_act on a [#N] index -> read the tree arc_act returns -> arc_act again.
+arc_act returns the page after the action (same format as arc_inspect) and its [#N] indices replace the old ones,
+so there is no need to call arc_inspect between actions.
 - arc_inspect output is capped (~1200 tokens). "Truncated" plus '# !' manifest lines means content was
   dropped: plain text goes first, links/buttons last. Indices named in '# !DROPPED-ACTIONABLE [#N]' still
   work with arc_act. On a truncated tree, find a named element with arc_inspect(query="words") before
   concluding it is absent.
 - arc_act reports state_changed. stall_suspected=true means repeated actions did nothing: stop repeating,
   re-inspect, and pick a different element.
-- page_changed_since_inspect=true means [#N] indices may be stale: re-run arc_inspect before the next index action.
+- page_changed_since_inspect=true means the page moved before the action ran; check the returned tree.
 - arc_screenshot costs far more tokens than arc_inspect; use it only when the tree cannot show what you need
   (canvas, charts, images, visual layout). Its marks match [#N]; click unindexed spots with target='coords:X,Y'.
 - backend='solari' uses a billed Solari cloud browser; call arc_close when done so it is released.
@@ -131,17 +133,22 @@ def build_server(worker: Optional[BrowserWorker] = None) -> Tuple[MCPServer, Bro
         target: Optional[str] = None,
         value: Optional[str] = None,
         timeout_ms: float = 5000.0,
+        observe: bool = True,
     ) -> str:
-        """Perform one action and report whether it changed the page.
+        """Perform one action, report whether it changed the page, and return the page after it.
 
         action: click, dblclick, fill, type, select, press_key, scroll, wait, goto.
         index: [#N] from the last arc_inspect (preferred). target: CSS/XPath selector instead,
         or 'coords:X,Y' (page CSS pixels read off arc_screenshot) for click on unindexed content.
         value: text for fill/type, option for select, key for press_key (e.g. 'Enter'), URL for goto.
         Check state_changed and stall_suspected in the result before continuing.
+        observe: append the post-action tree (as arc_inspect would return it); its [#N]
+        indices become current. Set false to save tokens when chaining blind actions.
         """
-        return _json(await worker.call("act", action=action, index=index, target=target,
-                                       value=value, timeout_ms=timeout_ms))
+        result = await worker.call("act", action=action, index=index, target=target,
+                                   value=value, timeout_ms=timeout_ms, observe=observe)
+        tree = result.pop("tree", None)
+        return _json(result) + (f"\n\n{tree}" if tree else "")
 
     @server.tool()
     async def arc_screenshot(marks: bool = True, full_page: bool = False) -> list:
