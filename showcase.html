@@ -368,15 +368,15 @@
         </div>
         <div class="p-4 rounded-xl bg-black/40 border border-blue-500/30">
           <div class="text-2xl font-black text-blue-400">3.3× <span class="text-slate-500 text-base font-bold">fewer tokens</span></div>
-          <div class="text-xs font-mono text-slate-300 uppercase mt-1">8,444 vs 28,264 perception tokens</div>
+          <div class="text-xs font-mono text-slate-300 uppercase mt-1">8,438 vs 28,198 perception tokens</div>
         </div>
         <div class="p-4 rounded-xl bg-black/40 border border-blue-500/30">
-          <div class="text-2xl font-black text-blue-400">10× <span class="text-slate-500 text-base font-bold">fewer CDP</span></div>
-          <div class="text-xs font-mono text-slate-300 uppercase mt-1">391 vs 3,868 protocol commands</div>
+          <div class="text-2xl font-black text-blue-400">15× <span class="text-slate-500 text-base font-bold">fewer CDP</span></div>
+          <div class="text-xs font-mono text-slate-300 uppercase mt-1">255 vs 3,868 protocol commands</div>
         </div>
-        <div class="p-4 rounded-xl bg-black/40 border border-white/10">
-          <div class="text-2xl font-black text-white">99 s <span class="text-slate-500 text-base font-bold">vs 78 s</span></div>
-          <div class="text-xs font-mono text-slate-300 uppercase mt-1">In tool calls: ARC is slower</div>
+        <div class="p-4 rounded-xl bg-black/40 border border-blue-500/30">
+          <div class="text-2xl font-black text-blue-400">70 s <span class="text-slate-500 text-base font-bold">vs 86 s</span></div>
+          <div class="text-xs font-mono text-slate-300 uppercase mt-1">Time in tool calls</div>
         </div>
       </div>
       <table class="w-full text-xs font-mono text-left min-w-[640px]">
@@ -384,17 +384,17 @@
           <tr><th class="py-2 pr-4">Task</th><th class="py-2 pr-4 text-center">ARC</th><th class="py-2 pr-4 text-center">Solari</th><th class="py-2 pr-4 text-right">ARC calls / tokens / s / CDP</th><th class="py-2 text-right">Solari calls / tokens / s / CDP</th></tr>
         </thead>
         <tbody class="text-slate-300 divide-y divide-white/5">
-          <tr><td class="py-2 pr-4">HN: click "new"</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,240 / 9.6 / 41</td><td class="text-right">3 / 5,608 / 9.0 / 964</td></tr>
-          <tr><td class="py-2 pr-4">HN: 2nd "N comments" link</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,240 / 9.1 / 41</td><td class="text-right">3 / 5,608 / 9.2 / 964</td></tr>
-          <tr><td class="py-2 pr-4">Wikipedia: search</td><td class="text-center">✅</td><td class="text-center">❌</td><td class="text-right pr-4">5 / 2,568 / 24.4 / 83</td><td class="text-right">3 / 7,519 / 15.3 / 70</td></tr>
-          <tr><td class="py-2 pr-4">httpbin: fill form, pick radio, submit</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">5 / 468 / 22.0 / 98</td><td class="text-right">5 / 359 / 16.5 / 84</td></tr>
-          <tr><td class="py-2 pr-4">GitHub: Issues tab</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,223 / 13.1 / 42</td><td class="text-right">3 / 6,160 / 10.5 / 1,395</td></tr>
-          <tr><td class="py-2 pr-4">Python docs: "Coroutines and tasks"</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,239 / 11.1 / 41</td><td class="text-right">3 / 2,255 / 8.6 / 347</td></tr>
-          <tr><td class="py-2 pr-4">TodoMVC: add item</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">4 / 466 / 9.7 / 45</td><td class="text-right">3 / 755 / 9.0 / 44</td></tr>
+          <tr><td class="py-2 pr-4">HN: click "new"</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,237 / 6.9 / 28</td><td class="text-right">3 / 5,575 / 9.0 / 964</td></tr>
+          <tr><td class="py-2 pr-4">HN: 2nd "N comments" link</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,237 / 6.2 / 28</td><td class="text-right">3 / 5,575 / 10.3 / 964</td></tr>
+          <tr><td class="py-2 pr-4">Wikipedia: search</td><td class="text-center">✅</td><td class="text-center">❌</td><td class="text-right pr-4">5 / 2,568 / 21.6 / 51</td><td class="text-right">3 / 7,519 / 16.4 / 70</td></tr>
+          <tr><td class="py-2 pr-4">httpbin: fill form, pick radio, submit</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">5 / 468 / 12.3 / 65</td><td class="text-right">5 / 359 / 18.8 / 84</td></tr>
+          <tr><td class="py-2 pr-4">GitHub: Issues tab</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,223 / 9.0 / 29</td><td class="text-right">3 / 6,160 / 11.2 / 1,395</td></tr>
+          <tr><td class="py-2 pr-4">Python docs: "Coroutines and tasks"</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">3 / 1,239 / 7.9 / 28</td><td class="text-right">3 / 2,255 / 10.1 / 347</td></tr>
+          <tr><td class="py-2 pr-4">TodoMVC: add item</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-right pr-4">4 / 466 / 6.3 / 26</td><td class="text-right">3 / 755 / 10.3 / 44</td></tr>
         </tbody>
       </table>
       <p class="mt-4 text-xs text-slate-400 leading-relaxed">
-        <strong class="text-slate-200">Why ARC is slower on Solari:</strong> it waits for pages to settle before reading them, and reads the tree before and after every action to verify it. That's what caught Wikipedia's hidden search box; trimming the pre-action read is the next optimisation.
+        <strong class="text-slate-200">Speed:</strong> each message to a Solari browser is a network round trip (0.2–0.5 s). ARC's first timed run was the slower one (99 s vs 78 s); reusing one CDP session per page and merging calls halved its extraction and action times. It is now faster on 6 of 7 tasks; Wikipedia still takes two extra calls.
       </p>
       <p class="mt-4 text-xs text-slate-400 leading-relaxed">
         <strong class="text-slate-200">With a real model:</strong> a small, fast LLM (<code class="font-mono">laguna-xs-2-1</code>) driving ARC through the Oh My Pi agent, with ARC as its only tools, succeeded on all 13 task runs that reached the model, in 3–5 tool calls and about 25 s each.

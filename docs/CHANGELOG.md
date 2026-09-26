@@ -245,3 +245,22 @@ All notable technical achievements, deliverables, and performance benchmarks acr
   - **LLM agent run.** `scripts/benchmark_llm_agent_omp.py` runs the same tasks through the Oh My Pi agent with only the ARC tools, using `laguna-xs-2-1:free` via Kenari. 13/13 runs that reached the model succeeded, in 3–5 tool calls and about 25 s each. One further run was rejected by the provider before starting.
   - Skill, README and `docs/BENCHMARK_VS_SOLARI_MCP.md` updated.
 - **Final Test Count:** 235 passed, 1 skipped, 1 failed. The failure is `test_phase2_reflex.py::test_benchmark_state_verification_simhash_n100`, a pre-existing timing threshold (p50 3.5 ms against a 3.0 ms limit) that fails on the previous commit too on this machine.
+
+## Phase 15: Fewer Round Trips to Remote Browsers
+
+- **Objective:** Close the speed gap Phase 14 measured. ARC spent 99 s in tool calls against Solari MCP's 78 s.
+- **Diagnosis:** a stage profile on a Solari browser, where each CDP message costs about 0.2–0.5 s:
+  - Tree extraction took 1.4 s, because each one opened a new CDP session (never detached) and re-enabled two domains.
+  - Pinning a node took 1.5 s, over five round trips.
+  - Settling after an action re-extracted twice.
+- **Key Deliverables:**
+  - One cached CDP session per page (`page_cdp` / `cdp_send`), with Accessibility and DOM enabled once and a single reattach on failure. Extraction takes two round trips.
+  - Pinning clears the old pin and sets the new one in the same `Runtime.callFunctionOn`: two round trips.
+  - Post-action settling counts the verifier's snapshot as the first read, so a synchronously changed page costs one confirming extraction.
+  - Measured on one Hacker News click:
+    - Extraction: 1.4 s → 0.7 s
+    - Pin: 1.5 s → 0.4 s
+    - `arc_act` without the returned tree: 6.9 s → 4.0 s
+    - `arc_act` with the returned tree: 10.8 s → 4.9 s
+  - Head-to-head: ARC 70 s vs Solari MCP 86 s in tool calls, and 255 vs 3,868 CDP commands. ARC is faster on 6 of 7 tasks.
+- **Final Test Count:** 235 passed, 1 skipped, 1 failed (the same pre-existing `simhash_n100` timing threshold as Phase 14).

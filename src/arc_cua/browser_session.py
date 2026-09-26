@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+import weakref
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
@@ -59,13 +60,38 @@ class BrowserSessionError(RuntimeError):
 
 # --- perception helpers (also re-exported by arc_cua.cli) -------------------------------------
 
+_CDP_SESSIONS: "weakref.WeakKeyDictionary[Any, Any]" = weakref.WeakKeyDictionary()
+
+
+def page_cdp(page: Any) -> Any:
+    """One CDP session per page, with Accessibility and DOM enabled once.
+
+    Every CDP message is a network round trip on a remote (Solari) browser, about
+    0.2-0.5 s. A fresh session per call (attach, two enables, detach) cost more round
+    trips than the work itself.
+    """
+    cdp = _CDP_SESSIONS.get(page)
+    if cdp is None:
+        cdp = page.context.new_cdp_session(page)
+        cdp.send("Accessibility.enable")
+        cdp.send("DOM.enable")
+        _CDP_SESSIONS[page] = cdp
+    return cdp
+
+
+def cdp_send(page: Any, method: str, params: Optional[Dict[str, Any]] = None) -> Any:
+    """Send on the page's cached session, reattaching once if it was detached."""
+    try:
+        return page_cdp(page).send(method, params or {})
+    except Exception:
+        _CDP_SESSIONS.pop(page, None)
+        return page_cdp(page).send(method, params or {})
+
+
 def extract_page_tree(page: Any, extractor: Any) -> Any:
-    """Extract the live AXTree from a Playwright page via a CDP session."""
-    cdp = page.context.new_cdp_session(page)
-    cdp.send("Accessibility.enable")
-    cdp.send("DOM.enable")
-    ax = cdp.send("Accessibility.getFullAXTree")
-    dom = cdp.send("DOM.getDocument", {"depth": -1, "pierce": True})
+    """Extract the live AXTree from a Playwright page via CDP (two round trips)."""
+    ax = cdp_send(page, "Accessibility.getFullAXTree")
+    dom = cdp_send(page, "DOM.getDocument", {"depth": -1, "pierce": True})
     return extractor.sanitize(ax.get("nodes", []), dom.get("root"))
 
 
@@ -359,14 +385,7 @@ class BrowserSession:
         by_backend = {e.get("backend_dom_id"): idx for idx, e in known.items() if e.get("backend_dom_id")}
         if not by_backend:
             return []
-        cdp = self.page.context.new_cdp_session(self.page)
-        try:
-            snap = cdp.send("DOMSnapshot.captureSnapshot", {"computedStyles": []})
-        finally:
-            try:
-                cdp.detach()
-            except Exception:
-                pass
+        snap = cdp_send(self.page, "DOMSnapshot.captureSnapshot", {"computedStyles": []})
         doc = snap["documents"][0]
         backend_ids = doc["nodes"]["backendNodeId"]
         scroll_x, scroll_y = doc.get("scrollOffsetX", 0), doc.get("scrollOffsetY", 0)
@@ -451,24 +470,19 @@ class BrowserSession:
         """
         if not backend_id:
             return None
-        cdp = self.page.context.new_cdp_session(self.page)
         try:
-            cdp.send("Runtime.evaluate", {"expression":
-                "document.querySelectorAll('[data-arc-pin]').forEach(e => e.removeAttribute('data-arc-pin'))"})
-            obj = cdp.send("DOM.resolveNode", {"backendNodeId": int(backend_id)})["object"]["objectId"]
-            cdp.send("Runtime.callFunctionOn", {
+            # Two round trips: resolve, then clear old pins and set this one in the same call.
+            obj = cdp_send(self.page, "DOM.resolveNode", {"backendNodeId": int(backend_id)})["object"]["objectId"]
+            cdp_send(self.page, "Runtime.callFunctionOn", {
                 "objectId": obj,
-                "functionDeclaration": "function(){ (this.nodeType === 1 ? this : this.parentElement).setAttribute('data-arc-pin', '1'); }",
+                "functionDeclaration": "function(){"
+                    " document.querySelectorAll('[data-arc-pin]').forEach(e => e.removeAttribute('data-arc-pin'));"
+                    " (this.nodeType === 1 ? this : this.parentElement).setAttribute('data-arc-pin', '1'); }",
             })
             return "[data-arc-pin='1']"
         except Exception as e:
             logger.debug(f"Pinning backend node {backend_id} failed, using CSS locator: {e}")
             return None
-        finally:
-            try:
-                cdp.detach()
-            except Exception:
-                pass
 
     def act(self, action: str, index: Optional[int] = None, target: Optional[str] = None,
             value: Optional[str] = None, timeout_ms: float = 5000.0, observe: bool = False,
@@ -580,27 +594,38 @@ class BrowserSession:
         attempts = 1
         tree = tree_after
         if changed:
-            tree, attempts = self._settle_changed_page(before_yaml, settle_ms)
+            tree, attempts = self._settle_changed_page(before_yaml, tree_after, settle_ms)
         self._index_map = dict(tree.action_index_map)
         self._evicted_map = dict(tree.evicted_index_map)
         self._inspected_yaml = tree.yaml_linearized
         return f"URL: {self.page.url}\n" + format_tree(tree, attempts, settle_ms)
 
-    def _settle_changed_page(self, before_yaml: str, settle_ms: float) -> Tuple[Any, int]:
+    def _settle_changed_page(self, before_yaml: str, tree_after: Any, settle_ms: float) -> Tuple[Any, int]:
         """Extract once the page has visibly moved on from `before_yaml` and stopped changing.
 
         Network idle alone is not enough after an action: it does not reset for
         client-side navigations, so a router that pushes the URL before rendering
         (GitHub) still shows the old page. Poll until the tree differs from the
-        pre-action tree and two consecutive reads agree, within `settle_ms`.
+        pre-action tree, has actionable nodes, and two consecutive reads agree, within
+        `settle_ms`. The verifier's post-action snapshot counts as the first read, so a
+        page that changed synchronously costs one confirming extraction.
         """
         deadline = time.monotonic() + max(0.0, settle_ms) / 1000.0
-        tree, attempts = settle_and_extract(self.page, self._extractor, settle_ms)
-        while time.monotonic() < deadline:
-            self.page.wait_for_timeout(SETTLE_POLL_MS)
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=max(1.0, settle_ms))
+        except Exception as e:
+            logger.debug(f"networkidle wait after action timed out: {e}")
+        tree, attempts = tree_after, 0
+        while True:
+            started = time.monotonic()
             nxt = extract_page_tree(self.page, self._extractor)
             attempts += 1
-            if nxt.yaml_linearized == tree.yaml_linearized and tree.yaml_linearized != before_yaml:
-                return nxt, attempts
+            settled = (nxt.yaml_linearized == tree.yaml_linearized and nxt.yaml_linearized != before_yaml
+                       and nxt.actionable_count > 0)
             tree = nxt
-        return tree, attempts
+            if settled or time.monotonic() >= deadline:
+                return tree, attempts
+            # Remote extractions already take longer than the poll interval; only pace local ones.
+            pause_ms = SETTLE_POLL_MS - (time.monotonic() - started) * 1000
+            if pause_ms > 0:
+                self.page.wait_for_timeout(pause_ms)
