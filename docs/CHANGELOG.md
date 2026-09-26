@@ -264,3 +264,22 @@ All notable technical achievements, deliverables, and performance benchmarks acr
     - `arc_act` with the returned tree: 10.8 s → 4.9 s
   - Head-to-head: ARC 70 s vs Solari MCP 86 s in tool calls, and 255 vs 3,868 CDP commands. ARC is faster on 6 of 7 tasks.
 - **Final Test Count:** 235 passed, 1 skipped, 1 failed (the same pre-existing `simhash_n100` timing threshold as Phase 14).
+
+## Phase 16: Reflex Policy — One Model Call per Action
+
+- **Objective:** Test the Jev pattern (one small model call choosing operation + element) on ARC's perception, without Jev's API.
+- **Key Deliverables:**
+  - `src/arc_cua/reflex_policy.py`:
+    - A stdlib OpenAI-compatible client, with one retry on 5xx or timeout and extra request fields such as `reasoning_effort`.
+    - A strict one-JSON-action protocol, including `fill` + `enter` in one decision and `query` for evicted elements.
+    - A history that names the element each action hit and the resulting URL.
+  - `scripts/benchmark_reflex_policy.py`:
+    - The 7 tasks plus Google Flights, which is verified by decoding the results URL's `tfs` search (date + Freebase ids), not by page text.
+    - A warm browser, with a fresh browser after a navigation failure.
+  - **Results:**
+    - Gemini 3.8 Flash: 24/24, median 9.4 s per task, Flights 3/3 in 27–29 s.
+    - Gemini 3.5 Flash-Lite: 22/24, median 7.9 s, 0.89 s per decision, Flights 3/3 in 16–22 s.
+    - DeepSeek V4.1 Flash via Kenari: 7/8.
+    - Jev's 7.1 s Flights is not matched. ARC's reads of the large, changing Flights tree now cost more than the model.
+  - `tests/test_reflex_policy.py`: parsing, and a scripted-model episode on the soft-navigation fixture.
+
