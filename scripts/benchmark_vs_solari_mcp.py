@@ -12,7 +12,12 @@ Part B — grounding tasks: find a named element and act on it, then verify the 
   ARC policy:    arc_inspect -> match the named [#N] line -> arc_act by index.
   Solari policy: read_page 'links' for link targets, 'html' for form controls, derive a
                  CSS selector with an HTML parser -> solari_browser_click / _type.
-Verification calls are excluded from the counted tool calls and tokens.
+Verification calls are excluded from the counted tool calls, tokens and timings.
+
+Timing: wall seconds per task, the summed latency of counted tool calls, and the Chrome
+DevTools Protocol commands each server sent to reach the result. CDP commands are counted
+from the servers' own debug logs (Playwright `DEBUG=pw:protocol`, Puppeteer
+`DEBUG=puppeteer:protocol:SEND*`) written to temporary files that are deleted afterwards.
 
 Usage: SOLARI_API_KEY=... python scripts/benchmark_vs_solari_mcp.py [--out artifacts/benchmarks]
 Cost: two fast-pool Solari sessions for a few minutes (a few cents on the free plan).
@@ -28,6 +33,7 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 import time
 from dataclasses import asdict, dataclass, field
 from html.parser import HTMLParser
@@ -59,28 +65,56 @@ def text_of(result: Any) -> str:
 
 # --- MCP clients -------------------------------------------------------------------------------
 
-class Tool:
-    """Counts calls and perception tokens for one MCP server."""
+CDP_SEND = re.compile(r"SEND ►")
 
-    def __init__(self, session: ClientSession):
+
+class ProtocolLog:
+    """Counts CDP commands in a server's stderr debug log.
+
+    Uncounted verification calls also send CDP commands, so the count is sampled around
+    each counted call rather than across the whole task.
+    """
+
+    def __init__(self, path: Path):
+        self.path = path
+
+    def sent(self) -> int:
+        with contextlib.suppress(OSError):
+            return len(CDP_SEND.findall(self.path.read_text(encoding="utf-8", errors="replace")))
+        return 0
+
+
+class Tool:
+    """Counts calls, perception tokens, call latency and CDP commands for one MCP server."""
+
+    def __init__(self, session: ClientSession, log: Optional[ProtocolLog] = None):
         self.s = session
-        self.calls = 0
-        self.perception_tokens = 0
+        self.log = log
+        self.reset()
 
     async def call(self, name: str, args: Dict[str, Any], perception: bool = False, counted: bool = True) -> str:
+        before = self.log.sent() if counted and self.log else 0
+        start = time.perf_counter()
         res = await self.s.call_tool(name, args)
+        elapsed = time.perf_counter() - start
         out = text_of(res)
-        if res.is_error:
-            raise RuntimeError(f"{name}: {out[:300]}")
         if counted:
             self.calls += 1
+            self.call_seconds += elapsed
+            if self.log:
+                await asyncio.sleep(0.2)  # let the server's stderr reach the log file
+                self.cdp_commands += self.log.sent() - before
             if perception:
                 self.perception_tokens += tokens(out)
+        if res.is_error:
+            raise RuntimeError(f"{name}: {out[:300]}")
         return out
 
     def reset(self) -> None:
         self.calls = 0
         self.perception_tokens = 0
+        self.call_seconds = 0.0
+        self.cdp_commands = 0
 
 
 class Arc:
@@ -106,8 +140,13 @@ class Arc:
             idx = arc_index(await self.inspect(query=query), role, name, nth)
         return idx
 
-    async def act(self, **kw: Any) -> Dict[str, Any]:
-        return json.loads(await self.t.call("arc_act", kw))
+    async def act(self, observe: bool = False, **kw: Any) -> Dict[str, Any]:
+        """arc_act; with observe, the post-action tree comes back under "tree" (counted as perception)."""
+        out = await self.t.call("arc_act", {**kw, "observe": observe}, perception=observe)
+        report, _, tree = out.partition("\n\n")
+        result = json.loads(report)
+        result["tree"] = tree
+        return result
 
     async def url(self) -> str:
         return (await self.inspect(counted=False)).splitlines()[0].removeprefix("URL: ")
@@ -256,6 +295,8 @@ class TaskResult:
     calls: int
     perception_tokens: int
     seconds: float
+    tool_seconds: float = 0.0
+    cdp_commands: int = 0
     error: Optional[str] = None
 
 
@@ -268,7 +309,9 @@ async def run_task(name: str, tool_name: str, client: Any, tool: Tool, fn: Calla
         err = None
     except Exception as e:  # a failed grounding step is a failed task
         ok, err = False, f"{type(e).__name__}: {e}"[:300]
-    return TaskResult(name, tool_name, ok, tool.calls, tool.perception_tokens, round(time.perf_counter() - start, 1), err)
+    seconds = time.perf_counter() - start
+    return TaskResult(name, tool_name, ok, tool.calls, tool.perception_tokens, round(seconds, 1),
+                      round(tool.call_seconds, 1), tool.cdp_commands, err)
 
 
 def need(value: Any, what: str) -> Any:
@@ -308,8 +351,7 @@ async def arc_wiki_search(a: Arc):
     idx = arc_index(tree, "searchbox", "Search") or arc_index(tree, "combobox", "Search")
     if idx is None:  # narrow viewports collapse the box behind a "Search" button/link
         toggle = need(arc_index(tree, "button", "Search") or arc_index(tree, "link", "Search"), "search toggle")
-        await a.act(action="click", index=toggle)
-        tree = await a.inspect()
+        tree = (await a.act(action="click", index=toggle, observe=True))["tree"]
         idx = arc_index(tree, "searchbox", "Search") or arc_index(tree, "combobox", "Search")
     need(idx, "search box")
     await a.act(action="fill", index=idx, value="Playwright (software)")
@@ -463,19 +505,22 @@ def markdown(rows: List[Dict[str, Any]], results: List[TaskResult]) -> str:
             f"{r.get('solari_links_tokens', 'err')}{' (T)' if r.get('solari_links_truncated') else ''} | "
             f"{r.get('solari_html_tokens', 'err')}{' (T)' if r.get('solari_html_truncated') else ''} |")
     out += ["", "(T) = output truncated by the tool.", "",
+            "s = summed latency of the counted tool calls; CDP = DevTools Protocol commands those calls sent.", "",
             "## Part B — grounding tasks", "",
-            "| Task | ARC | Solari | ARC calls / tokens / s | Solari calls / tokens / s |", "|---|:-:|:-:|---:|---:|"]
+            "| Task | ARC | Solari | ARC calls / tokens / s / CDP | Solari calls / tokens / s / CDP |", "|---|:-:|:-:|---:|---:|"]
     by_task: Dict[str, Dict[str, TaskResult]] = {}
     for r in results:
         by_task.setdefault(r.task, {})[r.tool] = r
     for task, pair in by_task.items():
         a, s = pair.get("arc"), pair.get("solari")
         out.append(f"| {task} | {'✅' if a and a.success else '❌'} | {'✅' if s and s.success else '❌'} | "
-                   f"{a.calls} / {a.perception_tokens} / {a.seconds} | {s.calls} / {s.perception_tokens} / {s.seconds} |")
+                   f"{a.calls} / {a.perception_tokens} / {a.tool_seconds} / {a.cdp_commands} | "
+                   f"{s.calls} / {s.perception_tokens} / {s.tool_seconds} / {s.cdp_commands} |")
     for tool in ("arc", "solari"):
         rs = [r for r in results if r.tool == tool]
         out.append(f"\n**{tool}:** {sum(r.success for r in rs)}/{len(rs)} succeeded, "
-                   f"{sum(r.perception_tokens for r in rs)} perception tokens, {sum(r.calls for r in rs)} tool calls.")
+                   f"{sum(r.perception_tokens for r in rs)} perception tokens, {sum(r.calls for r in rs)} tool calls, "
+                   f"{sum(r.tool_seconds for r in rs):.1f} s in tool calls, {sum(r.cdp_commands for r in rs)} CDP commands.")
     failures = [r for r in results if not r.success]
     if failures:
         out += ["", "### Failures", ""] + [f"- `{r.tool}` `{r.task}`: {r.error or 'end state not reached'}" for r in failures]
@@ -489,16 +534,31 @@ async def main() -> None:
     if not os.getenv("SOLARI_API_KEY"):
         sys.exit("SOLARI_API_KEY is required (both servers use Solari browsers).")
 
-    env = dict(os.environ)
+    env = {**os.environ, "DEBUG": "pw:protocol,puppeteer:protocol:SEND*", "DEBUG_COLORS": "0"}
     npx = shutil.which("npx") or shutil.which("npx.cmd")
     arc_params = StdioServerParameters(command="arc-cua-mcp", args=[], env=env)
     sol_params = StdioServerParameters(command=npx, args=["-y", "@solarisdk/mcp"], env=env)
 
-    async with stdio_client(arc_params) as (ar, aw), stdio_client(sol_params) as (sr, sw):
+    # Protocol logs carry page content, so they live in a temp dir and never reach artifacts.
+    with tempfile.TemporaryDirectory(prefix="arc_bench_") as tmp:
+        logs = Path(tmp)
+        with open(logs / "arc.log", "w", encoding="utf-8") as arc_err, \
+                open(logs / "solari.log", "w", encoding="utf-8") as sol_err:
+            rows, results = await run_all(arc_params, sol_params, arc_err, sol_err, logs)
+        for name in ("arc", "solari"):
+            if not ProtocolLog(logs / f"{name}.log").sent():
+                print(f"WARNING: {name} protocol log is empty; its CDP counts are 0, not measured.", file=sys.stderr)
+    write_report(args.out, rows, results)
+
+
+async def run_all(arc_params: StdioServerParameters, sol_params: StdioServerParameters,
+                  arc_err: Any, sol_err: Any, logs: Path) -> tuple:
+    async with stdio_client(arc_params, errlog=arc_err) as (ar, aw), stdio_client(sol_params, errlog=sol_err) as (sr, sw):
         async with ClientSession(ar, aw) as arc_s, ClientSession(sr, sw) as sol_s:
             await arc_s.initialize()
             await sol_s.initialize()
-            arc_tool, sol_tool = Tool(arc_s), Tool(sol_s)
+            arc_tool = Tool(arc_s, ProtocolLog(logs / "arc.log"))
+            sol_tool = Tool(sol_s, ProtocolLog(logs / "solari.log"))
             arc, sol = Arc(arc_tool), Solari(sol_tool)
             await arc.open()
             await sol.open()
@@ -508,14 +568,18 @@ async def main() -> None:
             finally:
                 await arc.close()
                 await sol.close()
+    return rows, results
 
-    out_dir = Path(args.out)
+
+def write_report(out: str, rows: List[Dict[str, Any]], results: List[TaskResult]) -> None:
+    out_dir = Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
     (out_dir / f"vs_solari_mcp_{stamp}.json").write_text(
         json.dumps({"pages": rows, "tasks": [asdict(r) for r in results]}, indent=2), encoding="utf-8")
     report = markdown(rows, results)
     (out_dir / f"vs_solari_mcp_{stamp}.md").write_text(report, encoding="utf-8")
+    sys.stdout.reconfigure(encoding="utf-8")  # the report has non-ASCII; Windows consoles default to cp1252
     print("\n" + report)
 
 

@@ -64,8 +64,15 @@ async def test_end_to_end_local():
         line = next(l for l in tree_text.splitlines() if "Submit Form" in l and "[#" in l)
         index = int(line.split("[#", 1)[1].split("]", 1)[0])
 
-        acted = json.loads(text_of(await server.call_tool("arc_act", {"action": "click", "index": index})))
+        report, _, after = text_of(await server.call_tool("arc_act", {"action": "click", "index": index})).partition("\n\n")
+        acted = json.loads(report)
         assert acted["success"] is True and acted["state_changed"] is True
+        # The post-action tree comes back with the result, and its indices are live without arc_inspect.
+        assert after.startswith("URL: ") and "# AXTree" in after
+        line = next(l for l in after.splitlines() if "Submit Form" in l and "[#" in l)
+        again = json.loads(text_of(await server.call_tool(
+            "arc_act", {"action": "click", "index": int(line.split("[#", 1)[1].split("]", 1)[0]), "observe": False})))
+        assert again["success"] is True and "tree" not in again
 
         shot = await server.call_tool("arc_screenshot", {"marks": True})
         kinds = [c.type for c in shot.content]
