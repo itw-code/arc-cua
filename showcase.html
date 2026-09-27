@@ -407,6 +407,28 @@
       </div>
     </div>
 
+    <!-- Showreel: Opus + Solari MCP vs Gemini Flash + ARC -->
+    <div class="mt-8 rounded-2xl glass-card border border-white/10 p-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+        <h3 class="text-xl font-bold text-white">Opus + Solari MCP vs Gemini 3.8 Flash + ARC, in 15 seconds</h3>
+        <span class="text-[11px] font-mono text-slate-400">Same Solari browser · 8 tasks · 2026-09-27</span>
+      </div>
+      <video class="w-full rounded-xl border border-white/10 bg-black" controls playsinline muted loop preload="metadata"
+             poster="artifacts/solari-race-showreel-poster.jpg">
+        <source src="artifacts/solari-race-showreel.mp4" type="video/mp4">
+        <a href="artifacts/solari-race-showreel.mp4">Download the video (MP4, 5 MB)</a>
+      </video>
+      <div class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 text-center">
+        <div class="p-3 rounded-xl bg-black/40 border border-blue-500/30"><div class="text-xl font-black text-blue-400">24/24 <span class="text-slate-500 text-sm font-bold">vs 7/8</span></div><div class="text-[11px] font-mono text-slate-300 uppercase mt-1">Tasks passed</div></div>
+        <div class="p-3 rounded-xl bg-black/40 border border-blue-500/30"><div class="text-xl font-black text-blue-400">1.9×</div><div class="text-[11px] font-mono text-slate-300 uppercase mt-1">Faster · 172 s vs 323 s</div></div>
+        <div class="p-3 rounded-xl bg-black/40 border border-blue-500/30"><div class="text-xl font-black text-blue-400">39×</div><div class="text-[11px] font-mono text-slate-300 uppercase mt-1">Fewer input tokens</div></div>
+        <div class="p-3 rounded-xl bg-black/40 border border-blue-500/30"><div class="text-xl font-black text-blue-400">33×</div><div class="text-[11px] font-mono text-slate-300 uppercase mt-1">Cheaper · $4.83 vs $160 / 1k tasks</div></div>
+      </div>
+      <p class="mt-4 text-xs text-slate-400 leading-relaxed">
+        Lane A is Claude Opus 5.5 in Claude Code using Solari's own MCP tools. Lane B is ARC's reflex policy: Gemini 3.8 Flash picks one action per call from ARC's numbered tree. A is a general-purpose agent and ran once per task; B is a narrow browsing loop and ran three times. A's Google Flights run opened a search URL that lands on the home page, not results. Method and raw data in <a class="underline decoration-blue-500/50 hover:text-blue-200" href="https://github.com/itw-code/arc-cua/blob/master/docs/BENCHMARK_VS_SOLARI_MCP.md" target="_blank" rel="noopener">BENCHMARK_VS_SOLARI_MCP.md</a>.
+      </p>
+    </div>
+
     <div class="mt-8 flex flex-wrap justify-center gap-4">
       <a href="https://github.com/itw-code/arc-cua/blob/master/skills/solari-hybrid-cua/SKILL.md" target="_blank" rel="noopener" class="px-6 py-3 rounded-xl glass-card text-white font-bold text-xs uppercase tracking-wider hover:border-blue-500/40 transition-all">Agent Skill</a>
       <a href="https://github.com/itw-code/arc-cua/blob/master/docs/SOLARI_API.md" target="_blank" rel="noopener" class="px-6 py-3 rounded-xl glass-card text-white font-bold text-xs uppercase tracking-wider hover:border-blue-500/40 transition-all">Solari API Contract</a>
