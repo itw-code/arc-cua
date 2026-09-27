@@ -129,6 +129,7 @@ claude mcp add --scope user arc -- arc-cua-mcp
 - Agent skill: [`skills/solari-hybrid-cua/SKILL.md`](./skills/solari-hybrid-cua/SKILL.md). Benchmarks in [`docs/BENCHMARK_VS_SOLARI_MCP.md`](./docs/BENCHMARK_VS_SOLARI_MCP.md):
   - **vs Solari's MCP** (scripted policies): 7/7 vs 6/7 tasks, 3.3× fewer perception tokens, 15× fewer DevTools Protocol commands, and 70 s vs 86 s in tool calls on Solari browsers.
   - **A small, fast LLM driving ARC** through the Oh My Pi agent (see Part C of that doc).
+  - **Reflex policy** (`arc_cua.reflex_policy`, Part D): one small model call per action, Jev-style. Gemini 3.8 Flash completed 24/24 runs including Google Flights; Flash-Lite decides in 0.9 s.
 
 ---
 

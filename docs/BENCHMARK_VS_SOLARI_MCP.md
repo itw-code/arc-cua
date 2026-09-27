@@ -5,6 +5,7 @@
 - **Protocol traffic:** ARC sent **15× fewer DevTools Protocol commands** (255 vs 3,868).
 - **Speed:** ARC's counted tool calls now take **70 s against Solari's 86 s**. Before the round-trip fix below, ARC was the slower one (99 s vs 78 s).
 - **Real model:** a small, fast LLM driving ARC through a coding agent succeeded on all 13 task runs that reached the model, in 3–5 tool calls and about 25 s each.
+- **One call per action:** with one model call per action (Part D), Gemini 3.8 Flash completed 24/24 runs, including Google Flights, at a median 9.4 s per task. Gemini 3.5 Flash-Lite decides in 0.9 s and did Google Flights in 16–22 s. That's not yet Jev's 7.1 s.
 
 Raw data:
 - Head-to-head: `artifacts/benchmarks/vs_solari_mcp_20260927-035501.{json,md}` (after the round-trip fix; Part A below is from `vs_solari_mcp_20260927-030500`, whose page reads the fix doesn't affect)
@@ -104,6 +105,41 @@ The same 7 tasks, but a model chooses every action.
   - GitHub now takes 3 calls in both runs.
 
 For scale, Browser Use's Jev reports a Google Flights search in 7.1 s, with one model call choosing both the operation and the element. ARC with a general chat model needs one model turn per action (2–3 s each here) plus ARC's own settle waits. Those are the two gaps.
+
+## Part D — reflex policy: one model call per action
+
+Part C's agent loop paid for a general coding agent on every step: about 20k input tokens per turn, prose before each tool call, and chat history. `arc_cua.reflex_policy` is the Jev-style alternative:
+- **Input:** each step sends one direct chat-completions request with the goal, ARC's current tree (≤ ~1,200 tokens) and the last 4 actions (each naming the element it hit and whether the page changed).
+- **Output:** exactly one JSON action, such as `{"op":"click","index":19}`, about 9 output tokens.
+- **ARC side:** `arc_act` returns the next tree, so each step is one model call plus one ARC action.
+
+Setup and scoring:
+- **Tasks:** the same 7 tasks plus **Google Flights**: one-way Zurich → London on 2026-10-20, the task Browser Use's Jev times at 7.1 s. Flights passes only if the results URL's `tfs` parameter encodes that date and the Freebase ids of Zürich (`/m/08966`) and London (`/m/04jpl`).
+- **Browser:** local headless Chromium, kept warm across tasks.
+- **Scoring:** a run where the model itself gives up never counts.
+- **Artifacts:** `artifacts/benchmarks/reflex_policy_20260927-{044804,045518,045016}`. Script: `scripts/benchmark_reflex_policy.py`.
+
+| Model (endpoint) | Success | Median s / task | Median s / decision | Google Flights |
+|---|:-:|---:|---:|---|
+| `gemini-3.8-flash` (Gemini API, thinking off) | **24/24** | 9.4 | 1.57 | ✅✅✅ 26.7 / 27.0 / 28.6 s |
+| `gemini-3.5-flash-lite` (Gemini API, minimal thinking) | 22/24 | **7.9** | **0.89** | ✅✅✅ 15.8 / 21.1 / 21.5 s |
+| `deepseek-v4-1-flash` (Kenari, 1 run) | 7/8 | 9.8 | 1.47 | ✅ 27.9 s |
+
+- **Against Part C:** median task time fell from about 25 s to 8–9 s.
+  - Part C carried about 20k tokens and prose per turn; Part D sends about 1.5k tokens in and gets about 9 tokens out.
+  - Part D also runs on a warm browser, where Part C paid 4–5 s of start-up per task.
+  - The Flights task wasn't in Part C.
+- **Against Jev (7.1 s on Google Flights):** not beaten. The best run was 15.8 s.
+  - **Model time:** Flash-Lite spends about 6 s on 7 decisions of 0.7–1.1 s each.
+  - **ARC time:** about 8–13 s. That is now the larger share. Google Flights' tree is large and changes constantly, and each action reads it again.
+  - Cutting ARC's settle budget from 3 s to 1.5 s didn't change the Flights time, so the cost is the reads themselves.
+  - Jev's structural advantage is a model trained to pick operation and element directly, plus speculative fan-out.
+- **Failures:**
+  - Flash-Lite's 2 misses and DeepSeek's miss were all on "click the second 'N comments' link": the model clicked the right link (`#24`) but didn't recognise it was done. Adding the clicked element's name and the new URL to the history helped Gemini 3.8 Flash (3/3) but not Flash-Lite.
+- **Models ruled out:**
+  - `gemma-4-26b-a4b-it` (Gemini API) looped on the same click, then hit the free-tier rate limit.
+  - The free Kenari models (`laguna-xs-2-1`, `glm-4-7-flash`) failed mostly on `429`/`503`; `agnes-3-0-flash` passed 7/8 but took 1–40 s per decision.
+  - Kenari's paid fast models measured 1.3–2.8 s per decision in a latency probe, slower than Gemini direct.
 
 ## Caveats
 
