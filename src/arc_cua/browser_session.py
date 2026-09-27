@@ -19,6 +19,7 @@ import json
 import logging
 import time
 import weakref
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
@@ -33,6 +34,9 @@ logger = logging.getLogger("arc_cua.browser_session")
 ACT_STALL_THRESHOLD = 3
 SOFT_NAVIGATION_WAIT_MS = 2000
 SETTLE_POLL_MS = 300
+# A changed page must read the same for this long before it counts as settled. Fast probes
+# could otherwise land twice inside a typing debounce (Google Flights' autocomplete).
+SETTLE_QUIET_MS = 500
 ALLOWED_URL_SCHEMES = frozenset({"http", "https", "file", "about"})
 BACKENDS = ("local", "solari", "cdp")
 
@@ -88,11 +92,44 @@ def cdp_send(page: Any, method: str, params: Optional[Dict[str, Any]] = None) ->
         return page_cdp(page).send(method, params or {})
 
 
-def extract_page_tree(page: Any, extractor: Any) -> Any:
-    """Extract the live AXTree from a Playwright page via CDP (two round trips)."""
-    ax = cdp_send(page, "Accessibility.getFullAXTree")
+def extract_page_tree(page: Any, extractor: Any, ax_nodes: Optional[List[Dict[str, Any]]] = None) -> Any:
+    """Extract the live AXTree from a Playwright page via CDP (two round trips).
+
+    Pass `ax_nodes` from a just-taken probe to fetch only the DOM.
+    """
+    if ax_nodes is None:
+        ax_nodes = cdp_send(page, "Accessibility.getFullAXTree").get("nodes", [])
     dom = cdp_send(page, "DOM.getDocument", {"depth": -1, "pierce": True})
-    return extractor.sanitize(ax.get("nodes", []), dom.get("root"))
+    tree = extractor.sanitize(ax_nodes, dom.get("root"))
+    tree._ax_nodes = ax_nodes  # lets callers derive a Probe without another round trip
+    return tree
+
+
+@dataclass
+class Probe:
+    """An accessibility-tree-only snapshot, for telling whether the page changed.
+
+    The full DOM (`DOM.getDocument`, depth -1) is only needed for the tree the agent
+    reads (inline handlers, css= locators). On Google Flights it was 70% of extraction
+    time and ARC fetched it ~5 times per action just to detect change.
+    """
+    yaml: str
+    affordances: Tuple[Tuple[str, str], ...]
+    actionable_count: int
+    ax_nodes: List[Dict[str, Any]]
+
+
+def probe_page(page: Any, extractor: Any) -> Probe:
+    """One CDP round trip: sanitize the AX tree without the DOM."""
+    ax_nodes = cdp_send(page, "Accessibility.getFullAXTree").get("nodes", [])
+    return probe_from(extractor, ax_nodes)
+
+
+def probe_from(extractor: Any, ax_nodes: List[Dict[str, Any]]) -> Probe:
+    tree = extractor.sanitize(ax_nodes, None)
+    known = {**tree.evicted_index_map, **tree.action_index_map}
+    affordances = tuple((str(e.get("role")), str(e.get("name") or "")) for _, e in sorted(known.items()))
+    return Probe(tree.yaml_linearized, affordances, tree.actionable_count, ax_nodes)
 
 
 def settle_and_extract(page: Any, extractor: Any, settle_ms: float) -> Tuple[Any, int]:
@@ -212,11 +249,12 @@ class BrowserSession:
         self._index_map: Dict[int, Any] = {}
         self._evicted_map: Dict[int, Any] = {}
         self._inspected_yaml: Optional[str] = None
+        self._inspected_probe: Optional[str] = None
         self._streak_key: Optional[str] = None
         self._streak = 0
 
     def _reset_perception(self) -> None:
-        self._index_map, self._evicted_map, self._inspected_yaml = {}, {}, None
+        self._index_map, self._evicted_map, self._inspected_yaml, self._inspected_probe = {}, {}, None, None
 
     @property
     def is_open(self) -> bool:
@@ -345,6 +383,7 @@ class BrowserSession:
         self._index_map = dict(tree.action_index_map)
         self._evicted_map = dict(tree.evicted_index_map)
         self._inspected_yaml = tree.yaml_linearized
+        self._inspected_probe = probe_from(self._extractor, tree._ax_nodes).yaml
         text = format_tree(tree, attempts, settle_ms) if not query else self._format_matches(query)
         return {
             "text": text,
@@ -515,16 +554,18 @@ class BrowserSession:
             # Text-derived CSS (a:has-text('hide')) is ambiguous on list pages; pin the exact node.
             selector = self._pin_node(known[idx].get("backend_dom_id")) or selector
 
-        tree_before = extract_page_tree(self.page, self._extractor)
+        # Change detection needs only the accessibility tree (one round trip); the DOM is
+        # fetched once, for the tree the agent reads.
+        probe_before = probe_page(self.page, self._extractor)
         url_before = self.page.url
         payload = ActionPayload(verb=verb, target_selector=selector, action_index=idx,
                                 value=value, timeout_ms=float(timeout_ms))
         start = time.perf_counter()
         result = PlaywrightExecutor(default_timeout_ms=float(timeout_ms)).execute(self.page, payload)
         elapsed_ms = (time.perf_counter() - start) * 1000.0
-        tree_after = extract_page_tree(self.page, self._extractor)
+        probe_after = probe_page(self.page, self._extractor)
         url_at_after = self.page.url
-        ver = self._verifier.verify(result, tree_before.yaml_linearized, tree_after.yaml_linearized)
+        ver = self._verifier.verify(result, probe_before.yaml, probe_after.yaml)
 
         is_noop = result.success and not ver.state_changed and not ver.url_changed and verb not in NEUTRAL_VERBS
         key = f"{verb.name}:{selector}"
@@ -543,8 +584,8 @@ class BrowserSession:
             "hamming_distance": ver.hamming_distance,
             "noop_streak": self._streak,
             "stall_suspected": self._streak >= ACT_STALL_THRESHOLD,
-            "page_changed_since_inspect": self._inspected_yaml is not None
-            and tree_before.yaml_linearized != self._inspected_yaml,
+            "page_changed_since_inspect": self._inspected_probe is not None
+            and probe_before.yaml != self._inspected_probe,
             "error": result.error_message,
         }
         if result.metadata:
@@ -559,11 +600,11 @@ class BrowserSession:
             if (verb == ActionVerb.CLICK and idx is not None and known[idx].get("role") == "link"
                     and result.success and self.page.url == url_before):
                 changed = self._await_soft_navigation(url_before) or changed
-            # If the URL moved only after tree_after was taken, tree_after is the old page plus
-            # click side effects (focus); the new page must differ from it, not from tree_before.
+            # If the URL moved only after probe_after was taken, probe_after is the old page plus
+            # click side effects (focus); the new page must differ from it, not from probe_before.
             navigated_late = url_at_after == url_before and self.page.url != url_before
-            baseline = tree_after if navigated_late else tree_before
-            out["tree"] = self._observe_after(baseline.yaml_linearized, tree_after, changed, settle_ms)
+            baseline = probe_after if navigated_late else probe_before
+            out["tree"] = self._observe_after(baseline, probe_after, changed, settle_ms)
             out["url"] = self.page.url
             out["url_changed"] = out["url"] != url_before
         return out
@@ -583,49 +624,56 @@ class BrowserSession:
         except Exception:
             return False
 
-    def _observe_after(self, before_yaml: str, tree_after: Any, changed: bool, settle_ms: float) -> str:
+    def _observe_after(self, baseline: Probe, probe_after: Probe, changed: bool, settle_ms: float) -> str:
         """The page as the agent should see it after an action, adopted as the new [#N] map.
 
         Saves the agent the arc_inspect round trip it would otherwise make after every
         action (about 1-2 s each on a remote Solari browser). A changed page is re-settled
-        first, since the verifier's snapshot is taken right after dispatch, often before a
-        navigation or re-render lands.
+        first, since the post-action probe is taken right after dispatch, often before a
+        navigation or re-render lands. The DOM is then fetched once, reusing the settled
+        probe's accessibility tree.
         """
         attempts = 1
-        tree = tree_after
+        probe = probe_after
         if changed:
-            tree, attempts = self._settle_changed_page(before_yaml, tree_after, settle_ms)
+            probe, attempts = self._settle_changed_page(baseline, probe_after, settle_ms)
+        tree = extract_page_tree(self.page, self._extractor, ax_nodes=probe.ax_nodes)
         self._index_map = dict(tree.action_index_map)
         self._evicted_map = dict(tree.evicted_index_map)
         self._inspected_yaml = tree.yaml_linearized
+        self._inspected_probe = probe.yaml
         return f"URL: {self.page.url}\n" + format_tree(tree, attempts, settle_ms)
 
-    def _settle_changed_page(self, before_yaml: str, tree_after: Any, settle_ms: float) -> Tuple[Any, int]:
-        """Extract once the page has visibly moved on from `before_yaml` and stopped changing.
+    def _settle_changed_page(self, baseline: Probe, probe_after: Probe, settle_ms: float) -> Tuple[Probe, int]:
+        """Probe until the page has moved on from `baseline` and its affordances hold still.
 
-        Network idle alone is not enough after an action: it does not reset for
-        client-side navigations, so a router that pushes the URL before rendering
-        (GitHub) still shows the old page. Poll until the tree differs from the
-        pre-action tree, has actionable nodes, and two consecutive reads agree, within
-        `settle_ms`. The verifier's post-action snapshot counts as the first read, so a
-        page that changed synchronously costs one confirming extraction.
+        First a bounded network-idle wait: it covers fetch-driven UI such as autocomplete
+        suggestions (without it, Google Flights showed the model a half-built dropdown).
+        Network idle alone is not enough (it does not reset for client-side navigations,
+        so GitHub still showed the old page), so the tree must also differ from the
+        baseline, have actionable nodes, and read the same on two consecutive probes.
+        Probes skip the DOM, so each poll is one round trip.
         """
         deadline = time.monotonic() + max(0.0, settle_ms) / 1000.0
         try:
             self.page.wait_for_load_state("networkidle", timeout=max(1.0, settle_ms))
         except Exception as e:
             logger.debug(f"networkidle wait after action timed out: {e}")
-        tree, attempts = tree_after, 0
+        prev, attempts = probe_after, 0
+        quiet_since: Optional[float] = None
         while True:
             started = time.monotonic()
-            nxt = extract_page_tree(self.page, self._extractor)
+            nxt = probe_page(self.page, self._extractor)
             attempts += 1
-            settled = (nxt.yaml_linearized == tree.yaml_linearized and nxt.yaml_linearized != before_yaml
-                       and nxt.actionable_count > 0)
-            tree = nxt
+            # Whole-tree stability, not just affordances: comparing only links/buttons let
+            # Google Flights' dropdowns come back half-rendered (A/B: 2/4 vs 4/4 passes).
+            same = nxt.yaml == prev.yaml and nxt.yaml != baseline.yaml and nxt.actionable_count > 0
+            quiet_since = (quiet_since or started) if same else None
+            prev = nxt
+            settled = quiet_since is not None and (time.monotonic() - quiet_since) * 1000 >= SETTLE_QUIET_MS
             if settled or time.monotonic() >= deadline:
-                return tree, attempts
-            # Remote extractions already take longer than the poll interval; only pace local ones.
+                return nxt, attempts
+            # Remote probes already take longer than the poll interval; only pace local ones.
             pause_ms = SETTLE_POLL_MS - (time.monotonic() - started) * 1000
             if pause_ms > 0:
                 self.page.wait_for_timeout(pause_ms)
