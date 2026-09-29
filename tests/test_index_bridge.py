@@ -261,7 +261,7 @@ PAID_ROW = "1 2026-06-14 36415Routine venipuncture $18.00 $11.40 Paid"
 DENIED_ROW = "2 2026-06-14 99214Office visit, established patient, moderate MDM $412.00$0.00 Denied"
 
 
-def _letter(reply, schema=None):
+def _letter(reply, schema=None, pdf="synthetic_denial_letter.pdf"):
     pytest.importorskip("pypdf")
     from arc_cua.local_doc_index import LocalDocIndexClient
 
@@ -270,7 +270,7 @@ def _letter(reply, schema=None):
             return {"text": reply, "input_tokens": 0, "output_tokens": 0}
 
     client = LocalDocIndexClient(chat=Canned())
-    doc_id = client.submit_document(str(FIXTURES / "synthetic_denial_letter.pdf"))["doc_id"]
+    doc_id = client.submit_document(str(FIXTURES / pdf))["doc_id"]
     schema = schema or load_schema("healthcare_denial_appeal")
     return {f.field_name: f for f in ArcIndexBridge(client).extract_action_fields(doc_id, schema)}
 
@@ -289,10 +289,10 @@ def test_evidence_must_not_match_rejects_the_unaffected_claim():
 
 
 def test_same_row_as_rejects_fields_from_different_rows():
-    # Without the Denied/Paid rules, only the cross-field check stands between 36415 and the portal.
+    # Without the Denied/Paid and row rules, only the cross-field check stands between 36415 and the portal.
     schema = load_schema("healthcare_denial_appeal")
     for spec in schema.fields:
-        spec.evidence_must_match = spec.evidence_must_not_match = None
+        spec.evidence_must_match = spec.evidence_must_not_match = spec.row_start = None
     f = _letter(f'cpt_code: 36415 | evidence: {PAID_ROW} <cite doc="d" page="2"/>\n'
                 f'billed_amount: $412.00 | evidence: {DENIED_ROW} <cite doc="d" page="2"/>\n', schema)
     assert f["cpt_code"].error_message == "source row does not contain billed_amount ($412.00)"
@@ -309,6 +309,43 @@ def test_receipt_snippet_is_the_row_the_value_came_from():
         assert f[name].validation_status, f[name].error_message
         assert c.text_snippet == "2 2026-06-14 99214Office visit, established patient, moderate MDM $412.00$0.00 Denied"
         assert c.block_id == "p2_b5..p2_b6"            # the verified lines, not the id the model wrote
+
+
+TWO_DENIED = "synthetic_denial_letter_two_denied.pdf"
+ECG_ROW = "3 2026-06-14 93000Electrocardiogram, routine, with interpretation $96.00 $0.00 Denied"
+
+
+@pytest.mark.parametrize("cpt,billed,row", [("99214", "$412.00", DENIED_ROW.replace("99214", "99214 ")),
+                                            ("93000", "$96.00", ECG_ROW)])
+def test_two_denied_rows_reject_a_confident_pick(cpt, billed, row):
+    # The model picks one denied row instead of answering AMBIGUOUS. That row passes Denied /
+    # not Paid and holds the other field, so only the uniqueness rule keeps the pick out.
+    f = _letter(f'cpt_code: {cpt} | evidence: {row} <cite doc="d" page="2"/>\n'
+                f'billed_amount: {billed} | evidence: {row} <cite doc="d" page="2"/>\n'
+                f'date_of_service: 2026-06-14 | evidence: {row} <cite doc="d" page="2"/>\n', pdf=TWO_DENIED)
+    assert f["cpt_code"].error_message == "2 rows fit: 93000 / 99214"
+    assert f["billed_amount"].error_message == "2 rows fit: $0.00, $412.00 / $0.00, $96.00"
+    assert f["date_of_service"].validation_status     # both denied rows have the same date: not ambiguous
+
+
+def test_two_denied_rows_are_accepted_without_the_row_rule():
+    schema = load_schema("healthcare_denial_appeal")
+    for spec in schema.fields:
+        spec.row_start = None
+    f = _letter(f'cpt_code: 93000 | evidence: {ECG_ROW} <cite doc="d" page="2"/>\n', schema, pdf=TWO_DENIED)
+    assert f["cpt_code"].validation_status             # what the uniqueness rule is there to stop
+
+
+def test_evidence_outside_a_table_row_is_rejected():
+    f = _letter('cpt_code: 99214 | evidence: 99214Office visit, established patient, moderate MDM $412.00$0.00 '
+                'Denied Line 1 was paid <cite doc="d" page="2"/>\n')
+    assert f["cpt_code"].error_message == "evidence quote is not within one table row on page 2"
+
+
+def test_a_partial_quote_is_checked_against_its_whole_row():
+    f = _letter('cpt_code: 99214 | evidence: 99214Office visit <cite doc="d" page="2"/>\n')
+    assert f["cpt_code"].validation_status, f["cpt_code"].error_message
+    assert f["cpt_code"].citation.text_snippet == DENIED_ROW
 
 
 # ---- batched fills ----------------------------------------------------------

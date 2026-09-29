@@ -45,6 +45,21 @@ def _locate(quote: str, lines: List[str]) -> Optional[Tuple[int, int]]:
     return None if i < 0 else (owner[i], owner[i + len(q) - 1])
 
 
+def _rows(lines: List[str], start: str, end: Optional[str]) -> List[Tuple[int, int]]:
+    """(first, last) line index of each table row: see FieldTarget.row_start."""
+    rows: List[List[int]] = []
+    open_row = False
+    for k, line in enumerate(lines):
+        if re.search(start, line):
+            rows.append([k, k])
+            open_row = True
+        elif open_row:
+            rows[-1][1] = k
+        if open_row and end and re.search(end, line):
+            open_row = False
+    return [(a, b) for a, b in rows]
+
+
 @dataclasses.dataclass(frozen=True)
 class CitationAnchor:
     """Verifiable proof linking an extracted value back to source document bytes."""
@@ -98,6 +113,14 @@ class FieldTarget:
     evidence_must_match: Optional[str] = None       # regex the source row must match, e.g. "(?i)denied"
     evidence_must_not_match: Optional[str] = None   # regex it must not match, e.g. "(?i)\bpaid\b"
     same_row_as: Optional[List[str]] = None         # fields whose accepted values must be in this row
+    # Table rows, for the uniqueness rule. A row starts at a line matching `row_start` and runs to
+    # the line before the next start, or through the first line matching `row_end` (pypdf wraps a
+    # row over several lines, and prose under the table would otherwise join the last row). With
+    # `row_start` set, the evidence must lie in one row, and exactly one row on the page may pass
+    # the evidence rules; if several do and their `value_pattern` values differ, the field is rejected.
+    row_start: Optional[str] = None
+    row_end: Optional[str] = None
+    value_pattern: Optional[str] = None             # the field's values within a row, e.g. r"(?<!\d)\d{5}(?!\d)"
 
 
 @dataclasses.dataclass
@@ -260,15 +283,38 @@ class ArcIndexBridge:
         span = _locate(f.evidence, [text for _, text in lines])
         if span is None:
             return reject(f"evidence quote not on cited page {f.citation.page}")
-        row = " ".join(lines[k][1] for k in range(span[0], span[1] + 1))
-        if spec and spec.evidence_must_match and not re.search(spec.evidence_must_match, row):
-            return reject(f"source row does not match /{spec.evidence_must_match}/")
-        if spec and spec.evidence_must_not_match and re.search(spec.evidence_must_not_match, row):
+        texts = [text for _, text in lines]
+        rows = _rows(texts, spec.row_start, spec.row_end) if spec and spec.row_start else None
+        if rows is not None:
+            # The rules are checked on the whole table row, however much of it the quote covers.
+            span = next(((a, b) for a, b in rows if a <= span[0] and span[1] <= b), None)
+            if span is None:
+                return reject(f"evidence quote is not within one table row on page {f.citation.page}")
+        row = " ".join(texts[span[0]:span[1] + 1])
+        if not ArcIndexBridge._passes(spec, row):
+            if spec.evidence_must_match and not re.search(spec.evidence_must_match, row):
+                return reject(f"source row does not match /{spec.evidence_must_match}/")
             return reject(f"source row matches /{spec.evidence_must_not_match}/")
+        if rows is not None:
+            # Uniqueness: the model's pick is not trusted when another row fits the rules as well.
+            fits = [" ".join(texts[a:b + 1]) for a, b in rows]
+            fits = [r for r in fits if ArcIndexBridge._passes(spec, r)]
+            vals = {tuple(sorted(set(re.findall(spec.value_pattern, r)))) if spec.value_pattern else r
+                    for r in fits}
+            if len(vals) > 1:
+                shown = " / ".join(sorted(", ".join(v) if isinstance(v, tuple) else v for v in vals))
+                return reject(f"{len(fits)} rows fit: {shown}")
         ids = [lines[k][0] for k in range(span[0], span[1] + 1) if lines[k][0]]
         block = (ids[0] if len(ids) == 1 else f"{ids[0]}..{ids[-1]}") if ids else None
         # The receipt cites the source lines the check verified, not the id the model wrote.
         f.citation = dataclasses.replace(f.citation, text_snippet=row, block_id=block)
+
+    @staticmethod
+    def _passes(spec: Optional[FieldTarget], row: str) -> bool:
+        """Whether a source row passes the field's evidence_must_match / evidence_must_not_match."""
+        if spec and spec.evidence_must_match and not re.search(spec.evidence_must_match, row):
+            return False
+        return not (spec and spec.evidence_must_not_match and re.search(spec.evidence_must_not_match, row))
 
     @staticmethod
     def _check_same_row(fields: List[ExtractedField], specs: Dict[str, FieldTarget]) -> None:

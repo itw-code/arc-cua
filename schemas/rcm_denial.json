@@ -39,7 +39,10 @@
       "evidence_must_not_match": "(?i)\\bpaid\\b",
       "same_row_as": [
         "cpt_code"
-      ]
+      ],
+      "row_start": "^[\\s|]*\\d+[\\s|]+\\d{4}-\\d{2}-\\d{2}",
+      "row_end": "(?i)\\b(denied|paid|adjusted|pending)\\s*$",
+      "value_pattern": "\\d{4}-\\d{2}-\\d{2}"
     },
     {
       "field_name": "billed_amount",
@@ -54,7 +57,10 @@
       "evidence_must_not_match": "(?i)\\bpaid\\b",
       "same_row_as": [
         "cpt_code"
-      ]
+      ],
+      "row_start": "^[\\s|]*\\d+[\\s|]+\\d{4}-\\d{2}-\\d{2}",
+      "row_end": "(?i)\\b(denied|paid|adjusted|pending)\\s*$",
+      "value_pattern": "\\$\\s?[\\d,]+\\.\\d{2}"
     },
     {
       "field_name": "denial_code",
@@ -79,7 +85,10 @@
       "same_row_as": [
         "billed_amount",
         "date_of_service"
-      ]
+      ],
+      "row_start": "^[\\s|]*\\d+[\\s|]+\\d{4}-\\d{2}-\\d{2}",
+      "row_end": "(?i)\\b(denied|paid|adjusted|pending)\\s*$",
+      "value_pattern": "(?<!\\d)\\d{5}(?!\\d)"
     },
     {
       "field_name": "notes",

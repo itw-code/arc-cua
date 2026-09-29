@@ -62,8 +62,13 @@ def grade_once(case: dict, model: str, effort: str, shared=None, descriptions: b
         client = LocalDocIndexClient(model=model)
         client.chat_client.extra = {"reasoning_effort": effort}
         doc_id = client.submit_document(str(pdf))["doc_id"]
-    fields = {f.field_name: f for f in
-              ArcIndexBridge(client).extract_action_fields(doc_id, case_schema(case, descriptions), pdf.name)}
+    fields = ArcIndexBridge(client).extract_action_fields(doc_id, case_schema(case, descriptions), pdf.name)
+    return grade_fields(fields, truth)
+
+
+def grade_fields(extracted, truth: dict) -> dict:
+    """{field: ("ok" | "wrong" | "rejected", wrong value or None)} for each field in the truth file."""
+    fields = {f.field_name: f for f in extracted}
     out = {}
     for name, spec in truth.items():
         f = fields.get(name)
