@@ -9,6 +9,7 @@ The figures on screen are measured, from the live Solari run of 2026-09-29 (`art
 - The fields go into the form in one batched call, 386 ms on Solari. The submit click takes 2,289 ms. One `act` per field is ≈ 2 s.
 - Fill + submit: 20.5 s one `act` per field → 6.1 s batched (−70.2%).
 - SimHash: 10 bits changed. Confirmation code APL-MUM5SGU2-2835 matched.
+- End-card tally: wrong values accepted on the two-denied-lines decoy letter, block index, 20 runs. The old presence check accepted 40 (CPT 20 + billed amount 20); the evidence check accepts 0. The model now answers `AMBIGUOUS` for both fields; that is what keeps them out, not a rule (plan §10.6). PageIndex was already at 0 on this letter, so the tally shows the block index.
 
 An earlier cut showed projected figures (50 pages, $0.001/page, 2.31 ms/step, $0.78 → $0.0315, −95.9%) that no run has measured.
 
