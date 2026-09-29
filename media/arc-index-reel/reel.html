@@ -561,8 +561,27 @@ function drawHUD(t) {
     const u = eio(seg(t, 13.9, 14.35)), uw = tw('Index', f2) + 40;
     if (u > 0) { g.fillStyle = C.red; g.fillRect(90, 732, uw * u, 8); if (u < 1) { g.beginPath(); g.arc(90 + uw * u, 736, 12, 0, 7); g.fill(); } }
     rise('documents in, verified actions out', 90, 830, F.s(58, true), C.ink, 58, seg(t, 14.0, 14.5));
+    drawTally(t);
     rise('Measured 2026-09-29 on Solari · 4-page synthetic letter · stand-in portal · plan §9–10', 90, 1010, F.m(500, 30), C.ink2, 30, seg(t, 14.15, 14.55));
   }
+}
+
+// End-card tally: wrong values accepted on the two-denied-lines decoy letter, block index, n=20
+// (ARC_INDEX_PLAN.md 10.5): 40 with the old presence check (CPT 20 + billed 20), 0 with the evidence check.
+function drawTally(t) {
+  const a = seg(t, 13.95, 14.25); if (a <= 0) return;
+  const x0 = 1130, y0 = 765, bx = x0 + 300, bw = 330, grow = eo(seg(t, 14.15, 14.6));
+  g.save(); g.globalAlpha *= a;
+  T('TWO DENIED LINES · BLOCK INDEX · n=20', x0, y0, F.m(500, 26), C.ink2, { ls: 2 });
+  [['presence check', 40, C.red], ['evidence check', 0, C.ink]].forEach(([label, n, col], k) => {
+    const y = y0 + 62 + k * 62, w = bw * (n / 40) * grow;
+    T(label, x0, y, F.m(500, 30), C.ink);
+    g.fillStyle = 'rgba(22,24,31,.12)'; g.fillRect(bx, y - 22, bw, 26);
+    if (w > 0) { g.fillStyle = col; g.fillRect(bx, y - 22, w, 26); }
+    T(String(Math.round(n * grow)), bx + bw + 24, y + 6, F.s(64), col);
+  });
+  T('wrong values accepted · now answered AMBIGUOUS', x0, y0 + 164, F.m(400, 24), C.ink2, { a: seg(t, 14.45, 14.7) });
+  g.restore();
 }
 
 // ---------- frame ----------
