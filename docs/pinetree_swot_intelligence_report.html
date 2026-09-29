@@ -141,7 +141,15 @@
           ARC Pitch Deck
         </button>
         <button onclick="setTab('pageindex')" id="tab-btn-pageindex" class="nav-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">ARC Index (Next)</button>
+        <button onclick="setTab('story')" id="tab-btn-story" class="nav-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">My Story</button>
+        <button onclick="setTab('qa')" id="tab-btn-qa" class="nav-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">Interview Q&amp;A</button>
       </nav>
+      <select id="tab-select" onchange="setTab(this.value)" aria-label="Section" class="lg:hidden bg-slate-950 border border-white/10 rounded-lg text-xs text-white px-2 py-1.5">
+        <option value="executive">Executive Summary</option><option value="swot">Interactive SWOT</option>
+        <option value="benchmarks">Benchmark Audit</option><option value="competitors">Competitor Matrix</option>
+        <option value="arc-pitch">ARC Pitch Deck</option><option value="pageindex">ARC Index</option>
+        <option value="story">My Story</option><option value="qa">Interview Q&amp;A</option>
+      </select>
 
       <!-- External Links -->
       <div class="flex items-center space-x-2.5">
@@ -1034,6 +1042,269 @@
           With two denied lines a rule now rejects the field even when the model picks a row (&sect;10.7: 16 &rarr; 0 wrong, Sonnet 5.5, n=8). Still open (&sect;10.6): block-level PageIndex needs a cloud key; the unaffected-claim decoy is caught by wording.
         </p>
       </div>
+    </section>
+
+    <!-- ========================= MY STORY ========================= -->
+    <section id="view-story" class="tab-view hidden space-y-8">
+      <div class="border-b border-white/10 pb-4">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[11px] font-mono mb-1">
+          PRIVATE · FOR ME · PLAIN ENGLISH
+        </div>
+        <h2 class="text-2xl font-black text-white tracking-tight">My story, <span class="gradient-text-pine">end to end</span></h2>
+        <p class="text-xs text-slate-400 max-w-3xl">Three products and one side experiment, each fixing what the one before showed me. All public work is on <strong class="text-white">itw-code</strong>, built for Harry Chow's challenge: fork solari-cookbook, build a real use case on Solari, post it.</p>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-6 space-y-4">
+        <h3 class="text-sm font-mono font-bold text-emerald-300 uppercase">The thread in one line</h3>
+        <p class="text-lg text-white font-semibold leading-snug">Don't show the model everything and hope. Show it a small structure, let it choose, and check the result before you trust it.</p>
+        <div class="flex flex-col md:flex-row gap-2"><div class="flex-1 min-w-[140px] p-3 rounded-xl bg-black/50 border border-white/10"><div class="font-mono text-[11px] text-sky-300">01 &middot; ColdStart</div><div class="text-xs text-slate-300 mt-1">Check the outcome, not the agent's word</div></div><div class="hidden md:flex items-center text-slate-500">&rarr;</div><div class="flex-1 min-w-[140px] p-3 rounded-xl bg-black/50 border border-white/10"><div class="font-mono text-[11px] text-amber-300">02 &middot; Nakama QA</div><div class="text-xs text-slate-300 mt-1">Doubt every claim, mine first</div></div><div class="hidden md:flex items-center text-slate-500">&rarr;</div><div class="flex-1 min-w-[140px] p-3 rounded-xl bg-black/50 border border-white/10"><div class="font-mono text-[11px] text-orange-300">03 &middot; ARC CUA</div><div class="text-xs text-slate-300 mt-1">Give the model structure, check every action</div></div><div class="hidden md:flex items-center text-slate-500">&rarr;</div><div class="flex-1 min-w-[140px] p-3 rounded-xl bg-black/50 border border-white/10"><div class="font-mono text-[11px] text-emerald-300">04 &middot; ARC Index</div><div class="text-xs text-slate-300 mt-1">Prove a value before typing it</div></div></div>
+      </div>
+
+      <article class="glass-panel rounded-2xl p-6 border-l-4 border-l-sky-500">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 class="text-xl font-black text-white"><span class="font-mono text-sky-300 mr-2">01</span>ColdStart</h3>
+          <span class="text-[11px] font-mono text-slate-400">Aug 31 – Sep 3 2026 &middot; lesson: Check the outcome, not the agent's word</span>
+        </div>
+        <div class="mt-3 p-3 rounded-lg border bg-sky-950/40 border-sky-800/60 text-sm text-slate-100 leading-relaxed"><span class="font-bold text-sky-300">Analogy.</span> A driving test on roads the driver has never seen. Every run reshuffles the town, and the examiner checks where the car actually parked, not what the driver says.</div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><div class="text-[11px] font-mono font-bold uppercase text-sky-300 mb-1">What it is</div><p class="text-xs text-slate-300 leading-relaxed">A harness that generates versions of a small invoice app the agent has never seen, lets a screenshot-driven agent fill it in cold, and checks the resulting database row.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-sky-300 mb-1">Where the idea came from</div><p class="text-xs text-slate-300 leading-relaxed">My first idea was “Witness”, a verification runtime. My own audit killed it: verification was the most crowded theme, and the “Solari issues” I had cited were other applicants' PRs. I pivoted to zero-shot generalization, aimed at Pinetree's claim that agents can handle apps they've never seen (“Hallucinate Westworld”).</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-sky-300 mb-1">The method</div><p class="text-xs text-slate-300 leading-relaxed">Five ways to change the app, chosen by a seeded random generator: P1 relabel, P2 wizard, P3 field order, P4 navigation, P5 theme. The agent works from screenshots (vision loop). A fail-closed verifier (C1–C7) reads the SQLite row, so “I'm done” from the agent counts for nothing.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-sky-300 mb-1">How I built it</div><p class="text-xs text-slate-300 leading-relaxed">TypeScript on Solari sandboxes and a Solari browser. An orchestrator ran step-gated subagents: each step wrote a report and was audited before the next began. Tools: Claude Code, Google Antigravity, Pi Coding Agent via OpenCode Go.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-sky-300 mb-1">What it proved</div>
+            <ul class="text-xs text-slate-300 space-y-1"><li class="flex gap-2"><span class="text-sky-300">&#9656;</span><span>110/110 tests</span></li><li class="flex gap-2"><span class="text-sky-300">&#9656;</span><span>P2 wizard was the one real breaker: 0/2</span></li><li class="flex gap-2"><span class="text-sky-300">&#9656;</span><span>Only 1 of 6 models could finish the form; minimax-m3 got click-locked 24 times</span></li><li class="flex gap-2"><span class="text-sky-300">&#9656;</span><span>Showcase run: 16 steps, 69.4 s sandbox time</span></li><li class="flex gap-2"><span class="text-sky-300">&#9656;</span><span>~175k input tokens over the isolated set</span></li></ul></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-rose-300 mb-1">Be honest about</div><p class="text-xs text-slate-300 leading-relaxed">n=2 per axis, so directional only. Not purely vision: clicks are snapped with page.evaluate. 2 of 6 isolated runs aborted on infrastructure. Early ROI figures were mock and are removed.</p></div>
+        </div><div class="mt-4 p-3 rounded-lg bg-black/40 border border-white/5 text-xs text-slate-300"><span class="font-mono font-bold text-sky-300">WHAT IT LED TO &rarr;</span> Vision agents were fragile and infrastructure was flaky. I needed to test on a real app, and to test my own claims just as hard.</div>
+      </article>
+      <article class="glass-panel rounded-2xl p-6 border-l-4 border-l-amber-500">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 class="text-xl font-black text-white"><span class="font-mono text-amber-300 mr-2">02</span>Nakama QA <span class="ml-1 align-middle text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">SIDE EXPERIMENT · NOT A PRODUCT</span></h3>
+          <span class="text-[11px] font-mono text-slate-400">Aug 25 – Sep 6 2026 &middot; lesson: Doubt every claim, mine first</span>
+        </div>
+        <div class="mt-3 p-3 rounded-lg border bg-amber-950/40 border-amber-800/60 text-sm text-slate-100 leading-relaxed"><span class="font-bold text-amber-300">Analogy.</span> A trial run before the real job, and a building inspector who also inspects their own house. It found real faults in someone else's app, then went through my own submission and tore out everything that wasn't true.</div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><div class="text-[11px] font-mono font-bold uppercase text-amber-300 mb-1">What it is</div><p class="text-xs text-slate-300 leading-relaxed">Not a product: a test of whether ColdStart's pieces (Solari browser, fail-closed database checks, session guard) held up on a real open-source app, Nakama. Then the same scepticism applied to my own write-up.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-amber-300 mb-1">Where the idea came from</div><p class="text-xs text-slate-300 leading-relaxed">I'd already QA'd Nakama with local Playwright (Aug 25–26) and wanted to see whether it held on Solari cloud browsers. After ColdStart, an adversarial review by another model said plainly: “You don't have 3 products. You have 1 honest harness + 1 service engagement + 1 mock demo.” I took that as the brief.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-amber-300 mb-1">The method</div><p class="text-xs text-slate-300 leading-relaxed">Scripted role-based checks on Solari browsers, with the database diffed before and after each action. A small QA framework came out of it: expectInteractive (catches zero-pixel “visible” elements), fuzzyRoleLocator, withSessionGuard, DatabaseDiffEngine. I also tried Slop-Catcher, CSS metrics plus a vision model grading UI PASS / WARN / BLOCK, but only as a mock.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-amber-300 mb-1">How I built it</div><p class="text-xs text-slate-300 leading-relaxed">An orchestrator prompt delegated each finding to a subagent. The honest-review → remediation loop ran until every finding was closed.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-amber-300 mb-1">What it proved</div>
+            <ul class="text-xs text-slate-300 space-y-1"><li class="flex gap-2"><span class="text-amber-300">&#9656;</span><span>48 Nakama findings logged (F-001 to F-048)</span></li><li class="flex gap-2"><span class="text-amber-300">&#9656;</span><span>2 fixes merged upstream in Nakama, incl. a P0 data-loss bug (F-011)</span></li><li class="flex gap-2"><span class="text-amber-300">&#9656;</span><span>Solari re-audit: 38 checks, 0 failures</span></li><li class="flex gap-2"><span class="text-amber-300">&#9656;</span><span>Own-submission audit: purged leaked dashboard HTML from git history, removed a fabricated ROI table, fixed wrong test counts</span></li></ul></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-rose-300 mb-1">Be honest about</div><p class="text-xs text-slate-300 leading-relaxed">The QA runs are scripted selector tests, not an autonomous agent, even though one report calls it one. Slop-Catcher is mock-only (no live model trace). The two upstream fixes came from the local Playwright phase, before Solari.</p></div>
+        </div><div class="mt-4 p-3 rounded-lg bg-black/40 border border-white/5 text-xs text-slate-300"><span class="font-mono font-bold text-amber-300">WHAT IT LED TO &rarr;</span> Scripted, structured checks were reliable where vision kept getting stuck. So: give the agent the structure, and check every action.</div>
+      </article>
+      <article class="glass-panel rounded-2xl p-6 border-l-4 border-l-orange-500">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 class="text-xl font-black text-white"><span class="font-mono text-orange-300 mr-2">03</span>ARC CUA</h3>
+          <span class="text-[11px] font-mono text-slate-400">Sep 20 – 29 2026 &middot; lesson: Give the model structure, check every action</span>
+        </div>
+        <div class="mt-3 p-3 rounded-lg border bg-orange-950/40 border-orange-800/60 text-sm text-slate-100 leading-relaxed"><span class="font-bold text-orange-300">Analogy.</span> A restaurant with a numbered menu. Instead of describing a photo of the kitchen, the model just says “number 12”, and the waiter confirms the dish actually arrived.</div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><div class="text-[11px] font-mono font-bold uppercase text-orange-300 mb-1">What it is</div><p class="text-xs text-slate-300 leading-relaxed">A browser harness for agents on Solari: the page becomes a short numbered list of what can be clicked or typed, and every action reports whether the page really changed.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-orange-300 mb-1">Where the idea came from</div><p class="text-xs text-slate-300 leading-relaxed">The “vision tax”: sending a screenshot on every step is slow and expensive, and ColdStart showed it's fragile. Browser Use's Jev showed that one small call picking {op, index} from a numbered list is enough. I built that pattern on Solari without Jev's API.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-orange-300 mb-1">The method</div><p class="text-xs text-slate-300 leading-relaxed">The browser's accessibility tree, trimmed to ~1,200 tokens, each actionable item numbered [#N] and pinned to its exact element. Actions return state_changed and stall_suspected, and truncation is announced. Batched fills. An optional reflex policy makes one model call per action.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-orange-300 mb-1">How I built it</div><p class="text-xs text-slate-300 leading-relaxed">Python over the Chrome DevTools Protocol, shipped as a library and an MCP server (arc-cua-mcp). Built with Claude Code; benchmark runs on Gemini 3.8 Flash on real Solari browsers.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-orange-300 mb-1">What it proved</div>
+            <ul class="text-xs text-slate-300 space-y-1"><li class="flex gap-2"><span class="text-orange-300">&#9656;</span><span>24/24 vs 21/24 against Solari's own MCP, same model</span></li><li class="flex gap-2"><span class="text-orange-300">&#9656;</span><span>3.8× fewer input tokens, 3.3× cheaper per task</span></li><li class="flex gap-2"><span class="text-orange-300">&#9656;</span><span>Google Flights 3/3 vs 0/3</span></li><li class="flex gap-2"><span class="text-orange-300">&#9656;</span><span>Vs Opus + Solari MCP: 39× fewer tokens, 33× cheaper</span></li></ul></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-rose-300 mb-1">Be honest about</div><p class="text-xs text-slate-300 leading-relaxed">The early 99.69% / 2.31 ms / 100% WebArena figures were mock and are now labelled replaced. The in-VM reflex loop doesn't exist yet: it drives the browser over CDP from outside. Not yet at Jev's 7.1 s on Flights (best 16 s).</p></div>
+        </div><div class="mt-4 p-3 rounded-lg bg-black/40 border border-white/5 text-xs text-slate-300"><span class="font-mono font-bold text-orange-300">WHAT IT LED TO &rarr;</span> Pages were solved. But real back-office work starts from a document, and the dangerous error there is a wrong value typed in with confidence.</div>
+      </article>
+      <article class="glass-panel rounded-2xl p-6 border-l-4 border-l-emerald-500">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 class="text-xl font-black text-white"><span class="font-mono text-emerald-300 mr-2">04</span>ARC Index</h3>
+          <span class="text-[11px] font-mono text-slate-400">Sep 29 2026 &middot; lesson: Prove a value before typing it</span>
+        </div>
+        <div class="mt-3 p-3 rounded-lg border bg-emerald-950/40 border-emerald-800/60 text-sm text-slate-100 leading-relaxed"><span class="font-bold text-emerald-300">Analogy.</span> A careful clerk. For every number they copy from a letter, they write down the exact line it came from, and they leave the box blank rather than guess.</div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><div class="text-[11px] font-mono font-bold uppercase text-emerald-300 mb-1">What it is</div><p class="text-xs text-slate-300 leading-relaxed">It turns a document (an insurance denial letter) into a verified form fill: every value comes with the row it was taken from, and anything it can't prove is left blank.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-emerald-300 mb-1">Where the idea came from</div><p class="text-xs text-slate-300 leading-relaxed">Pinetree Health's world, revenue-cycle work: a denial letter becomes an appeal in a payer portal. The same thesis as ARC, applied to documents: PageIndex keeps a document's structure as a tree instead of chopping it into vectors.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-emerald-300 mb-1">The method</div><p class="text-xs text-slate-300 leading-relaxed">Index the letter (a PageIndex tree, or pypdf blocks locally). Extract each field with a quote and a citation. Check the cited row: the quote is really there, it's the denied line not the paid one, and only one row fits (the uniqueness rule). Then one batched fill on Solari, and a receipt.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-emerald-300 mb-1">How I built it</div><p class="text-xs text-slate-300 leading-relaxed">A Python package on top of ARC CUA (src/arc_index), also loaded as a plugin by the MCP server. Gemini 3.8 Flash for live runs; Claude Sonnet 5.5 via Claude Code subagents for offline evals, with no API key needed.</p></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-emerald-300 mb-1">What it proved</div>
+            <ul class="text-xs text-slate-300 space-y-1"><li class="flex gap-2"><span class="text-emerald-300">&#9656;</span><span>8.4× cheaper per appeal ($0.00305 vs $0.02575)</span></li><li class="flex gap-2"><span class="text-emerald-300">&#9656;</span><span>7.8× faster (11.4 s vs 89 s), 22× fewer tokens</span></li><li class="flex gap-2"><span class="text-emerald-300">&#9656;</span><span>Same accuracy: 49/60 right, 0 wrong on both sides</span></li><li class="flex gap-2"><span class="text-emerald-300">&#9656;</span><span>Wrong values let through on a forced pick: 16 → 0</span></li></ul></div>
+          <div><div class="text-[11px] font-mono font-bold uppercase text-rose-300 mb-1">Be honest about</div><p class="text-xs text-slate-300 leading-relaxed">n=10 appeals and synthetic letters. Sonnet tokens are estimated at chars/4. Block-level PageIndex needs a cloud key. Not yet tested on real payer portals.</p></div>
+        </div>
+      </article>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-panel rounded-2xl p-6 space-y-3">
+          <h3 class="text-sm font-mono font-bold text-emerald-300 uppercase">Say it in 30 seconds</h3>
+          <p class="text-sm text-slate-200 leading-relaxed">ColdStart tested whether a vision agent could fill apps it had never seen, and showed it was fragile. A side experiment on Nakama pointed the same checks at a real app, and at my own claims. ARC CUA replaced screenshots with a small numbered view of the page. ARC Index brought the same idea to documents. On the same model and the same Solari browsers, ARC finished 24 of 24 tasks where Solari's own MCP finished 21, at a third of the cost. ARC Index filed the same appeal 8.4&times; cheaper and 7.8&times; faster than a normal agent, and never typed a wrong value.</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-6 space-y-3">
+          <h3 class="text-sm font-mono font-bold text-emerald-300 uppercase">What stayed the same across all four</h3>
+          <ul class="text-xs text-slate-300 space-y-2">
+            <li><strong class="text-white">Real infrastructure.</strong> Everything ran on Solari: sandboxes, browsers, the real API.</li>
+            <li><strong class="text-white">Checks outside the model.</strong> A database row, a page fingerprint, a cited table row. Never the agent's own “done”.</li>
+            <li><strong class="text-white">AI builds, I judge.</strong> Claude Code and subagents wrote most of the code. I decided what counts as proof.</li>
+            <li><strong class="text-white">Numbers get replaced, not defended.</strong> Mock figures in ColdStart and ARC were removed or labelled once I had live ones.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-6 space-y-3">
+        <h3 class="text-sm font-mono font-bold text-emerald-300 uppercase">Words, in plain English</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">Solari</div><div class="text-xs text-slate-400 mt-0.5">Cloud computers for agents: browsers, sandboxes and desktops that start in milliseconds, billed per hour.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">MCP</div><div class="text-xs text-slate-400 mt-0.5">Model Context Protocol: a standard way to give a model a set of tools. Solari ships one; ARC ships its own on top.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">CDP</div><div class="text-xs text-slate-400 mt-0.5">Chrome DevTools Protocol: the remote control for a browser. Each message to a Solari browser costs ~186 ms.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">Accessibility tree</div><div class="text-xs text-slate-400 mt-0.5">The browser's own list of what's on the page (buttons, fields, links), the thing screen readers read.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">[#N] index</div><div class="text-xs text-slate-400 mt-0.5">The number ARC puts on each clickable item, so the model can say “click 12” instead of guessing coordinates.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">Grounding</div><div class="text-xs text-slate-400 mt-0.5">Checking that a value really comes from where the model says it does.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">Uniqueness rule</div><div class="text-xs text-slate-400 mt-0.5">If two table rows both fit a field with different values, refuse the field instead of guessing.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">PageIndex</div><div class="text-xs text-slate-400 mt-0.5">Indexes a document as a tree of sections instead of vectors, and gives page and block citations.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">SimHash</div><div class="text-xs text-slate-400 mt-0.5">A fingerprint of the page; if it didn't change after an action, the action probably did nothing.</div></div><div class="p-3 rounded-lg bg-black/40 border border-white/5"><div class="text-xs font-bold text-white">Fail-closed</div><div class="text-xs text-slate-400 mt-0.5">When unsure, block. A blank field is safe; a wrong value is not.</div></div></div>
+      </div>
+
+      <div class="glass-panel rounded-xl p-5 text-xs text-slate-400 leading-relaxed">
+        <strong class="text-white">Links.</strong> Fork: <a class="text-emerald-300 underline" href="https://github.com/itw-code/solari-cookbook" target="_blank">github.com/itw-code/solari-cookbook</a>
+        &middot; ARC: <a class="text-emerald-300 underline" href="https://github.com/itw-code/arc-cua" target="_blank">github.com/itw-code/arc-cua</a>
+        &middot; Live showcase: <a class="text-emerald-300 underline" href="https://itw-code.github.io/arc-cua/#measured" target="_blank">itw-code.github.io/arc-cua</a>
+        &middot; Nakama fork: <a class="text-emerald-300 underline" href="https://github.com/itw-code/nakama-1" target="_blank">github.com/itw-code/nakama-1</a>.
+        Dates: ColdStart's git history was rewritten, so its dates come from its step reports; ARC dates are from git.
+      </div>
+    </section>
+    <!-- ========================= INTERVIEW Q&A ========================= -->
+    <section id="view-qa" class="tab-view hidden space-y-6">
+      <div class="border-b border-white/10 pb-4">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[11px] font-mono mb-1">
+          PRIVATE PREP · MOCK INTERVIEW · ANSWERS IN MY OWN WORDS
+        </div>
+        <h2 class="text-2xl font-black text-white tracking-tight">Interview Q&amp;A <span class="gradient-text-pine">— just in case</span></h2>
+        <p class="text-xs text-slate-400 max-w-3xl">Likely questions, with a short answer to say out loud and the proof behind it. Rule for every answer: lead with the measured number, name the caveat before they do, and point at the file that shows it.</p>
+      </div>
+
+      <div class="flex flex-wrap gap-2 text-xs font-semibold">
+        <button onclick="filterQA('all', this)" class="qa-pill px-3 py-1 rounded-lg bg-slate-800 text-white">All</button>
+        <button onclick="filterQA('pitch', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">Pitch</button>
+        <button onclick="filterQA('cua', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">ARC CUA</button>
+        <button onclick="filterQA('index', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">ARC Index</button>
+        <button onclick="filterQA('numbers', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">Numbers &amp; honesty</button>
+        <button onclick="filterQA('fit', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">Solari / Pinetree fit</button>
+        <button onclick="filterQA('process', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">How I build</button>
+        <button onclick="filterQA('curve', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">Curveballs</button>
+        <button onclick="filterQA('ask', this)" class="qa-pill px-3 py-1 rounded-lg text-slate-400 hover:text-white">Ask them</button>
+      </div>
+
+      <div id="qa-list" class="space-y-3">
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="pitch">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Walk me through what you built, in two minutes.</span><span class="text-emerald-400 font-mono text-xs shrink-0">pitch</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Three products and one side experiment, each fixing what the last one showed me. ColdStart tested whether a vision agent could fill apps it had never seen, and showed it was fragile. A side experiment on Nakama pointed the same checks at a real app, and at my own claims. ARC CUA replaced screenshots with a small numbered view of the page. ARC Index brought the same idea to documents. Today it's two products on Solari browsers. ARC CUA gives an agent a small, numbered view of the page and checks every action. ARC Index reads a document, proves each value from the row it came from, and fills the form in one batched call. Both were measured against the usual approach on the same model and the same Solari browsers.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: README “Measured results”; live page itw-code.github.io/arc-cua/#measured</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="pitch">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Why should Solari care about this?</span><span class="text-emerald-400 font-mono text-xs shrink-0">pitch</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Because every agent on Solari pays per browser-hour and per round trip. ARC cuts both: fewer tokens per step, fewer round trips, fewer stuck loops. With the same model, ARC finished 24/24 tasks where a standard agent on Solari's MCP finished 21/24, at 3.3× lower cost. So agents that use Solari well get cheaper and more reliable, and that means more of them run on Solari.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: docs/BENCHMARK_VS_SOLARI_MCP.md Part E</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="pitch">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What's the one-sentence version?</span><span class="text-emerald-400 font-mono text-xs shrink-0">pitch</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Don't show the model everything and hope. Show it a small, numbered structure, let it choose, and check the result before you trust it.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: Same idea in both products: an accessibility tree for pages, a cited table row for documents</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="pitch">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Who is the user?</span><span class="text-emerald-400 font-mono text-xs shrink-0">pitch</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Two users. For ARC CUA, developers building browser agents on Solari who want fewer tokens and fewer silent failures. For ARC Index, back-office work where a document has to become a form entry, like insurance denial appeals, which is exactly Pinetree Health's revenue-cycle world.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: schemas/rcm_denial.json; the appeal benchmark</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="cua">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What is an accessibility tree and why use it instead of screenshots?</span><span class="text-emerald-400 font-mono text-xs shrink-0">cua</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">It's the browser's own list of what's on the page: buttons, links, fields, with their names. It's what screen readers use. It's text, it's small, and each item can be clicked exactly. A screenshot costs many tokens and the model has to guess coordinates. ARC trims the tree to about 1,200 tokens and gives every actionable item a number like [#12], so the model just says “click 12”.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: src/arc_cua/cdp_extractor.py; token budget in the README</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="cua">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What happens when the page is too big for the budget?</span><span class="text-emerald-400 font-mono text-xs shrink-0">cua</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">ARC says so. The reply carries a truncation notice listing what was cut, and cut items still resolve if the model asks for them. Dialogs, menus and tabs are never cut, so a pop-up can't hide behind a big table. The failure is visible instead of silent.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: truncation_notice in the inspect result</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="cua">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>How do you know an action actually worked?</span><span class="text-emerald-400 font-mono text-xs shrink-0">cua</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Every action reports whether the page really changed (state_changed), whether the page changed on its own since we looked, and after a few no-op actions it flags stall_suspected. “The click returned success” is never treated as done. That's why ARC doesn't loop forever on Google Flights where the plain agent did.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: act result fields; Google Flights 3/3 vs 0/3</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="cua">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>How does it compare to Browser Use's Jev?</span><span class="text-emerald-400 font-mono text-xs shrink-0">cua</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Same pattern: the model picks {op, index} from a numbered list in one small call per step. I built it on Solari without Jev's API. Gemini 3.8 Flash went 24/24 including Google Flights. I'm not at Jev's 7.1 s on Flights yet; my best is 16 s. The gap is my tree reads, not the model, so it's a concrete next step.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: Discord reply; reflex policy results</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="cua">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Isn't this just a wrapper around Solari's MCP?</span><span class="text-emerald-400 font-mono text-xs shrink-0">cua</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">No, and it doesn't replace it either. Solari's MCP owns the browser session: create, navigate, read, click, close. ARC adds what an agent needs on top: the budgeted numbered tree, actions pinned to the exact element, state-change and stall checks, and batched fills. I measured the difference with the same model on both.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: docs/BENCHMARK_VS_SOLARI_MCP.md</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="index">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What does ARC Index do, in plain words?</span><span class="text-emerald-400 font-mono text-xs shrink-0">index</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">It's a careful clerk. It reads the letter, and for every value it writes down the exact line it came from. Before typing anything into the portal it checks that line: is the quote really there, is it the denied row and not the paid one, and is there only one row that fits. If it can't prove it, it leaves the field blank. Then it fills everything in one go and hands back a receipt.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: src/arc_index/index_bridge.py _check_evidence</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="index">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What's the dangerous failure you designed for?</span><span class="text-emerald-400 font-mono text-xs shrink-0">index</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Not a blank field, a wrong value that looks right. On a letter with two denied lines, if you force the model to pick one, the older checks still let 16 wrong values through across 8 runs. The uniqueness rule lets through 0, because it sees two rows that both fit and refuses. Under the normal prompt, Sonnet said AMBIGUOUS itself 8 out of 8 times.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: docs/ARC_INDEX_PLAN.md §10.7; artifacts/benchmarks/offline/</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="index">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Why PageIndex and not a vector database?</span><span class="text-emerald-400 font-mono text-xs shrink-0">index</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Because a denial letter is a structured document: sections, tables, rows. Vector search finds text that sounds similar, which is exactly how you pick the paid line instead of the denied one. PageIndex keeps the structure as a tree and gives citations back to page and block, which is what my checks need. Locally I can also run on plain pypdf blocks.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: src/arc_index/pageindex_adapter.py, local_doc_index.py</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="index">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Why is it 8.4× cheaper than an agent doing the same appeal?</span><span class="text-emerald-400 font-mono text-xs shrink-0">index</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">The agent reads the letter and then walks the portal one tool call at a time, and every call re-sends the conversation. That's 26,955 input tokens and 89 seconds. ARC Index makes one extraction call, runs the checks locally, and fills all fields in one batched browser call: 1,209 tokens and 11.4 seconds. Same accuracy on both: 49 of 60 fields right, 0 wrong.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: artifacts/benchmarks/appeal/summary.json</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="index">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Why only 49 out of 60 fields?</span><span class="text-emerald-400 font-mono text-xs shrink-0">index</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">The other 11 were left blank, on both sides, instead of guessed. Blank is the safe outcome: a human fills it, and the receipt says which fields were refused and why. The point is that neither side typed a wrong value in the counted runs. In an uncounted trial run, the agent did type a CPT code on the two-denied letter.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: plan §11</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="numbers">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Your README used to say 99.69% cheaper and 100% on WebArena. What happened?</span><span class="text-emerald-400 font-mono text-xs shrink-0">numbers</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Those came from my own mock scorecard, a deterministic harness, not live runs. When I ran real head-to-heads on Solari I replaced them and labelled the old ones as replaced in the README and the showcase. I'd rather quote 3.3× that's real than 99% that isn't.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: README “Earlier figures, replaced”; showcase mock banners</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="numbers">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>How were the Sonnet numbers measured without an API key?</span><span class="text-emerald-400 font-mono text-xs shrink-0">numbers</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Through Claude Code subagents. I wrote each exact prompt to a file, subagents answered, and my script graded the answers three ways. Tokens are estimated at characters divided by four, and I say that next to the number. The Gemini numbers are real API token counts.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: scripts/eval_offline.py; scripts/benchmark_appeal_baseline.py sonnet-start/finish</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="numbers">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Is n=10 or n=8 enough?</span><span class="text-emerald-400 font-mono text-xs shrink-0">numbers</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Enough to show a direction, not to publish a paper. The cost and token gaps are large and stable across runs, so the direction is safe. For accuracy claims I keep them narrow: “0 wrong values let through in these runs”, not “never wrong”.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: per-run files in artifacts/benchmarks/</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="numbers">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What's not built yet?</span><span class="text-emerald-400 font-mono text-xs shrink-0">numbers</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">The in-VM reflex loop: today ARC drives the browser over CDP from outside the VM. The learned stuck-detector is built but untrained; the shipped one is a rule-based detector. Solari desktops have no accessibility tree, so the desktop path is on hold. And 2 known test failures in test_phase1_remediation.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: README; PITCH.md §4</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="fit">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>How does this fit Pinetree's vision-first thesis?</span><span class="text-emerald-400 font-mono text-xs shrink-0">fit</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">It doesn't fight it. Vision is the right fallback for canvas, charts and unseen apps. It's the wrong default for every keystroke on a normal form. ARC uses the cheap structured view first and keeps screenshots, with marks, for the cases that need them.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: arc_screenshot(marks=True)</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="fit">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What would you build next if you joined?</span><span class="text-emerald-400 font-mono text-xs shrink-0">fit</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Three things, in order: cut ARC's tree reads so Flights gets near Jev's 7 s; run ARC Index on real payer portals with Pinetree Health's document types; and turn the head-to-head benchmark into something Solari can run for any agent framework, so the numbers keep being real.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: roadmap in PITCH.md SWOT</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="fit">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What did you learn about Solari's infrastructure?</span><span class="text-emerald-400 font-mono text-xs shrink-0">fit</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">That the network is the tax. One CDP round trip is about 186 ms, so the design goal is fewer round trips, not faster code. Batching a 7-field fill took it from 20.5 s to 6.1 s. And that sessions are bearer tokens, so I redact IDs to 8 characters and always release the browser in a finally block.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: docs/SOLARI_API.md</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="numbers">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Your ColdStart page mentions Slop-Catcher and a QA framework. Are those products?</span><span class="text-emerald-400 font-mono text-xs shrink-0">numbers</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">No, they were experiments. I tried ColdStart's pieces on Nakama, an open-source app, and found 48 issues; two of my fixes were merged upstream. Slop-Catcher only ever ran against a mock vision model, and the page says so. What I learned from them fed ARC: scripted, structured checks were reliable where screenshots kept getting stuck.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: itw-code/solari-cookbook docs, labelled “side experiment”; Nakama commits 1155bcc9, 75bd3c96</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="process">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>How much of this did AI write?</span><span class="text-emerald-400 font-mono text-xs shrink-0">process</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Most of the code, with Claude Code. My job was deciding what to build, what counts as proof, and saying no to numbers I couldn't reproduce. The challenge said “use AI to build it”, and I did, but every headline number comes from a script anyone can re-run.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: commits co-authored with Claude; scripts/</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="process">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>How do you stop AI-generated work from being slop?</span><span class="text-emerald-400 font-mono text-xs shrink-0">process</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Measure it against something real and write the caveat down. In the QA work I ran an adversarial review on my own submission and it found a fabricated ROI table, leaked dashboard HTML and wrong test counts. All of it came out before I published. In ARC, that meant replacing my own mock numbers once I had live ones, and grading the model's answers with independent checks instead of trusting what it said.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: README replaced-figures note</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="process">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Tell me about a mistake you made.</span><span class="text-emerald-400 font-mono text-xs shrink-0">process</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">While syncing my fork I pushed a stale copy of master and briefly removed ARC Index from the fork. I caught it by checking file counts, re-synced from a fresh fetch, and verified all 338 files matched. I left both commits in history instead of force-pushing. Now I always fetch and diff before I sync.</p><div class="mt-2 text-[11px] font-mono text-slate-500">Proof: fork history b34ed1f → 7285c6d</div>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="curve">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Won't frontier models just get cheap enough that this doesn't matter?</span><span class="text-emerald-400 font-mono text-xs shrink-0">curve</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Cheaper tokens shrink the cost gap, not the reliability gap. A wrong value in a payer portal is wrong at any price, and a stuck loop is stuck at any price. The checks are the part that keeps mattering.</p>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="curve">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What if Solari's MCP adds all of this?</span><span class="text-emerald-400 font-mono text-xs shrink-0">curve</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Then Solari's agents get better, which is the point of building on Solari. I'd happily upstream it. The part that's hard to copy is the discipline: every claim tied to a benchmark that runs on their infrastructure.</p>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="curve">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>What's the weakest part of your work?</span><span class="text-emerald-400 font-mono text-xs shrink-0">curve</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Scale. Small n, a handful of tasks, synthetic letters. The method is right and the direction is clear, but I'd want real documents and real portals before claiming production numbers.</p>
+        </details>
+        <details class="qa-item glass-card rounded-xl p-4" data-cat="ask">
+          <summary class="cursor-pointer text-sm font-bold text-white list-none flex justify-between gap-3"><span>Questions I can ask them</span><span class="text-emerald-400 font-mono text-xs shrink-0">ask</span></summary>
+          <p class="mt-3 text-xs text-slate-300 leading-relaxed">Where do Solari customers' agents fail most today: perception, getting stuck, or cost? · Would Pinetree Health's denial work run on Solari browsers, or on desktops? · How do you measure agent quality internally, and could an ARC-style head-to-head be part of it? · What would a first month look like for this role?</p>
+        </details>
+      </div>
+
+      <div class="glass-panel rounded-xl p-5 text-xs text-slate-300 leading-relaxed space-y-2">
+        <h3 class="text-sm font-bold text-white">Numbers to have in my head</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono">
+          <div class="p-3 rounded bg-black/40 border border-white/5"><span class="text-emerald-300">ARC CUA vs Solari MCP</span>, Gemini 3.8 Flash, 8 tasks &times; 3: 24/24 vs 21/24 &middot; 122,034 vs 458,546 input tokens (3.8&times;) &middot; $4.84 vs $16.01 per 1,000 tasks (3.3&times;) &middot; Google Flights 3/3 vs 0/3</div>
+          <div class="p-3 rounded bg-black/40 border border-white/5"><span class="text-emerald-300">ARC Index vs traditional agent</span>, per appeal, n=10: 1,209 vs 26,955 tokens (22&times;) &middot; $0.00305 vs $0.02575 (8.4&times;) &middot; 11.4 s vs 89 s (7.8&times;) &middot; 49/60 right, 0 wrong on both</div>
+          <div class="p-3 rounded bg-black/40 border border-white/5"><span class="text-emerald-300">Wrong values let through</span>, two denied lines, forced pick, Sonnet 5.5, n=8: presence 16 &middot; evidence 16 &middot; uniqueness rule 0. Gemini, five decoy letters: 77 &rarr; 0</div>
+          <div class="p-3 rounded bg-black/40 border border-white/5"><span class="text-emerald-300">Solari latency</span>: one CDP round trip ~186 ms &middot; fill + submit 20.5 s per-field vs 6.1 s batched (386 ms for all 7 fields) &middot; browser $0.15/hour</div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Footer -->
@@ -1067,10 +1338,19 @@
       const targetView = document.getElementById('view-' + tabId);
       const targetBtn = document.getElementById('tab-btn-' + tabId);
       if (targetView) targetView.classList.remove('hidden');
+      const sel = document.getElementById('tab-select');
+      if (sel) sel.value = tabId;
       if (targetBtn) {
         targetBtn.classList.add('bg-pine-600', 'text-white');
         targetBtn.classList.remove('text-slate-400');
       }
+    }
+
+    // Interview Q&A filtering
+    function filterQA(cat, btn) {
+      document.querySelectorAll('.qa-pill').forEach(b => { b.classList.remove('bg-slate-800', 'text-white'); b.classList.add('text-slate-400'); });
+      btn.classList.add('bg-slate-800', 'text-white'); btn.classList.remove('text-slate-400');
+      document.querySelectorAll('.qa-item').forEach(i => i.classList.toggle('hidden', cat !== 'all' && i.dataset.cat !== cat));
     }
 
     // SWOT Filtering
@@ -1133,7 +1413,8 @@
     // Chart.js Benchmark Initialization
     window.addEventListener('DOMContentLoaded', () => {
       // Default tab
-      setTab('executive');
+      const hashTab = location.hash.slice(1);
+      setTab(document.getElementById('view-' + hashTab) ? hashTab : 'executive');
 
       const ctx = document.getElementById('benchmarkChart').getContext('2d');
       new Chart(ctx, {
