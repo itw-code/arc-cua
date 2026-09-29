@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from arc_cua.index_bridge import CitationAnchor
+from arc_index.index_bridge import CitationAnchor
 
 DEFAULT_MODEL = "gemini/gemini-3.8-flash"
 

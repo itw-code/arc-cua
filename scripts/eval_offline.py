@@ -27,8 +27,8 @@ import json
 import pathlib
 import sys
 
-from arc_cua.index_bridge import ArcIndexBridge
-from arc_cua.local_doc_index import SYSTEM, LocalDocIndexClient
+from arc_index.index_bridge import ArcIndexBridge
+from arc_index.local_doc_index import SYSTEM, LocalDocIndexClient
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from eval_extraction import DECOY_CASES, case_schema, grade_fields  # noqa: E402

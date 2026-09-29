@@ -3,7 +3,7 @@
 
 > **Product Definition:** ARC Index couples VectifyAI's vectorless reasoning RAG (**PageIndex**) with the **ARC** in-VM reflex runtime on **Solari** ephemeral cloud browsers.
 > **Mission:** Transform complex, un-API'd enterprise documents (denial letters, clinical charts, EOBs, vendor invoices, regulatory filings) into citation-backed, state-verified browser and desktop actions without manual data entry.
-> **Repository:** `solari-hybrid-cua` · **Target Package:** `src/arc_cua/index_bridge.py` · **Timeline:** 24–48 Hours to Production.
+> **Repository:** `solari-hybrid-cua` · **Target Package:** `src/arc_index/index_bridge.py` · **Timeline:** 24–48 Hours to Production.
 
 ---
 
@@ -83,7 +83,7 @@ Enterprise automation breaks down at the boundary between **unstructured documen
 
 ## 3. Data Models & Interface Contracts
 
-The bridge module `src/arc_cua/index_bridge.py` establishes formal, typed dataclasses ensuring end-to-end auditability.
+The bridge module `src/arc_index/index_bridge.py` establishes formal, typed dataclasses ensuring end-to-end auditability.
 
 ### 3.1 Schemas & Data Structures
 
@@ -158,7 +158,7 @@ class VerificationReceipt:
 
 ---
 
-## 4. Bridge Implementation (`src/arc_cua/index_bridge.py`)
+## 4. Bridge Implementation (`src/arc_index/index_bridge.py`)
 
 The bridge connects `pageindex.client.PageIndexClient` with `arc_cua.browser_session.BrowserSession`.
 
@@ -296,7 +296,7 @@ To expose ARC Index to coding agents (Claude Code, Oh My Pi, Cursor), `src/arc_c
 
 ### Phase 1: Core Bridge & Local Ingestion (Hours 00–08)
 - Install and configure `pageindex` SDK in `solari-hybrid-cua`.
-- Implement `src/arc_cua/index_bridge.py` dataclasses (`CitationAnchor`, `ExtractedField`, `DocumentActionSchema`).
+- Implement `src/arc_index/index_bridge.py` dataclasses (`CitationAnchor`, `ExtractedField`, `DocumentActionSchema`).
 - Build unit tests validating `_parse_extracted_fields` using synthetic PageIndex citation outputs.
 
 ### Phase 2: ARC MCP Tool Suite Expansion (Hours 08–16)
@@ -366,10 +366,10 @@ RVL-CDIP and EDGAR documents were never downloaded. None of those are used below
 
 1. **Index + extract**, two interchangeable indexes (`--index`):
    - `pageindex`: the real PageIndex SDK (`pageindex==0.2.20`) in local mode through
-     `arc_cua.pageindex_adapter`. Flash builds the tree from the PDF layout; summaries and the
+     `arc_index.pageindex_adapter`. Flash builds the tree from the PDF layout; summaries and the
      answering agent run on Gemini 3.8 Flash via LiteLLM. No PageIndex account needed. Local
      documents have no layout blocks, so **citations are page-level**.
-   - `blocks`: `arc_cua.local_doc_index`, pypdf text split into line blocks (`p2_b5`) and one
+   - `blocks`: `arc_index.local_doc_index`, pypdf text split into line blocks (`p2_b5`) and one
      Gemini call. Block-level citations, but no tree: only for documents that fit one prompt.
    Schema fields carry a `description` of how *documents* label the field (RC/REM columns,
    "the denied line item"), separate from the portal's `label_hints`. It contains no expected values.
@@ -494,8 +494,8 @@ all.** Today the only guarantee is "only if it appears at the cited place".
 
 ### 10.4 Pointers
 
-- Check: `src/arc_cua/index_bridge.py` → `verify_grounding`, `_parse_extracted_fields`, `extract_action_fields` (prompt).
-- Indexes: `src/arc_cua/local_doc_index.py` (`verify_citation`, block level), `src/arc_cua/pageindex_adapter.py` (page level).
+- Check: `src/arc_index/index_bridge.py` → `verify_grounding`, `_parse_extracted_fields`, `extract_action_fields` (prompt).
+- Indexes: `src/arc_index/local_doc_index.py` (`verify_citation`, block level), `src/arc_index/pageindex_adapter.py` (page level).
 - Schemas: `schemas/rcm_denial.json`, `schemas/medicare_redetermination.json`.
 - Measurement: `scripts/eval_extraction.py`; fixtures: `scripts/make_denial_fixture.py`, `tests/fixtures/documents/*.truth.json`.
 - PageIndex runs need the separate venv (`pageindex==0.2.20` needs `websockets` 16; see 9.4).

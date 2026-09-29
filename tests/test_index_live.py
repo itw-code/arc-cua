@@ -28,7 +28,7 @@ def solari_browser():
 
 @pytest.mark.parametrize("case_id", ["SYN-DENIAL-01", "MED-CMS-01"])
 def test_document_to_portal_on_solari(case_id, solari_browser):
-    from arc_cua.local_doc_index import LocalDocIndexClient
+    from arc_index.local_doc_index import LocalDocIndexClient
     from run_arc_index_live import CASES, run_case
 
     case = next(c for c in CASES if c["id"] == case_id)

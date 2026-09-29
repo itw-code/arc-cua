@@ -2,7 +2,7 @@
 
 import pytest
 
-from arc_cua.index_bridge import (
+from arc_index.index_bridge import (
     ArcIndexBridge,
     CitationAnchor,
     CompiledActionStep,
@@ -109,7 +109,7 @@ def test_verification_receipt_serialization():
 import pathlib
 import re
 
-from arc_cua.index_bridge import load_schema
+from arc_index.index_bridge import load_schema
 
 PORTAL = """<html><body><form onsubmit="event.preventDefault();
 document.getElementById('form').style.display='none';document.getElementById('ok').style.display='block'" id="form">
@@ -205,7 +205,7 @@ FIXTURES = pathlib.Path(__file__).parent / "fixtures" / "documents"
 
 def _cms_index():
     pytest.importorskip("pypdf")
-    from arc_cua.local_doc_index import LocalDocIndexClient
+    from arc_index.local_doc_index import LocalDocIndexClient
 
     class Canned:
         def complete(self, system, user):
@@ -263,7 +263,7 @@ DENIED_ROW = "2 2026-06-14 99214Office visit, established patient, moderate MDM 
 
 def _letter(reply, schema=None, pdf="synthetic_denial_letter.pdf"):
     pytest.importorskip("pypdf")
-    from arc_cua.local_doc_index import LocalDocIndexClient
+    from arc_index.local_doc_index import LocalDocIndexClient
 
     class Canned:
         def complete(self, system, user):
@@ -441,7 +441,7 @@ class FakePageIndexSDK:
 
 
 def test_pageindex_adapter_grounds_on_cited_page():
-    from arc_cua.pageindex_adapter import PageIndexAdapter
+    from arc_index.pageindex_adapter import PageIndexAdapter
     sdk = FakePageIndexSDK(
         '- claim_id: CLM-7 | evidence: Claim number: CLM-7 <cite doc="d.pdf" page="1" block="made_up"/>\n'
         '- patient_name: Ana Ruiz | evidence: Member: Ana Ruiz <cite doc="d.pdf" page="3"/>\n'   # wrong page
