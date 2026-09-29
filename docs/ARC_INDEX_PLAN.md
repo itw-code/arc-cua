@@ -612,3 +612,59 @@ Caveats: a subagent is not a bare model call (it carries Claude Code's system pr
 these runs say nothing about latency or cost; n=8, not 20; fixtures only, and the rows are found by a
 schema regex, so a table laid out differently needs its own `row_start`/`row_end`. Not rerun on
 Gemini or PageIndex; the rule does not depend on the model, and the unit tests cover it on the index side.
+
+---
+
+## 11. Traditional Agent vs ARC Index: Measured Economics (2026-09-29)
+
+Section 7's cost model and the benchmark doc's baseline columns were projections. This replaces them
+with a measured head-to-head on the denial appeal (`scripts/benchmark_appeal_baseline.py`).
+
+**Setup.** Same two letters (`SYN-DENIAL-01`, `two_denied`), same stand-in portal, Solari cloud browsers
+on both sides.
+- **Traditional agent:** the model gets the letter's pypdf text and the goal, and drives the portal with
+  Solari's page tools (`read_page`, `click`, `type`, `key`, `evaluate`), served by
+  `scripts/appeal_tool_server.py` over one `@solarisdk/mcp` session. One browser per episode, portal
+  written in untimed. The goal says to leave a field blank when the letter lacks it or more than one
+  value fits, the prompt counterpart of ARC's `AMBIGUOUS`.
+- **ARC Index:** `run_arc_index_live.run_case` on a Solari `BrowserSession`: block index, one
+  extraction call, grounding checks (10.5, 10.7), one batched fill and submit.
+- **Grading:** what the portal received, per field: ok, blank (safe), or wrong.
+- **Costs:** Gemini 3.8 Flash $0.75 / $3.75 per M tokens; Claude Sonnet 5.5 $2 / $10 per M
+  ([claude.com/pricing](https://claude.com/pricing)); Solari $0.15 per browser-hour.
+
+**Gemini 3.8 Flash, API usage, n=10 appeals per harness (2 letters × 5):**
+
+| Per appeal | Traditional agent | ARC Index | |
+|---|---|---|---|
+| Input tokens | 26,955 | 1,209 | 22× fewer |
+| Output tokens | 482 | 444 | |
+| Browser tool calls | 11.7 | 1 batched fill | |
+| Model cost | $0.02203 | $0.00257 | 8.6× less |
+| Model + browser time | $0.02575 | $0.00305 | **8.4× less** |
+| Wall time, mean (range) | 89 s (13–137) | 11.4 s (10.3–14.3) | 7.8× faster |
+| Fields ok / blank / wrong (of 60) | 49 / 11 / 0 | 49 / 11 / 0 | same |
+
+The agent's time is mostly browser tools (68 s of 89 s on average; model 21 s), because each MCP page
+call is a full round trip. ARC's time is extraction (~3.5 s), portal load and bind (~2.5 s), and the
+batched fill and submit (~6 s).
+
+**Claude Sonnet 5.5, Claude Code subagents, tokens estimated at chars/4:**
+- Traditional agent (n=6, 3 per letter): 9,815 input tokens, $0.02201 per appeal, 9 tool calls.
+  The input tokens are what a bare API loop resending the conversation would be billed, built from
+  the tool server's log. As run, each subagent used ~39.5k tokens including Claude Code's own
+  prompt, which is not counted.
+- ARC (n=10, the saved extraction answers from 10.7 filled on Solari): 933 input tokens,
+  $0.00524 per appeal, 4.2× less. 50/60 ok, 10 blank, 0 wrong.
+
+**Accuracy is a tie in these runs.** Every configuration let 0 wrong values through. The blanks are
+the two-denied letter's CPT code and billed amount (correct to leave blank) plus one date and one
+denial code. The difference is the mechanism: the agent kept to its instruction, while ARC rejects
+by rule, whatever the model answers (10.7). One trial run before the benchmark, not counted,
+shows the risk: the Gemini agent typed a CPT code on the two-denied letter.
+
+Results: `artifacts/benchmarks/appeal/` (`baseline_*.json`, `arc_*.json`, `summary.json`, the tool
+log). Reel: `media/arc-index-econ-reel/`, `artifacts/arc-index-economics-showreel.mp4`.
+
+Caveats: two synthetic letters; one portal with seven text fields; the agent gets the letter as text,
+not page images, so this is not a vision agent (page images were not measured); n=10 and n=6.
