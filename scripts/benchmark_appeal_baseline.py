@@ -199,7 +199,7 @@ class Canned:
 
 def arc(n: int, model: str, sonnet: bool) -> List[Dict[str, Any]]:
     from arc_cua.browser_session import BrowserSession
-    from arc_cua.local_doc_index import LocalDocIndexClient
+    from arc_index.local_doc_index import LocalDocIndexClient
 
     price_in, price_out = PRICES["claude-sonnet-5-5" if sonnet else model]
     answers = sorted((ROOT / "artifacts" / "benchmarks" / "offline" / "answers").iterdir()) if sonnet else []

@@ -28,8 +28,8 @@ import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from arc_cua.index_bridge import ArcIndexBridge, load_schema
-from arc_cua.local_doc_index import LocalDocIndexClient
+from arc_index.index_bridge import ArcIndexBridge, load_schema
+from arc_index.local_doc_index import LocalDocIndexClient
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from run_arc_index_live import CASES, DOCS, make_index  # noqa: E402

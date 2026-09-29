@@ -1,7 +1,7 @@
 """ARC Index live run: real PDFs -> grounded extraction -> portal fill on a real browser.
 
 For each case: index the PDF, extract the schema's fields with block citations (Gemini over
-pypdf blocks, see arc_cua.local_doc_index), reject any value its cited block does not contain,
+pypdf blocks, see arc_index.local_doc_index), reject any value its cited block does not contain,
 bind the rest to the portal's [#N] fields, fill and submit, then grade three things against
 the case's ground truth:
   extraction - value and page match the truth file
@@ -29,8 +29,8 @@ import time
 from typing import Any, Dict, List
 
 from arc_cua.browser_session import BrowserSession
-from arc_cua.index_bridge import ArcIndexBridge, load_schema
-from arc_cua.local_doc_index import LocalDocIndexClient
+from arc_index.index_bridge import ArcIndexBridge, load_schema
+from arc_index.local_doc_index import LocalDocIndexClient
 
 
 def make_index(kind: str, model: str) -> Any:
@@ -39,7 +39,7 @@ def make_index(kind: str, model: str) -> Any:
     indexing into a fresh temp dir so every run pays the real indexing cost."""
     if kind == "pageindex":
         import tempfile
-        from arc_cua.pageindex_adapter import PageIndexAdapter
+        from arc_index.pageindex_adapter import PageIndexAdapter
         return PageIndexAdapter(model=f"gemini/{model}", storage_path=tempfile.mkdtemp(prefix="pageindex-"))
     return LocalDocIndexClient(model=model)
 

@@ -14,7 +14,7 @@ import time
 import uuid
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-logger = logging.getLogger("arc_cua.index_bridge")
+logger = logging.getLogger("arc_index.index_bridge")
 
 _PUNCT = str.maketrans({"\u2013": "-", "\u2014": "-", "\u2018": "'", "\u2019": "'",
                         "\u201c": '"', "\u201d": '"', "\u00a0": " "})
