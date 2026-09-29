@@ -12,7 +12,8 @@
         "Claim #",
         "Claim Number"
       ],
-      "description": "Claim number of the claim this denial notice is about (not other claims it mentions)"
+      "description": "Claim number of the claim this denial notice is about (not other claims it mentions)",
+      "evidence_must_not_match": "(?i)not affected|processed separately|related claim"
     },
     {
       "field_name": "patient_name",
@@ -33,7 +34,12 @@
       ],
       "required": false,
       "format_transformer": "date_iso",
-      "description": "Date of service of the denied line item"
+      "description": "Date of service of the denied line item",
+      "evidence_must_match": "(?i)\\bdenied\\b",
+      "evidence_must_not_match": "(?i)\\bpaid\\b",
+      "same_row_as": [
+        "cpt_code"
+      ]
     },
     {
       "field_name": "billed_amount",
@@ -43,7 +49,12 @@
         "Amount"
       ],
       "required": false,
-      "description": "Billed amount of the denied line item"
+      "description": "Billed amount of the denied line item",
+      "evidence_must_match": "(?i)\\bdenied\\b",
+      "evidence_must_not_match": "(?i)\\bpaid\\b",
+      "same_row_as": [
+        "cpt_code"
+      ]
     },
     {
       "field_name": "denial_code",
@@ -62,7 +73,13 @@
         "CPT",
         "Procedure Code"
       ],
-      "description": "CPT procedure code of the denied line item (not paid lines)"
+      "description": "CPT procedure code of the denied line item (not paid lines)",
+      "evidence_must_match": "(?i)\\bdenied\\b",
+      "evidence_must_not_match": "(?i)\\bpaid\\b",
+      "same_row_as": [
+        "billed_amount",
+        "date_of_service"
+      ]
     },
     {
       "field_name": "notes",
