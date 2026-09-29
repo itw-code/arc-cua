@@ -873,7 +873,7 @@
     <section id="view-pageindex" class="tab-view space-y-8">
       <div class="border-b border-white/10 pb-4">
         <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[11px] font-mono mb-1">
-          LIVE-TESTED · 2026-09-29 · ONE OPEN WEAKNESS
+          LIVE-TESTED · 2026-09-29 · GROUNDING CHECKS CORRECTNESS
         </div>
         <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
           ARC Index — <span class="gradient-text-pine">Vectorless Document-to-Action Engine</span>
@@ -1004,21 +1004,35 @@
         </div>
       </div>
 
-      <!-- Open Weakness -->
-      <div class="glass-panel rounded-2xl p-6 space-y-3 border-l-4 border-l-amber-500">
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 text-[11px] font-mono">
-          OPEN &middot; NEXT SESSION &middot; PLAN &sect;10
+      <!-- Grounding: fixed -->
+      <div class="glass-panel rounded-2xl p-6 space-y-3 border-l-4 border-l-emerald-500">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[11px] font-mono">
+          FIXED &middot; 2026-09-29 &middot; PLAN &sect;10.5
         </div>
-        <h3 class="text-base font-bold text-white">Grounding proves a value is <em>present</em>, not that it is <em>correct</em></h3>
+        <h3 class="text-base font-bold text-white">Grounding now checks the <em>row</em>, not just that the value is <em>present</em></h3>
         <p class="text-xs text-slate-300 leading-relaxed">
-          The check accepts a value when its cited block or page contains it. With one intermediate prompt, the synthetic letter's CPT code came back as <code class="text-amber-300">36415</code> (the <em>paid</em> line) in 7 of 10 runs. The code was on the cited page, so it passed and would have been submitted. Field descriptions fixed this document, but that is a prompt fix, not a guarantee. With page-level citations the receipt snippet can also point at the wrong row even when the value is right.
+          Before, a value passed if its cited page contained it. On a decoy letter with two denied lines, the block index accepted a single CPT code and billed amount in <strong>20 of 20</strong> runs, and without field descriptions the paid line's <code class="text-amber-300">36415</code> passed too. Now each answer carries a verbatim evidence quote. The quote must be on the cited page and contain the value, and schema rules are checked on the whole source row: it must say <em>Denied</em>, must not say <em>Paid</em>, and must hold the other fields from that row.
         </p>
-        <ul class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
-          <li>Reproduce with decoy variants and a no-descriptions prompt, measuring <code>wrong</code> counts.</li>
-          <li>Require a verbatim evidence quote per field: the value must be in the quote, and the quote on the cited page.</li>
-          <li>Schema rules: <code>evidence_must_match</code> (e.g. the row says "Denied") and <code>same_row_as</code> for fields from one row.</li>
-          <li>Done when <code>wrong=0</code> for every field and variant, over 20 runs, on both indexes. A rejected field is safe; a wrong one is not.</li>
-        </ul>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+            <div class="text-slate-400 font-mono text-[11px]">WRONG VALUES ACCEPTED</div>
+            <div class="text-white font-bold text-sm">77 &rarr; 0</div>
+            <div class="text-slate-400">5 cases &times; 4 configs &times; 20 runs, both indexes</div>
+          </div>
+          <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+            <div class="text-slate-400 font-mono text-[11px]">CORRECT, WITH DESCRIPTIONS</div>
+            <div class="text-white font-bold text-sm">20/20 blocks &middot; 19&ndash;20/20 PageIndex</div>
+            <div class="text-slate-400">the price of strictness: a few safe rejections</div>
+          </div>
+          <div class="p-3 rounded-lg bg-black/40 border border-white/5">
+            <div class="text-slate-400 font-mono text-[11px]">LIVE ON SOLARI, AFTER THE FIX</div>
+            <div class="text-white font-bold text-sm">12/12 in portal &middot; codes matched</div>
+            <div class="text-slate-400">2 runs, real PageIndex; receipt cites the denied row</div>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Still open (&sect;10.6): with two denied lines it is the model answering <code>AMBIGUOUS</code> that keeps a value out, not a rule; block-level PageIndex needs a cloud key.
+        </p>
       </div>
   </main>
 
@@ -1033,7 +1047,7 @@
       <div class="flex items-center space-x-4 font-mono text-[11px]">
         <span>PITCH.md Live</span>
         <span>•</span>
-        <span>257 Tests Passing · 2 Known Failures</span>
+        <span>262 Tests Passing · 2 Known Failures</span>
         <span>•</span>
         <span>Solari microVM Ready</span>
       </div>

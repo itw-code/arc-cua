@@ -224,18 +224,91 @@ def test_block_lookup_accepts_dropped_b_prefix():
     assert not client.value_in_block(doc_id, "p1_b21", "1EG4TE5MK72")
 
 
-def test_grounding_rejects_value_missing_from_cited_block():
+def test_grounding_needs_an_evidence_quote_on_the_cited_page():
     client, chat, doc_id = _cms_index()
+    mbi_line = client.block_text(doc_id, "p1_b22")
     chat.reply = (
-        '- mbi: 1EG4TE5MK72 <cite doc="x" page="1" block="p1_b22"/>\n'
-        '- patient_name: SMITH J <cite doc="x" page="1" block="p1_b22"/>\n'   # wrong block
+        f'- mbi: 1EG4TE5MK72 | evidence: {mbi_line} <cite doc="x" page="1" block="p1_b22"/>\n'
+        '- patient_name: SMITH J <cite doc="x" page="1" block="p1_b22"/>\n'             # no quote
+        '- from_date: 10/01/2018 | evidence: FROM DT 10/01/2018 <cite doc="x" page="2"/>\n'  # no page 2
+        f'- thru_date: 10/31/2018 | evidence: {mbi_line} <cite doc="x" page="1"/>\n'   # not in quote
         '- reason_code: NOT_FOUND\n'
+        '- remark_code: AMBIGUOUS\n'
     )
     fields = {f.field_name: f for f in
               ArcIndexBridge(client).extract_action_fields(doc_id, load_schema("medicare_redetermination"))}
-    assert fields["mbi"].validation_status and "1EG4TE5MK72" in fields["mbi"].citation.text_snippet
-    assert not fields["patient_name"].validation_status
-    assert not fields["reason_code"].validation_status
+    assert fields["mbi"].validation_status and fields["mbi"].citation.text_snippet == mbi_line
+    assert fields["mbi"].citation.block_id == "p1_b22"
+    assert fields["patient_name"].error_message == "no evidence quote"
+    assert fields["from_date"].error_message == "evidence quote not on cited page 2"
+    assert fields["thru_date"].error_message == "value not in its evidence quote"
+    assert fields["reason_code"].error_message == "not found in document"
+    assert fields["remark_code"].error_message == "more than one value fits"
+
+
+def test_parse_evidence_with_citation_before_or_after():
+    schema = load_schema("healthcare_denial_appeal")
+    reply = ('cpt_code: **99214** | evidence: "2 2026-06-14 99214 Office visit" <cite doc="d" page="2"/>\n'
+             'claim_id: CLM-1 <cite doc="d" page="1"/> | Evidence: Claim number: CLM-1\n')
+    by = {f.field_name: f for f in ArcIndexBridge._parse_extracted_fields(reply, schema, "d")}
+    assert (by["cpt_code"].value, by["cpt_code"].evidence) == ("99214", "2 2026-06-14 99214 Office visit")
+    assert (by["claim_id"].value, by["claim_id"].evidence) == ("CLM-1", "Claim number: CLM-1")
+
+
+# ---- evidence rules on the synthetic letter (paid line + decoy claim) ---------
+
+PAID_ROW = "1 2026-06-14 36415Routine venipuncture $18.00 $11.40 Paid"
+DENIED_ROW = "2 2026-06-14 99214Office visit, established patient, moderate MDM $412.00$0.00 Denied"
+
+
+def _letter(reply, schema=None):
+    pytest.importorskip("pypdf")
+    from arc_cua.local_doc_index import LocalDocIndexClient
+
+    class Canned:
+        def complete(self, system, user):
+            return {"text": reply, "input_tokens": 0, "output_tokens": 0}
+
+    client = LocalDocIndexClient(chat=Canned())
+    doc_id = client.submit_document(str(FIXTURES / "synthetic_denial_letter.pdf"))["doc_id"]
+    schema = schema or load_schema("healthcare_denial_appeal")
+    return {f.field_name: f for f in ArcIndexBridge(client).extract_action_fields(doc_id, schema)}
+
+
+def test_evidence_must_match_rejects_the_paid_line_even_with_a_trimmed_quote():
+    f = _letter(f'cpt_code: 36415 | evidence: {PAID_ROW} <cite doc="d" page="2" block="p2_b4"/>\n'
+                'billed_amount: $18.00 | evidence: $18.00 <cite doc="d" page="2" block="p2_b4"/>\n')
+    assert f["cpt_code"].error_message == r"source row does not match /(?i)\bdenied\b/"
+    # The quote omits "Paid", but the rule is checked on the whole source line, not the quote.
+    assert not f["billed_amount"].validation_status
+
+
+def test_evidence_must_not_match_rejects_the_unaffected_claim():
+    f = _letter('claim_id: CLM-2026-448790 | evidence: CLM-2026-448790 <cite doc="d" page="1" block="p1_b12"/>\n')
+    assert "source row matches" in f["claim_id"].error_message
+
+
+def test_same_row_as_rejects_fields_from_different_rows():
+    # Without the Denied/Paid rules, only the cross-field check stands between 36415 and the portal.
+    schema = load_schema("healthcare_denial_appeal")
+    for spec in schema.fields:
+        spec.evidence_must_match = spec.evidence_must_not_match = None
+    f = _letter(f'cpt_code: 36415 | evidence: {PAID_ROW} <cite doc="d" page="2"/>\n'
+                f'billed_amount: $412.00 | evidence: {DENIED_ROW} <cite doc="d" page="2"/>\n', schema)
+    assert f["cpt_code"].error_message == "source row does not contain billed_amount ($412.00)"
+    assert f["billed_amount"].error_message == "source row does not contain cpt_code (36415)"
+
+
+def test_receipt_snippet_is_the_row_the_value_came_from():
+    # 2026-06-14 is on both rows; the old check cited the first line containing it (the paid row).
+    f = _letter(f'date_of_service: 2026-06-14 | evidence: {DENIED_ROW} <cite doc="d" page="2" block="p2_b4"/>\n'
+                f'cpt_code: 99214 | evidence: {DENIED_ROW} <cite doc="d" page="2" block="p2_b5"/>\n'
+                f'billed_amount: $412.00 | evidence: {DENIED_ROW} <cite doc="d" page="2" block="p2_b6"/>\n')
+    for name in ("date_of_service", "cpt_code", "billed_amount"):
+        c = f[name].citation
+        assert f[name].validation_status, f[name].error_message
+        assert c.text_snippet == "2 2026-06-14 99214Office visit, established patient, moderate MDM $412.00$0.00 Denied"
+        assert c.block_id == "p2_b5..p2_b6"            # the verified lines, not the id the model wrote
 
 
 # ---- batched fills ----------------------------------------------------------
@@ -333,9 +406,10 @@ class FakePageIndexSDK:
 def test_pageindex_adapter_grounds_on_cited_page():
     from arc_cua.pageindex_adapter import PageIndexAdapter
     sdk = FakePageIndexSDK(
-        '- claim_id: CLM-7 <cite doc="d.pdf" page="1" block="made_up"/>\n'
-        '- patient_name: Ana Ruiz <cite doc="d.pdf" page="3"/>\n'            # wrong page
-        '- notes: CO-16 lacks information <cite doc="d.pdf" page="3"/>\n'     # wraps a line
+        '- claim_id: CLM-7 | evidence: Claim number: CLM-7 <cite doc="d.pdf" page="1" block="made_up"/>\n'
+        '- patient_name: Ana Ruiz | evidence: Member: Ana Ruiz <cite doc="d.pdf" page="3"/>\n'   # wrong page
+        '- notes: CO-16 lacks information | evidence: Reason: CO-16 lacks information for review'
+        ' <cite doc="d.pdf" page="3"/>\n'                                                          # wraps a line
     )
     schema = DocumentActionSchema("s", "*", [
         FieldTarget("claim_id", "textbox", ["Claim"]),
@@ -349,5 +423,6 @@ def test_pageindex_adapter_grounds_on_cited_page():
     assert fields["claim_id"].citation.block_id is None           # page-level index: no block ids
     assert fields["claim_id"].citation.text_snippet == "Claim number: CLM-7"
     assert not fields["patient_name"].validation_status
-    assert fields["patient_name"].error_message == "value not in cited page 3"
-    assert fields["notes"].validation_status and "lacks information" in fields["notes"].citation.text_snippet
+    assert fields["patient_name"].error_message == "evidence quote not on cited page 3"
+    assert fields["notes"].validation_status
+    assert fields["notes"].citation.text_snippet == "Reason: CO-16 lacks information for review"

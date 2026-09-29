@@ -7,8 +7,14 @@ while single runs looked fine. No browser is involved; this is only index + extr
   wrong    = grounded (the cited block contains it) but not the expected value. These are
              the dangerous ones: grounding lets them through to the portal.
   rejected = NOT_FOUND, no citation, or the cited block does not contain the value.
+A field whose truth value is null has no single right answer (e.g. two denied lines): it must
+be rejected, so rejected counts as ok and any accepted value as wrong.
 
-Run: python scripts/eval_extraction.py -n 20 [--case MED-CMS-01] [--effort low]
+Besides the live-run CASES this runs the decoy variants of the synthetic letter
+(scripts/make_denial_fixture.py). --no-descriptions drops the schema's field descriptions,
+which is the prompt that once made the paid line's CPT code pass as grounded.
+
+Run: python scripts/eval_extraction.py -n 20 [--case MED-CMS-01] [--effort low] [--no-descriptions]
 Needs GEMINI_API_KEY. Each run is one model call (~1.1k tokens).
 """
 
@@ -28,12 +34,23 @@ from arc_cua.local_doc_index import LocalDocIndexClient
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from run_arc_index_live import CASES, DOCS, make_index  # noqa: E402
 
+DECOY_CASES = [{"id": f"SYN-DENIAL-{v.upper()}", "pdf": f"synthetic_denial_letter_{v}.pdf",
+                "schema": "healthcare_denial_appeal"} for v in ("swapped", "two_denied", "decoy_first")]
+
 
 def _norm(s) -> str:
     return re.sub(r"[^a-z0-9]", "", str(s).lower())
 
 
-def grade_once(case: dict, model: str, effort: str, shared=None) -> dict:
+def case_schema(case: dict, descriptions: bool = True):
+    schema = load_schema(case["schema"])
+    if not descriptions:
+        for f in schema.fields:
+            f.description = None
+    return schema
+
+
+def grade_once(case: dict, model: str, effort: str, shared=None, descriptions: bool = True) -> dict:
     """Grade one extraction. `shared` = (client, doc_id) reuses an indexed document, so only
     the question is repeated (PageIndex indexing takes 10-20 s per document)."""
     pdf = DOCS / case["pdf"]
@@ -46,12 +63,14 @@ def grade_once(case: dict, model: str, effort: str, shared=None) -> dict:
         client.chat_client.extra = {"reasoning_effort": effort}
         doc_id = client.submit_document(str(pdf))["doc_id"]
     fields = {f.field_name: f for f in
-              ArcIndexBridge(client).extract_action_fields(doc_id, load_schema(case["schema"]), pdf.name)}
+              ArcIndexBridge(client).extract_action_fields(doc_id, case_schema(case, descriptions), pdf.name)}
     out = {}
     for name, spec in truth.items():
         f = fields.get(name)
         want = spec["value"] if isinstance(spec["value"], list) else [spec["value"]]
-        if not f or not f.validation_status:
+        if spec["value"] is None:
+            out[name] = ("ok", None) if not f or not f.validation_status else ("wrong", f.value)
+        elif not f or not f.validation_status:
             out[name] = ("rejected", None)
         elif _norm(f.value) in {_norm(w) for w in want}:
             out[name] = ("ok", None)
@@ -69,9 +88,11 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=5)
     ap.add_argument("--index", choices=["blocks", "pageindex"], default="blocks",
                     help="pageindex: index once per case, repeat only the question (--effort ignored)")
+    ap.add_argument("--no-descriptions", action="store_true", help="drop the schema field descriptions")
     args = ap.parse_args()
 
-    cases = [c for c in CASES if not args.case or c["id"] in args.case]
+    cases = [c for c in CASES + DECOY_CASES if not args.case or c["id"] in args.case]
+    desc = not args.no_descriptions
     any_wrong = False
     for case in cases:
         shared = None
@@ -79,8 +100,8 @@ def main() -> int:
             client = make_index("pageindex", args.model)
             shared = (client, client.submit_document(str(DOCS / case["pdf"]))["doc_id"])
         with ThreadPoolExecutor(args.workers) as ex:
-            runs = list(ex.map(lambda _: grade_once(case, args.model, args.effort, shared), range(args.n)))
-        print(f"[{case['id']}] n={args.n} index={args.index} model={args.model}"
+            runs = list(ex.map(lambda _: grade_once(case, args.model, args.effort, shared, desc), range(args.n)))
+        print(f"[{case['id']}] n={args.n} index={args.index} model={args.model} descriptions={desc}"
               + ("" if shared else f" effort={args.effort}"))
         for name in runs[0]:
             counts = collections.Counter(r[name][0] for r in runs)

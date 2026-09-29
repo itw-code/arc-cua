@@ -3,7 +3,8 @@
 Local mode needs no PageIndex account: Flash builds the document tree from the PDF layout,
 and summaries plus the answering agent run on your own model through LiteLLM (for example
 `gemini/gemini-3.8-flash` with GEMINI_API_KEY). Local page content has no layout blocks, so
-citations are page-level and `verify_citation` checks the value against the cited page's text.
+citations are page-level: `page_lines` gives the bridge the cited page's lines for its evidence
+check, and `verify_citation` (the older presence check) looks for the value on that page.
 Cloud documents (api_key / PAGEINDEX_API_KEY) have blocks, but block-level checking is not
 wired up here: the same page-level check is used, since it is the one path that has been run.
 """
@@ -11,7 +12,7 @@ wired up here: the same page-level check is used, since it is the one path that 
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from arc_cua.index_bridge import CitationAnchor
 
@@ -55,6 +56,10 @@ class PageIndexAdapter:
             content = self.client.get_page_content(doc_id, str(page))
             self._pages[key] = "\n".join(p.get("markdown") or p.get("content") or "" for p in content)
         return self._pages[key]
+
+    def page_lines(self, doc_id: str, page: int) -> List[Tuple[Optional[str], str]]:
+        """(None, text) for each line of a page: page-level, so lines carry no block id."""
+        return [(None, ln) for ln in self.page_text(doc_id, page).splitlines() if ln.strip()]
 
     def verify_citation(self, doc_id: str, citation: CitationAnchor, value: str) -> Optional[str]:
         """The line of the cited page that contains the value, or None if the page lacks it."""

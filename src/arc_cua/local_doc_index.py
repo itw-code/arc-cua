@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 import pathlib
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from arc_cua.reflex_policy import ChatClient
 
@@ -21,9 +21,13 @@ GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 SYSTEM = """\
 You extract fields from a document. The document is given as blocks, one per line, in the form
 [p<page>_b<block>] <text>. Answer only from the document. For each requested field output exactly
-one line: field_name: value <cite doc="DOC" page="P" block="pP_bB"/>
-Cite the single block that contains the value. Copy the value as written in that block.
+one line: field_name: value | evidence: QUOTE <cite doc="DOC" page="P" block="pP_bB"/>
+Cite the block that contains the value. Copy the value as written in that block. QUOTE is the
+whole table row or sentence the value is in, copied verbatim without the [block] tags, from its
+first cell to its last. A table row is often split over two or more consecutive blocks: quote
+all of them, not just the block holding the value.
 If a field is not in the document, output: field_name: NOT_FOUND
+If more than one different value fits a field, output: field_name: AMBIGUOUS
 """
 
 
@@ -69,6 +73,13 @@ class LocalDocIndexClient:
             if block_id in p["blocks"]:
                 return p["blocks"][block_id]
         return None
+
+    def page_lines(self, doc_id: str, page: int) -> List[Tuple[Optional[str], str]]:
+        """(block id, text) for each line of a page, for the bridge's evidence check."""
+        for p in self._docs.get(doc_id, {}).get("pages", []):
+            if p["page"] == page:
+                return list(p["blocks"].items())
+        return []
 
     def chat(self, prompt: str, doc_id: Optional[str] = None) -> str:
         doc = self._docs[doc_id]

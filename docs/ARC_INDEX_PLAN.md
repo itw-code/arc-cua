@@ -340,7 +340,9 @@ Status as of 2026-09-29:
 2. ~~Build runnable demonstration script `scripts/demo_arc_index_pipeline.py`.~~ Done.
 3. ~~Verify local pipeline execution against simulated denial letter fixture.~~ Done, and run live on
    Solari with real PageIndex (Section 9).
-4. **Open:** fix the grounding weakness (Section 10). This is the first task of the next session.
+4. ~~Fix the grounding weakness (Section 10).~~ Done for steps 1–4: `wrong=0` on every field,
+   variant and index (10.5). Open: block-level PageIndex (needs a cloud key) and a deterministic
+   ambiguity check (10.6).
 
 ---
 
@@ -371,9 +373,10 @@ RVL-CDIP and EDGAR documents were never downloaded. None of those are used below
      Gemini call. Block-level citations, but no tree: only for documents that fit one prompt.
    Schema fields carry a `description` of how *documents* label the field (RC/REM columns,
    "the denied line item"), separate from the portal's `label_hints`. It contains no expected values.
-2. **Grounding check.** `ArcIndexBridge.verify_grounding` asks the index to confirm each citation
-   (`verify_citation`): the cited block, or the cited page, must contain the value. Anything else,
-   and every `NOT_FOUND`, is rejected and never typed.
+2. **Grounding check.** At the time of these runs, `ArcIndexBridge.verify_grounding` asked the index to
+   confirm each citation (`verify_citation`): the cited block, or the cited page, had to contain the
+   value. Anything else, and every `NOT_FOUND`, was rejected and never typed. Section 10 replaced
+   this with an evidence check; the results in 9.3 are from before that change, except where 10.5 says otherwise.
 3. **Portal.** A small appeal form loaded with `page.set_content` (BrowserSession rejects `data:`
    URLs on purpose). On submit it renders a random confirmation code and echoes the form data it
    received; the run grades that echo, not what it meant to send.
@@ -417,13 +420,12 @@ the runner sits next to the browser; the in-VM runner in Section 2 does not exis
 
 ### 9.4 Limits and open work
 
-- **Grounding proves presence, not correctness.** A value that appears in its cited source passes,
-  even if it is the wrong row (the paid CPT line above). Field descriptions fixed that case; a
-  general fix is planned in **Section 10** (next session).
-- **Page-level citations are coarse.** With `pageindex`, `date_of_service` was verified against the
-  first line on page 2 that contains the date, which is the paid line; the value is right but the
-  snippet points at the wrong row. Block-level checks need PageIndex cloud (`get_block`); that
-  path is not wired up or tested.
+- ~~**Grounding proves presence, not correctness.**~~ A value that appeared in its cited source
+  passed, even from the wrong row (the paid CPT line above). Fixed in **Section 10** (10.5).
+- ~~**Page-level citations are coarse.**~~ With `pageindex`, `date_of_service` was verified against
+  the first line on page 2 containing the date, the paid line. Fixed: the snippet is now the row
+  the evidence quote came from (10.5). Block-level checks through PageIndex cloud (`get_block`)
+  are still not wired up.
 - The portal is a stand-in; no real payer portal was used.
 - Invoice (`invoice_ap`) and regulatory cases have no documents with verified ground truth yet.
 - `pageindex` is not a declared dependency: it upgrades `websockets` to 16.x, which other tools
@@ -431,9 +433,10 @@ the runner sits next to the browser; the in-VM runner in Section 2 does not exis
 
 ---
 
-## 10. Next Session: Make Grounding Check *Correctness*, Not Just Presence
+## 10. Make Grounding Check *Correctness*, Not Just Presence
 
-**Status: open. Start here next session.**
+**Status: steps 1–4 done 2026-09-29; results in 10.5, what is still open in 10.6.** Sections 10.1–10.4
+are the plan as written before the work.
 
 ### 10.1 The weakness
 
@@ -496,3 +499,72 @@ all.** Today the only guarantee is "only if it appears at the cited place".
 - Schemas: `schemas/rcm_denial.json`, `schemas/medicare_redetermination.json`.
 - Measurement: `scripts/eval_extraction.py`; fixtures: `scripts/make_denial_fixture.py`, `tests/fixtures/documents/*.truth.json`.
 - PageIndex runs need the separate venv (`pageindex==0.2.20` needs `websockets` 16; see 9.4).
+
+### 10.5 What was built and measured (2026-09-29)
+
+**Built:**
+- **Decoy variants** (`scripts/make_denial_fixture.py --variant`): `swapped` (denied line first),
+  `two_denied` (two denied lines, 99214 $412.00 and 93000 $96.00; truth for `cpt_code` and
+  `billed_amount` is `null`, so any accepted value counts as wrong), `decoy_first` (the unaffected
+  claim number printed first, with its own "Related claim number:" label). `eval_extraction.py` runs
+  them next to the live cases; `--no-descriptions` drops the schema descriptions.
+- **Evidence check** (`ArcIndexBridge._check_evidence`, used when the index has `page_lines`):
+  each answer is `field: value | evidence: QUOTE <cite/>`. The value must be in the quote, and the
+  quote must be on the cited page (compared with whitespace and markdown marks removed, because
+  PDF text runs cells together as `99214Office`). The **whole source lines** the quote spans become
+  the receipt snippet, and for the block index the `block_id` is the verified span (`p2_b5..p2_b6`),
+  not the id the model wrote. The denied row wraps over two pypdf lines, so a row is not one block.
+- **Schema rules** on `FieldTarget`, checked on those source lines, not on the model's quote, so a
+  trimmed quote cannot dodge them: `evidence_must_match`, `evidence_must_not_match`, and `same_row_as`
+  (the row must contain the other fields' accepted values; failures are collected before any is
+  applied). `rcm_denial.json`: CPT, billed amount and date must come from a row matching `denied`
+  and not `paid`, and from the same row; `claim_id` must not come from a line saying "not affected",
+  "processed separately" or "related claim". This covers step 4 (cross-field consistency) as schema rules.
+- **`AMBIGUOUS`**: the prompt asks for it when more than one value fits; it is rejected like `NOT_FOUND`.
+
+**`wrong` counts, n=20 per cell** (a wrong value is accepted and would be typed into the portal):
+
+| | blocks, desc | blocks, no desc | pageindex, desc | pageindex, no desc |
+|---|---|---|---|---|
+| Before, `SYN-DENIAL-01` | 0 | **cpt 2** (36415) | 0 | 0 |
+| Before, `two_denied` | **cpt 20, billed 20** | **cpt 20, billed 15** | 0 | 0 |
+| Before, other 3 cases | 0 | 0 | 0 | 0 |
+| **After, all 5 cases, every field** | **0** | **0** | **0** | **0** |
+
+`pageindex` was already at 0 before, because its agent listed both denied codes in one answer,
+which then failed the presence check. The "before, pageindex, no desc" `decoy_first` cell was rerun on
+a clean checkout of the previous commit after a mid-run schema edit crashed it.
+
+**Correct counts after** (the cost of being strict):
+- With descriptions: `blocks` 20/20 on every field of `SYN-DENIAL-01`, `MED-CMS-01`, `swapped` and
+  `decoy_first`; `two_denied` 19/20 on `date_of_service`. `pageindex` 20/20 on `MED-CMS-01`
+  and `two_denied`; 19/20 on date, billed amount and CPT for the other three letters (one run each).
+  So 10.3's "stays at 20/20" holds for `blocks` and misses by one run per letter for `pageindex`.
+- Without descriptions, rejections rise sharply. For example, `blocks` rejects CPT, billed amount and
+  date 20/20 on the base letter. The model answers `AMBIGUOUS` for CPT and billed amount (with no
+  description it cannot tell which line is meant), and it quotes the date from the paid row, which
+  `evidence_must_match` rejects. CMS reason/remark codes are `AMBIGUOUS` 20/20 without descriptions.
+  Safe, but it means descriptions are still needed to fill those fields.
+
+**Other checks:**
+- Receipt snippets: `date_of_service`, `billed_amount` and `cpt_code` all cite
+  `2 2026-06-14 99214Office visit, … $412.00 $0.00 Denied`. Before, the date cited the paid row.
+  Test: `test_receipt_snippet_is_the_row_the_value_came_from`.
+- Unit tests: one per rule and failure (`no evidence quote`, quote not on page, value not in quote,
+  `evidence_must_match` with a trimmed quote, `evidence_must_not_match`, `same_row_as`, `AMBIGUOUS`,
+  parser): `tests/test_index_bridge.py`, 19 tests. Full suite: 262 passed, 2 pre-existing failures.
+- Live: `SOLARI_LIVE_TESTS=1 pytest tests/test_index_live.py` 2 passed. `run_arc_index_live.py --backend
+  solari --index pageindex` twice: 12/12 fields correct in the portal, both confirmation codes matched,
+  fill + submit ~6.0 s (`artifacts/benchmarks/arc_index_live_solari_pageindex_20260929-111024.json`, `-111127.json`).
+
+### 10.6 Still open
+
+1. **Ambiguity is caught by the model, not by a rule.** On `two_denied` every rejection of CPT and
+   billed amount is the model answering `AMBIGUOUS`. If it had picked one denied row, both would pass
+   every rule: the row matches `denied`, not `paid`, and holds the other field. A deterministic check
+   needs row segmentation (which lines form one table row) so the check can count candidate rows
+   matching the rule; pypdf's wrapped rows make that non-trivial.
+2. **Block-level PageIndex** (10.2 step 5): needs `PAGEINDEX_API_KEY`; not started.
+3. **One-run misses on `pageindex`** (19/20, above): not yet diagnosed.
+4. The rules are only as good as the schema. `rcm_denial.json` has them; `medicare_redetermination.json`
+   and `invoice_ap.json` get the evidence check but no row rules yet.

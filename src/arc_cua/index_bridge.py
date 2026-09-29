@@ -16,6 +16,34 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger("arc_cua.index_bridge")
 
+_PUNCT = str.maketrans({"\u2013": "-", "\u2014": "-", "\u2018": "'", "\u2019": "'",
+                        "\u201c": '"', "\u201d": '"', "\u00a0": " "})
+
+
+def _norm(s: str) -> str:
+    """Letters and digits only: how values are compared with source text."""
+    return re.sub(r"[^a-z0-9]", "", str(s).lower())
+
+
+def _squash(s: str) -> str:
+    """Drop whitespace and markdown marks. PDF text runs cells together ("99214Office") while
+    a model's quote spaces them out, so quotes are located on the page in this form."""
+    return re.sub(r"[\s|*`]", "", str(s).translate(_PUNCT).lower())
+
+
+def _locate(quote: str, lines: List[str]) -> Optional[Tuple[int, int]]:
+    """(first, last) index of the lines a quote spans, or None if it is not in them."""
+    q = _squash(quote)
+    if not q:
+        return None
+    text, owner = "", []
+    for k, line in enumerate(lines):
+        piece = _squash(line)
+        text += piece
+        owner += [k] * len(piece)
+    i = text.find(q)
+    return None if i < 0 else (owner[i], owner[i + len(q) - 1])
+
 
 @dataclasses.dataclass(frozen=True)
 class CitationAnchor:
@@ -45,6 +73,8 @@ class ExtractedField:
     normalized_str: str = ""
     validation_status: bool = True
     error_message: Optional[str] = None
+    # Verbatim quote of the row or sentence the value came from, as the model gave it.
+    evidence: Optional[str] = None
 
     def __post_init__(self):
         if not self.normalized_str:
@@ -63,6 +93,11 @@ class FieldTarget:
     # How source documents label this field, for the extraction prompt (form label_hints
     # describe the portal, which often words it differently from the document).
     description: Optional[str] = None
+    # Evidence rules, checked against the whole source lines the evidence quote spans
+    # (not the model's quote, which could be trimmed to dodge them). Failing one rejects the field.
+    evidence_must_match: Optional[str] = None       # regex the source row must match, e.g. "(?i)denied"
+    evidence_must_not_match: Optional[str] = None   # regex it must not match, e.g. "(?i)\bpaid\b"
+    same_row_as: Optional[List[str]] = None         # fields whose accepted values must be in this row
 
 
 @dataclasses.dataclass
@@ -159,8 +194,11 @@ class ArcIndexBridge:
         cite = '<cite doc=".." page=".." block=".."/>' if blocks else '<cite doc=".." page=".."/>'
         prompt = (
             f"Extract the following fields for schema '{schema.schema_id}'. "
-            f"Answer with one line per field as `field_name: value {cite}`, citing where the value is. "
-            "If a field is not in the document, write `field_name: NOT_FOUND`.\n"
+            f"Answer with one line per field as `field_name: value | evidence: QUOTE {cite}`, citing where "
+            "the value is. QUOTE is a verbatim copy of the whole table row (first cell to last, even when "
+            "the row wraps onto more lines) or sentence the value is in. "
+            "If a field is not in the document, write `field_name: NOT_FOUND`. If more than one different "
+            "value fits a field, write `field_name: AMBIGUOUS`.\n"
             + "\n".join(f"- {f.field_name}: {f.description or ', '.join(f.label_hints)}" for f in schema.fields)
         )
         response_text = self.pageindex.chat(prompt, doc_id=doc_id)
@@ -169,30 +207,84 @@ class ArcIndexBridge:
             # A page-level index cannot back a block id; don't let the receipt carry one.
             for f in fields:
                 f.citation = dataclasses.replace(f.citation, block_id=None)
-        return self.verify_grounding(doc_id, fields)
+        return self.verify_grounding(doc_id, fields, schema)
 
-    def verify_grounding(self, doc_id: str, fields: List[ExtractedField]) -> List[ExtractedField]:
-        """Reject fields whose cited source does not contain the value.
+    def verify_grounding(
+        self, doc_id: str, fields: List[ExtractedField], schema: Optional[DocumentActionSchema] = None,
+    ) -> List[ExtractedField]:
+        """Reject every field not shown to be the right value at the cited place.
 
-        The client's `verify_citation(doc_id, citation, value)` returns the supporting text
-        (block or page, depending on the index) or None. A client without it cannot be
+        A client with `page_lines(doc_id, page)` gets the evidence check: the field's evidence
+        quote must be on the cited page and contain the value; the whole source lines it spans
+        become the receipt snippet, and the schema's evidence rules are checked on those lines.
+        A client with only `verify_citation(doc_id, citation, value)` gets the older presence
+        check (the cited block or page contains the value). A client with neither cannot be
         checked: its citations are taken on trust and fields pass through unchanged.
         """
+        lines_of = getattr(self.pageindex, "page_lines", None)
         check = getattr(self.pageindex, "verify_citation", None)
+        specs = {f.field_name: f for f in schema.fields} if schema else {}
         for f in fields:
-            if f.normalized_str.upper() == "NOT_FOUND":
-                f.validation_status, f.error_message = False, "not found in document"
-                continue
-            if check is None or not f.validation_status:
-                continue
-            snippet = check(doc_id, f.citation, f.normalized_str)
-            if snippet:
-                f.citation = dataclasses.replace(f.citation, text_snippet=snippet)
-            else:
-                where = f"block {f.citation.block_id}" if f.citation.block_id else f"page {f.citation.page}"
+            marker = f.normalized_str.upper()
+            if marker in ("NOT_FOUND", "AMBIGUOUS"):
                 f.validation_status = False
-                f.error_message = f"value not in cited {where}"
+                f.error_message = "not found in document" if marker == "NOT_FOUND" else "more than one value fits"
+                continue
+            if not f.validation_status:
+                continue
+            if lines_of is not None:
+                self._check_evidence(doc_id, f, specs.get(f.field_name), lines_of)
+            elif check is not None:
+                snippet = check(doc_id, f.citation, f.normalized_str)
+                if snippet:
+                    f.citation = dataclasses.replace(f.citation, text_snippet=snippet)
+                else:
+                    where = f"block {f.citation.block_id}" if f.citation.block_id else f"page {f.citation.page}"
+                    f.validation_status = False
+                    f.error_message = f"value not in cited {where}"
+        if lines_of is not None:
+            self._check_same_row(fields, specs)
         return fields
+
+    @staticmethod
+    def _check_evidence(doc_id: str, f: ExtractedField, spec: Optional[FieldTarget],
+                        lines_of: Callable[[str, int], List[Tuple[Optional[str], str]]]) -> None:
+        def reject(msg: str) -> None:
+            f.validation_status, f.error_message = False, msg
+
+        if not f.evidence:
+            return reject("no evidence quote")
+        if _norm(f.normalized_str) not in _norm(f.evidence):
+            return reject("value not in its evidence quote")
+        lines = lines_of(doc_id, f.citation.page) if f.citation.page >= 1 else []
+        span = _locate(f.evidence, [text for _, text in lines])
+        if span is None:
+            return reject(f"evidence quote not on cited page {f.citation.page}")
+        row = " ".join(lines[k][1] for k in range(span[0], span[1] + 1))
+        if spec and spec.evidence_must_match and not re.search(spec.evidence_must_match, row):
+            return reject(f"source row does not match /{spec.evidence_must_match}/")
+        if spec and spec.evidence_must_not_match and re.search(spec.evidence_must_not_match, row):
+            return reject(f"source row matches /{spec.evidence_must_not_match}/")
+        ids = [lines[k][0] for k in range(span[0], span[1] + 1) if lines[k][0]]
+        block = (ids[0] if len(ids) == 1 else f"{ids[0]}..{ids[-1]}") if ids else None
+        # The receipt cites the source lines the check verified, not the id the model wrote.
+        f.citation = dataclasses.replace(f.citation, text_snippet=row, block_id=block)
+
+    @staticmethod
+    def _check_same_row(fields: List[ExtractedField], specs: Dict[str, FieldTarget]) -> None:
+        """A field's source row must contain the accepted value of each `same_row_as` field.
+        Failures are collected before any is applied, so field order does not matter."""
+        accepted = {f.field_name: f for f in fields if f.validation_status}
+        failed = []
+        for f in accepted.values():
+            spec = specs.get(f.field_name)
+            for other in (spec.same_row_as or []) if spec else []:
+                o = accepted.get(other)
+                if o and _norm(o.normalized_str) not in _norm(f.citation.text_snippet or ""):
+                    failed.append((f, other))
+        for f, other in failed:
+            f.validation_status = False
+            f.error_message = f"source row does not contain {other} ({accepted[other].normalized_str})"
 
     @staticmethod
     def _parse_extracted_fields(
@@ -210,13 +302,16 @@ class ArcIndexBridge:
                 continue
             name, rest = m.group(1), m.group(2)
             cites = ArcIndexBridge.parse_citations(rest, default_doc)
-            value = re.sub(r"<cite\s[^>]*/?>|<doc=[^<>]*>", "", rest).strip().strip("`\"'").strip()
+            text = re.sub(r"<cite\s[^>]*/?>|<doc=[^<>]*>", "", rest)
+            value, evidence = (re.split(r"\|\s*evidence\s*:", text, maxsplit=1, flags=re.I) + [""])[:2]
+            value = value.strip().strip("`\"'*").strip()
+            evidence = evidence.strip().strip("`\"'*").strip() or None
             if cites:
-                fields.append(ExtractedField(name, value, cites[0]))
+                fields.append(ExtractedField(name, value, cites[0], evidence=evidence))
             else:
                 fields.append(ExtractedField(
                     name, value, CitationAnchor(default_doc, 0, confidence=0.0),
-                    validation_status=False, error_message="no citation anchor",
+                    validation_status=False, error_message="no citation anchor", evidence=evidence,
                 ))
         return fields
 
