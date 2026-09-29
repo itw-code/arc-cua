@@ -341,8 +341,8 @@ Status as of 2026-09-29:
 3. ~~Verify local pipeline execution against simulated denial letter fixture.~~ Done, and run live on
    Solari with real PageIndex (Section 9).
 4. ~~Fix the grounding weakness (Section 10).~~ Done for steps 1–4: `wrong=0` on every field,
-   variant and index (10.5). Open: block-level PageIndex (needs a cloud key) and a deterministic
-   ambiguity check (10.6).
+   variant and index (10.5). The ambiguity check is deterministic since 10.7 (a
+   model that picks one of two denied rows is rejected). Open: block-level PageIndex (needs a cloud key), 10.6.
 
 ---
 
@@ -435,7 +435,7 @@ the runner sits next to the browser; the in-VM runner in Section 2 does not exis
 
 ## 10. Make Grounding Check *Correctness*, Not Just Presence
 
-**Status: steps 1–4 done 2026-09-29; results in 10.5, what is still open in 10.6.** Sections 10.1–10.4
+**Status: steps 1–4 done 2026-09-29; results in 10.5, the uniqueness rule in 10.7, what is still open in 10.6.** Sections 10.1–10.4
 are the plan as written before the work.
 
 ### 10.1 The weakness
@@ -559,12 +559,56 @@ a clean checkout of the previous commit after a mid-run schema edit crashed it.
 
 ### 10.6 Still open
 
-1. **Ambiguity is caught by the model, not by a rule.** On `two_denied` every rejection of CPT and
-   billed amount is the model answering `AMBIGUOUS`. If it had picked one denied row, both would pass
-   every rule: the row matches `denied`, not `paid`, and holds the other field. A deterministic check
-   needs row segmentation (which lines form one table row) so the check can count candidate rows
-   matching the rule; pypdf's wrapped rows make that non-trivial.
+1. ~~**Ambiguity is caught by the model, not by a rule.**~~ Done 2026-09-29, see 10.7.
 2. **Block-level PageIndex** (10.2 step 5): needs `PAGEINDEX_API_KEY`; not started.
 3. **One-run misses on `pageindex`** (19/20, above): not yet diagnosed.
 4. The rules are only as good as the schema. `rcm_denial.json` has them; `medicare_redetermination.json`
    and `invoice_ap.json` get the evidence check but no row rules yet.
+5. **`claim_id` is still guarded by wording.** `decoy_first` is rejected by
+   `evidence_must_not_match` (`related claim|not affected|processed separately`); a letter that words
+   the other claim differently would get past it. The uniqueness rule (10.7) needs table rows, and
+   claim numbers sit in prose, so it does not cover this yet.
+
+### 10.7 Uniqueness rule: ambiguity rejected by the check, not the model (2026-09-29)
+
+**The gap (10.6 item 1).** On `two_denied`, CPT and billed amount were kept out only because the
+model answered `AMBIGUOUS`. A model that picked one denied row passed every rule: the row matches
+`denied`, not `paid`, and holds the other field.
+
+**Built:**
+- **Row segmentation** (`_rows`, `FieldTarget.row_start` / `row_end`): a row starts at a line matching
+  `row_start` and runs to the line before the next start, or through the first line matching `row_end`,
+  so pypdf's wrapped rows join up and the prose under the table does not join the last row.
+  `rcm_denial.json`: start `^[\s|]*\d+[\s|]+\d{4}-\d{2}-\d{2}` (line number, date; a leading `|` is
+  allowed for markdown tables), end at a trailing status (`denied|paid|adjusted|pending`).
+- **Evidence must lie in one row.** With `row_start` set, the quote's lines must fall inside one
+  segmented row (else `evidence quote is not within one table row on page N`, which is also the
+  fail-closed result when no rows are found). The rules and the receipt snippet use the **whole row**,
+  however much of it the quote covers.
+- **Uniqueness.** Every row on the cited page is checked against `evidence_must_match` /
+  `evidence_must_not_match`. If more than one row passes and their `value_pattern` values differ,
+  the field is rejected: `2 rows fit: 93000 / 99214`. If they agree (both denied rows are dated
+  2026-06-14), the value is not ambiguous and is kept.
+- Tests: `test_two_denied_rows_reject_a_confident_pick` (either pick), `…_accepted_without_the_row_rule`,
+  `test_evidence_outside_a_table_row_is_rejected`, `test_a_partial_quote_is_checked_against_its_whole_row`.
+  `tests/test_index_bridge.py` 24 passed; full suite 267 passed, the same 2 pre-existing failures.
+
+**Measured** (`scripts/eval_offline.py`). The model calls were made by Claude Sonnet 5.5 subagents
+(Claude Code, no API key); each of 8 runs answered all 8 prompts once, in its own random order. The
+same answers are then graded three ways, so any difference between columns is the check alone. Mode
+`pick` replaces the `AMBIGUOUS` instruction with "give the one that fits best", forcing a choice.
+
+| Wrong values accepted, n=8 per cell | presence (old) | evidence (10.5) | + rows (10.7) |
+|---|---|---|---|
+| `two_denied`, `pick` | **16** (cpt 99214 ×8, billed $412.00 ×8) | **16** | **0** |
+| `two_denied`, `default` | 0 (model: `AMBIGUOUS` 8/8) | 0 | 0 |
+| base, `swapped`, `decoy_first`, both modes | 0 | 0 | 0 |
+
+Correct counts with the row rule: 8/8 on every field of base, `swapped` and `decoy_first` in both
+modes, and 8/8 on `two_denied`'s claim, patient, date and denial code; no false rejections.
+Grades: `artifacts/benchmarks/offline/sonnet-5.5_grades.json`; prompts and answers alongside.
+
+Caveats: a subagent is not a bare model call (it carries Claude Code's system prompt and tools), so
+these runs say nothing about latency or cost; n=8, not 20; fixtures only, and the rows are found by a
+schema regex, so a table laid out differently needs its own `row_start`/`row_end`. Not rerun on
+Gemini or PageIndex; the rule does not depend on the model, and the unit tests cover it on the index side.
