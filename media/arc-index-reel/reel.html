@@ -568,6 +568,7 @@ function drawHUD(t) {
 
 // End-card tally: wrong values accepted on the two-denied-lines decoy letter, block index, n=20
 // (ARC_INDEX_PLAN.md 10.5): 40 with the old presence check (CPT 20 + billed 20), 0 with the evidence check.
+// Caption: with the row rule (10.7) a prompt forcing the model to pick a row also gives 0 (Sonnet 5.5, n=8).
 function drawTally(t) {
   const a = seg(t, 13.95, 14.25); if (a <= 0) return;
   const x0 = 1130, y0 = 765, bx = x0 + 300, bw = 330, grow = eo(seg(t, 14.15, 14.6));
@@ -580,7 +581,7 @@ function drawTally(t) {
     if (w > 0) { g.fillStyle = col; g.fillRect(bx, y - 22, w, 26); }
     T(String(Math.round(n * grow)), bx + bw + 24, y + 6, F.s(64), col);
   });
-  T('wrong values accepted · now answered AMBIGUOUS', x0, y0 + 164, F.m(400, 24), C.ink2, { a: seg(t, 14.45, 14.7) });
+  T('wrong values let through: 40 → 0 · forced pick: 0', x0, y0 + 164, F.m(400, 24), C.ink2, { a: seg(t, 14.45, 14.7) });
   g.restore();
 }
 
