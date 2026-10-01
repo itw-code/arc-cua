@@ -4,6 +4,17 @@ All notable technical achievements, deliverables, and performance benchmarks acr
 
 ---
 
+## 2026-10-01: Hybrid System-1 / System-2 decisions, measured
+
+- Colab gateway `/v1/systemone` scores options by next-token probability via SGLang `/v1/score` (0 generated tokens); hardcoded confidences and the `options[0]` fallback removed. NEXTN speculative decoding is off (does not fit the L4).
+- `LayaWireAdapter` (`src/arc_cua/index_bridge.py`) calls the real `laya` API; used by `HybridDecisionClient` and `scripts/admin_organizer.py`. Threshold 0.44, fitted by `benchmark/calibrate_threshold.py`.
+- `benchmark/run_arc_benchmark.py` rewritten on ground-truth tasks (`benchmark/decision_tasks.py`); no simulated outcomes. D vs A: page Recall@1 56.9% → 100%, pin accuracy 79.2% → 98.6%, Pass@1 0% → 91.7%.
+- `scripts/run_arc_index_live.py --binder hybrid`: reworded-label form 3/6 → 6/6 fields received; every live pin decision escalated to Colab.
+- Laya measured: ~565 ms (CPU) / ~38 ms (L4) per call, 15% right on page lookups. Sub-20 ms System-1 is not supported.
+- Reels: `media/hybrid-decision-reel/` → `artifacts/hybrid-decision-{index,arc}-showreel.mp4`.
+
+---
+
 ## Phase 1: MicroVM Foundation & Perceptual Extraction
 
 - **Objective:** Establish the low-level micro-runtime and extraction bridges interfacing directly with Linux Firecracker MicroVMs, Chrome DevTools Protocol (CDP), and desktop accessibility APIs (AT-SPI2 D-Bus) without LLM latency overhead.
@@ -283,3 +294,26 @@ All notable technical achievements, deliverables, and performance benchmarks acr
     - Jev's 7.1 s Flights is not matched. ARC's reads of the large, changing Flights tree now cost more than the model.
   - `tests/test_reflex_policy.py`: parsing, and a scripted-model episode on the soft-navigation fixture.
 
+---
+
+## Phase 17: Per-Glyph Text Coalescing
+
+- **Objective:** Fix a live defect found while smoke-testing the MCP path: on pages whose text is laid out with per-character boxes, Chromium emits **one `StaticText` node per glyph**, and the sanitizer emitted one YAML line per node — so the 1,200-token budget was spent on individual letters and the page's affordances never appeared.
+- **Measured defect (before):** `example.com` produced 1,569 raw nodes of which 785 were `StaticText` and **763 were single characters**; the tree cost ~1,097 tokens and truncated with `actionable_count = 1` — the "Learn more" link was the only thing left, and the page text rendered as `T h i s d o m a i n…`.
+- **Key Deliverables:**
+  - `src/arc_cua/cdp_extractor.py`:
+    - `_coalesce_text_runs()`: adjacent `StaticText`/`InlineTextBox` siblings that are non-actionable and childless are merged into one node, in `_prune_node` after child processing, so the merge applies at every level.
+    - Text-role names are no longer `.strip()`ed. Chromium's per-glyph nodes carry their separator spaces as part of the name (`' النطاق'`); stripping them concatenated every sentence into a single word. Non-text roles are stripped as before.
+    - New `TEXT_RUN_ROLES` constant documents the roles Chromium splits this way.
+- **Results (after, live local Chromium):**
+
+| Page | Raw nodes | Tokens before | Tokens after | Actionables before | After |
+|---|---:|---:|---:|---:|---:|
+| example.com | 1,569 | 1,097 (truncated) | **291** (fits) | 1 | 1 |
+| news.ycombinator.com | 1,624 | 1,198 | 1,190 | 119 | **118** |
+| en.wikipedia.org/wiki/Web_browser | 5,384 | 1,192 | 1,192 | 65 | 65 |
+| github.com/microsoft/playwright | 3,187 | 1,187 | 1,187 | 67 | 67 |
+| docs.python.org asyncio-task | 9,793 | 1,200 | 1,200 | 72 | 72 |
+
+  On `example.com` the text now renders as readable sentences in the correct script order, including RTL (`هذا النطاق مُخصص للاستخدام…`) and CJK, and the tree fits the budget without truncation.
+- **Final Test Count:** **245 passed, 1 skipped** with `SOLARI_API_KEY` unset (`env -u SOLARI_API_KEY python -m pytest tests/ -q`), i.e. the 242 that passed before this phase plus the 3 new regression tests. The 2 failures in `test_phase1_remediation.py` seen in a shell that exports `SOLARI_API_KEY` are environment artifacts, not regressions: they assert the discovery cascade's `arc_cloud`/`tunnel` outcomes, but the driver correctly resolves `solari_cloud` first (source line 121: `transport = "solari_cloud" if os.environ.get("SOLARI_API_KEY") else "arc_cloud"`). They fail identically on the unmodified tree. The 3 new tests in `tests/test_layout_perception.py` cover glyph-run coalescing, separator-space preservation, and non-merge of actionable nodes.
