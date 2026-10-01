@@ -122,6 +122,10 @@ NAME_FROM_CONTENT_ROLES: Set[str] = {
 # Structural containers that carry no information when empty (no name, no children).
 STRUCTURAL_ROLES: Set[str] = NAME_FROM_CONTENT_ROLES | {"table", "list", "grid", "treegrid"}
 
+# Text roles Chromium splits one node per glyph or per word. Adjacent siblings of these
+# roles are coalesced back into a single node before serialization (see _coalesce_text_runs).
+TEXT_RUN_ROLES: Set[str] = {"StaticText", "InlineTextBox"}
+
 # Upper bound on evict-and-reserialize passes. Each pass evicts one tier only, so empty
 # structure left behind by a pass is reconsidered before any affordance is touched.
 MAX_EVICTION_PASSES = 12
@@ -129,6 +133,35 @@ MAX_EVICTION_PASSES = 12
 
 def _words(text: str) -> Set[str]:
     return set(re.findall(r"\w+", text.lower()))
+
+
+def _coalesce_text_runs(children: List["AXNode"]) -> List["AXNode"]:
+    """Merge adjacent StaticText siblings into one node.
+
+    Chromium emits one StaticText node per glyph for text laid out with per-character
+    boxes (`StaticText "T"`, `StaticText "h"`, ...). 763 of the 785 text nodes on
+    example.com were single characters, so the YAML spent one line and one node per
+    letter and the 1,200-token budget ran out before the page's single link was reached.
+    Runs are merged when at least two adjacent text siblings exist, which also collapses
+    word-split text (median StaticText length is 4-6 characters on real pages).
+    """
+    merged: List["AXNode"] = []
+    for child in children:
+        previous = merged[-1] if merged else None
+        if (
+            previous is not None
+            and previous.role == child.role
+            and child.role in TEXT_RUN_ROLES
+            and not child.children
+            and not previous.children
+            and previous.index is None
+            and child.index is None
+        ):
+            previous.name = f"{previous.name}{child.name}"
+            previous.text = previous.name
+            continue
+        merged.append(child)
+    return merged
 
 
 def _subtree_text(nodes: List["AXNode"]) -> str:
@@ -912,7 +945,11 @@ class CDP_AXTree_Extractor:
 
         name_obj = node.get("name", {})
         name = name_obj.get("value", "") if isinstance(name_obj, dict) else str(name_obj)
-        name = name.strip() if name else ""
+        # Text roles keep their name verbatim: Chromium emits one node per glyph, so the
+        # spaces separating words are part of these names (' النطاق'). Stripping them
+        # concatenates every sentence into one word. Non-text roles are stripped normally.
+        if name and name.strip() and role not in TEXT_RUN_ROLES:
+            name = name.strip()
 
         val_obj = node.get("value", {})
         value = val_obj.get("value", None) if isinstance(val_obj, dict) else None
@@ -943,6 +980,10 @@ class CDP_AXTree_Extractor:
             if child_node:
                 child_results = self._prune_node(child_node, node_map, dom_handlers, dom_hidden, dom_attrs, action_map)
                 sanitized_children.extend(child_results)
+
+        # Chromium splits laid-out text into one node per glyph/word; rejoin the runs so a
+        # sentence costs one line instead of one line per character.
+        sanitized_children = _coalesce_text_runs(sanitized_children)
 
         # A container named from its contents repeats its whole subtree; when the children
         # already carry every word of it, keep the children and drop the name.

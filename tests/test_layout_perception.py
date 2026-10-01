@@ -176,3 +176,57 @@ def test_evicted_index_listed_in_notice_is_actionable(session):
     result = session.act("click", index=evicted[-1])
     assert result["success"] is True, result
     assert session.page.text_content("#last-action") != "none"
+
+
+# --- per-glyph text coalescing (Phase 17) ------------------------------------------------------
+
+def test_per_glyph_static_text_is_coalesced_into_sentences():
+    """Chromium emits one StaticText per glyph; the YAML must show sentences, not letters.
+
+    Regression for the live run where example.com produced 785 text nodes, 763 of them single
+    characters, and the tree truncated with the page text rendered as 'T h i s d o m a i n'.
+    """
+    glyphs = "This domain is for use".split(" ")
+    children = []
+    nid = 10
+    for i, word in enumerate(glyphs):
+        for ch in word:
+            children.append(ax(nid, "StaticText", ch))
+            nid += 1
+        children.append(ax(nid, "StaticText", " "))
+        nid += 1
+    nodes = [
+        ax(1, "RootWebArea", "Example Domain", [2]),
+        ax(2, "paragraph", "", [c["nodeId"] for c in children]),
+        *children,
+    ]
+    tree = CDP_AXTree_Extractor().sanitize(nodes)
+    assert 'StaticText "This domain is for use "' in tree.yaml_linearized
+    assert tree.yaml_linearized.count("StaticText") == 1
+
+
+def test_text_separator_spaces_are_not_stripped():
+    """The spaces between words arrive as their own glyph nodes and must survive coalescing."""
+    nodes = [
+        ax(1, "RootWebArea", "Page", [2]),
+        ax(2, "paragraph", "", [3, 4]),
+        ax(3, "StaticText", " هذا"),
+        ax(4, "StaticText", " النطاق"),
+    ]
+    tree = CDP_AXTree_Extractor().sanitize(nodes)
+    assert 'StaticText " هذا النطاق"' in tree.yaml_linearized
+
+
+def test_actionable_text_nodes_are_not_merged():
+    """A merge must never absorb an indexed affordance into neighbouring text."""
+    nodes = [
+        ax(1, "RootWebArea", "Page", [2, 3, 4]),
+        ax(2, "StaticText", "before"),
+        ax(3, "button", "Press", backendDOMNodeId=30),
+        ax(4, "StaticText", "after"),
+    ]
+    tree = CDP_AXTree_Extractor().sanitize(nodes)
+    assert tree.actionable_count == 1
+    assert '[#1] button "Press"' in tree.yaml_linearized
+    assert 'StaticText "before"' in tree.yaml_linearized
+    assert 'StaticText "after"' in tree.yaml_linearized
