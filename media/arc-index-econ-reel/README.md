@@ -19,7 +19,11 @@ Every figure is measured (`scripts/benchmark_appeal_baseline.py`, `artifacts/ben
 
 On accuracy the two tie here. Both filled 49 of 60 graded fields correctly and let no wrong value through. The difference is how they get there: the agent follows its instruction, while ARC rejects ambiguous fields by rule, whatever the model answers (`media/arc-index-bench-reel/`).
 
-- `econ.html`: a 1920×1080 canvas, `window.render(t)`. It uses the same helpers as the other two reels, with the figures in one `D` object at the top.
-- `render.py` and `soundtrack.py`: as in `media/arc-index-bench-reel/`.
+- `econ.html`: a 1920×1080 canvas, `window.render(t)`. Same palette, type and helpers as the companion `media/hybrid-decision-reel/reel.html` and `scenes.js`: deployed page tokens (void #0A0A0F, primary blue #2563EB / glow #60A5FA, coral #FF6B6B for the losing side, Inter + JetBrains Mono, 44 px top-masked grid, glass cards, pill chips, ARC mark chrome). `?t=5.5` freezes a frame, `?clean=1` holds for export.
+- `soundtrack.py`: 15 s, 48 kHz stereo, numpy only (no samples). Regenerate with `python soundtrack.py assets/soundtrack.wav`.
 
-Encode as in `media/arc-index-bench-reel/README.md`, with `arc-index-economics-showreel.mp4` as the output.
+Encode (single pass, CRF 18, with audio):
+
+    ffmpeg -framerate 60 -i frames/f%04d.png -i assets/soundtrack.wav -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart ../../artifacts/arc-index-economics-showreel.mp4
+
+Poster: `ffmpeg -ss 10.6 -i ../../artifacts/arc-index-economics-showreel.mp4 -frames:v 1 -update 1 -q:v 3 ../../artifacts/arc-index-economics-showreel-poster.jpg`.

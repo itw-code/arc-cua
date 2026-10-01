@@ -1,0 +1,177 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>ARC hybrid decisions</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<style>
+html,body{margin:0;height:100%;background:#0A0A0F;overflow:hidden}
+canvas{position:absolute;inset:0;margin:auto;width:min(100vw,177.78vh);height:min(56.25vw,100vh)}
+</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// Hybrid-decision reel: 19.2 s, window.render(t); ?v=index|arc. Helpers copied from media/arc-index-bench-reel/bench.html.
+const W = 1920, H = 1080, DUR = 19.2;
+// Tokens from the deployed page (index.html): --bg #0A0A0F, --primary #2563EB,
+// --primary-glow #60A5FA, --secondary #FF6B6B, slate text, 44 px grid, glass cards.
+const C = {
+  paper: '#0A0A0F', ink: '#E2E8F0', ink2: '#94A3B8', dim: '#475569',
+  red: '#60A5FA', blue: '#2563EB', bad: '#FF6B6B', line: 'rgba(148,163,184,.12)',
+  card: 'rgba(13,20,36,.78)', track: '#1E293B',
+};
+const F = {
+  s: (px, it) => `${px >= 90 ? 800 : it ? 400 : 500} ${px}px "Inter"`,
+  m: (w, px) => `${w} ${px}px "JetBrains Mono"`,
+  u: (w, px) => `${w} ${px}px "Inter"`,
+};
+
+// ---------- helpers (as in media/arc-index-reel/reel.html) ----------
+function rng(s) { const x = Math.sin(s * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const eo = p => p >= 1 ? 1 : 1 - Math.pow(2, -10 * p);
+const eio = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const eb = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+
+let g;
+function T(s, x, y, font, color, o = {}) {
+  const a = o.a ?? 1; if (a <= 0) return;
+  g.save(); g.globalAlpha *= a; g.font = font;
+  if (color === 'GRAD') {
+    g.letterSpacing = (o.ls || 0) + 'px'; const w = g.measureText(s).width, x0 = o.align === 'right' ? x - w : x;
+    const gr = g.createLinearGradient(x0, 0, x0 + w, 0);
+    gr.addColorStop(0, '#93C5FD'); gr.addColorStop(.5, '#60A5FA'); gr.addColorStop(1, '#2563EB');
+    color = gr; g.shadowColor = 'rgba(37,99,235,.55)'; g.shadowBlur = 40;
+  } else if (o.glow) { g.shadowColor = o.glow; g.shadowBlur = 36; }
+  g.fillStyle = color;
+  g.textAlign = o.align || 'left'; g.textBaseline = o.base || 'alphabetic'; g.letterSpacing = (o.ls ?? (/^8\d\d /.test(font) ? -parseInt(font.split(' ')[1]) * .035 : 0)) + 'px';
+  g.fillText(s, x, y); g.restore();
+}
+function tw(s, font, ls = /^8\d\d /.test(font) ? -parseInt(font.split(' ')[1]) * .035 : 0) { g.save(); g.font = font; g.letterSpacing = ls + 'px'; const w = g.measureText(s).width; g.restore(); return w; }
+function rr(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+function rise(s, x, y, font, color, px, p, out = 0, a = 1) {
+  if (p <= 0 || out >= 1) return;
+  const w = tw(s, font);
+  g.save(); g.beginPath(); g.rect(x - 30, y - px * 1.02, w + 80, px * 1.32); g.clip();
+  T(s, x, y + px * 1.05 * (1 - eo(p)) - px * 1.3 * eio(out), font, color, { a });
+  g.restore();
+}
+function headline(t, words, x, y, px, t0, st, out = 0) {
+  let cx = x; const sp = tw(' ', F.s(px));
+  words.forEach((w, i) => {
+    const o = typeof w === 'string' ? { s: w } : w; const f = F.s(px, o.it);
+    rise(o.s, cx, y, f, o.c || (o.it ? 'GRAD' : C.ink), px, seg(t, t0 + i * st, t0 + i * st + .6), out);
+    cx += tw(o.s, f) + sp;
+  });
+  return cx - x;
+}
+function slam(drawFn, x, y, p, rot = 0, sc0 = 2.3) {
+  if (p <= 0) return;
+  const e = eo(p), s = lerp(sc0, 1, e), off = (1 - e) * 30;
+  g.save(); g.translate(x, y); g.rotate(rot); g.scale(s, s); g.globalAlpha *= clamp(p * 5);
+  g.save(); g.globalCompositeOperation = 'multiply'; g.translate(-off, off * .5); drawFn(C.blue, .7 * (1 - e)); g.restore();
+  g.save(); g.globalCompositeOperation = 'multiply'; g.translate(off, -off * .5); drawFn(C.redHot, .7 * (1 - e)); g.restore();
+  drawFn(null, 1);
+  g.restore();
+}
+// A hand-drawn outline around a box, drawn along its perimeter as p goes 0 -> 1.
+function outline(x, y, w, h, p, color, lw = 5, dash = null) {
+  if (p <= 0) return;
+  const P = 2 * (w + h), L = P * eio(p);
+  g.save(); g.strokeStyle = color; g.lineWidth = lw; g.lineCap = 'round'; g.lineJoin = 'round';
+  if (dash) g.setLineDash(dash);
+  let px = x, py = y, left = L;
+  g.beginPath(); g.moveTo(px, py);
+  for (const [dx, dy, len] of [[1, 0, w], [0, 1, h], [-1, 0, w], [0, -1, h]]) {
+    const d = Math.min(left, len);
+    px += dx * d; py += dy * d; g.lineTo(px, py);
+    left -= d; if (left <= 0) break;
+  }
+  g.stroke(); g.restore();
+}
+function check(x, y, s, p, color) {    // a tick mark drawn on
+  if (p <= 0) return;
+  g.save(); g.strokeStyle = color; g.lineWidth = s * .16; g.lineCap = 'round'; g.lineJoin = 'round';
+  const a = [x - s * .42, y], b = [x - s * .1, y + s * .32], c = [x + s * .45, y - s * .38];
+  const q = eio(p), l1 = .4;
+  g.beginPath(); g.moveTo(...a);
+  if (q < l1) g.lineTo(lerp(a[0], b[0], q / l1), lerp(a[1], b[1], q / l1));
+  else { g.lineTo(...b); const r = (q - l1) / (1 - l1); g.lineTo(lerp(b[0], c[0], r), lerp(b[1], c[1], r)); }
+  g.stroke(); g.restore();
+}
+function cross(x, y, s, p, color) {
+  if (p <= 0) return;
+  g.save(); g.strokeStyle = color; g.lineWidth = s * .16; g.lineCap = 'round';
+  const q1 = eio(clamp(p * 2)), q2 = eio(clamp(p * 2 - 1)), r = s * .38;
+  g.beginPath(); g.moveTo(x - r, y - r); g.lineTo(x - r + 2 * r * q1, y - r + 2 * r * q1);
+  if (q2 > 0) { g.moveTo(x + r, y - r); g.lineTo(x + r - 2 * r * q2, y - r + 2 * r * q2); }
+  g.stroke(); g.restore();
+}
+
+// ---------- background: paper, drifting light, dot grid ----------
+const GRAIN = [0, 1, 2, 3].map(k => {
+  const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d');
+  const d = x.createImageData(512, 512);
+  for (let i = 0; i < 512 * 512; i++) { const v = 128 + (rng(i * .731 + k * 977.1) - .5) * 180; d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = 255; }
+  x.putImageData(d, 0, 0); return c;
+});
+function drawPaper(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = C.paper; g.fillRect(0, 0, W, H);
+  // ambient glows, as the page's hero layers: blue from the top, a faint coral low right
+  const lx = 960 + Math.sin(t * .3) * 380;
+  let gr = g.createRadialGradient(lx, -120, 0, lx, -120, 1100);
+  gr.addColorStop(0, 'rgba(37,99,235,.30)'); gr.addColorStop(1, 'rgba(37,99,235,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const bx = 1650 - Math.sin(t * .2) * 200;
+  gr = g.createRadialGradient(bx, 1150, 0, bx, 1150, 700);
+  gr.addColorStop(0, 'rgba(255,107,107,.08)'); gr.addColorStop(1, 'rgba(255,107,107,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  // 44 px grid, masked to an ellipse at the top like the page's .grid-bg
+  const sp = 44, oy = (t * 5) % sp;
+  g.save(); g.strokeStyle = 'rgba(148,163,184,.07)'; g.lineWidth = 1; g.beginPath();
+  for (let x = .5; x < W; x += sp) { g.moveTo(x, 0); g.lineTo(x, H); }
+  for (let y = .5 - oy; y < H; y += sp) { g.moveTo(0, y); g.lineTo(W, y); }
+  g.stroke(); g.restore();
+  gr = g.createRadialGradient(960, 0, 300, 960, 0, 1250);
+  gr.addColorStop(0, 'rgba(10,10,15,0)'); gr.addColorStop(1, 'rgba(10,10,15,1)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+}
+</script><script src="scenes.js"></script><script>
+const cv = document.getElementById('c'), G0 = cv.getContext('2d');
+const OFF = document.createElement('canvas'); OFF.width = W; OFF.height = H; const G1 = OFF.getContext('2d');
+window.SAMPLES = 6; // sub-frame samples for motion blur (180° shutter at 60 fps)
+window.render = (t, S = window.SAMPLES) => {
+  t = clamp(t, 0, DUR - 1e-4);
+  const shutter = .5 / 60;
+  if (S <= 1) drawScene(t, G0);
+  else for (let k = 0; k < S; k++) {
+    drawScene(clamp(t - shutter * (1 - k / (S - 1)), 0, DUR), G1);
+    G0.setTransform(1, 0, 0, 1, 0, 0); G0.globalAlpha = 1 / (k + 1); G0.drawImage(OFF, 0, 0); G0.globalAlpha = 1;
+  }
+  g = G0; g.setTransform(1, 0, 0, 1, 0, 0);
+  const vg = g.createRadialGradient(960, 540, 420, 960, 540, 1250);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  const fr = Math.floor(t * 60), gt = GRAIN[fr % 4], ox = -Math.floor(rng(fr) * 512), oy = -Math.floor(rng(fr + .5) * 512);
+  g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = .06;
+  for (let x = ox; x < W; x += 512) for (let y = oy; y < H; y += 512) g.drawImage(gt, x, y);
+  g.restore();
+  const fade = Math.max(1 - seg(t, 0, .22), seg(t, DUR - .28, DUR));
+  if (fade > 0) { g.fillStyle = C.paper; g.globalAlpha = fade; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+};
+
+const fontsToLoad = [F.s(120), F.s(40), F.s(40, true), F.m(400, 30), F.m(500, 30), F.m(600, 30), F.m(700, 30)];
+window.ready = document.fonts.ready.then(() => Promise.all(fontsToLoad.map(f => document.fonts.load(f))));
+
+// Preview: autoplay + loop. Space pauses, R restarts. ?t=6.2 freezes; ?clean=1 holds for export.
+const Q = new URLSearchParams(location.search);
+window.ready.then(() => {
+  if (Q.has('clean')) { window.render(0); return; }
+  if (Q.has('t')) { window.render(+Q.get('t')); return; }
+  let t0 = performance.now(), paused = false, pt = 0;
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { paused = !paused; if (!paused) t0 = performance.now() - pt * 1000; }
+    if (e.code === 'KeyR') { t0 = performance.now(); paused = false; }
+  });
+  (function loop(now) {
+    if (!paused) { pt = ((now - t0) / 1000) % DUR; window.render(pt, 2); }
+    requestAnimationFrame(loop);
+  })(performance.now());
+});
+</script></body></html>
