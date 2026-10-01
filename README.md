@@ -16,7 +16,7 @@ Two products on [Solari](https://getsolari.com) cloud browsers, in one repo:
 
 [![ARC Index economics reel: 8.4× cheaper per appeal than a traditional browser agent](./artifacts/arc-index-economics-showreel-poster.jpg)](./artifacts/arc-index-economics-showreel.mp4)
 
-Reels: [ARC Index](./artifacts/arc-index-showreel.mp4) · [Economics vs a traditional agent](./artifacts/arc-index-economics-showreel.mp4) · [Wrong values let through](./artifacts/arc-index-benchmark-showreel.mp4) · [Same model, two harnesses](./artifacts/gemini-harness-showreel.mp4)
+Reels: [ARC Index](./artifacts/arc-index-showreel.mp4) · [Economics vs a traditional agent](./artifacts/arc-index-economics-showreel.mp4) · [Wrong values let through](./artifacts/arc-index-benchmark-showreel.mp4) · [Same model, two harnesses](./artifacts/gemini-harness-showreel.mp4) · [Which page holds the field](./artifacts/hybrid-decision-index-showreel.mp4) · [Reworded labels, live portal](./artifacts/hybrid-decision-arc-showreel.mp4)
 
 ---
 

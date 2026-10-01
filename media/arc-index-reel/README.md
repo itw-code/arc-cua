@@ -1,6 +1,6 @@
 # ARC Index showreel
 
-A 15-second motion piece of `docs/ARC_INDEX_PLAN.md`. One red thread carries a cited value (CPT 99214) from a 50-page denial letter, through the PageIndex tree and into a portal form via `[#N]` reflexes. From there it passes through a SimHash state check and ends on a printed receipt. Output: `artifacts/arc-index-showreel.mp4`.
+A 15-second motion piece of `docs/ARC_INDEX_PLAN.md`. One blue thread carries a cited value (CPT 99214) from a 50-page denial letter, through the PageIndex tree and into a portal form via `[#N]` reflexes. From there it passes through a SimHash state check and ends on a printed receipt. Output: `artifacts/arc-index-showreel.mp4`.
 
 The figures on screen are measured, from the live Solari run of 2026-09-29 (`artifacts/benchmarks/arc_index_live_solari_pageindex_20260929-111127.json`, `docs/ARC_INDEX_PLAN.md` §9–10):
 
@@ -21,4 +21,4 @@ The portal is a stand-in form, not a real payer site. The Denial reason field is
 
 Encode:
 
-    ffmpeg -framerate 60 -i frames/f%04d.png -i soundtrack.wav -c:v libx264 -crf 16 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart arc-index-showreel.mp4
+    ffmpeg -framerate 60 -i frames/f%04d.png -i soundtrack.wav -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart arc-index-showreel.mp4
