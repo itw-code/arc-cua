@@ -341,7 +341,53 @@
       </div>
     </div>
 
+    <!-- The bridge: document facts -> [#N] pins. Why we tested Laya, why Colab answers today. -->
+    <div class="glass-card-primary rounded-2xl p-6 sm:p-8 mt-8">
+      <div class="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">The bridge · System-1 / System-2 decisions</div>
+      <h3 class="text-2xl font-black text-white mt-1">ARC Index knows the value. ARC knows the page. The bridge decides where it goes.</h3>
+      <p class="text-sm text-slate-300 mt-3 max-w-4xl">Between a cited value and a typed field there are two small, closed questions: <em>which page of the letter holds this field</em>,
+        and <em>which <code>[#N]</code> element on the portal takes it</em>. A frontier model writing prose is the wrong tool for that. Each question has a fixed
+        option list, so a decision model can score the options in one forward pass and return a probability, with nothing generated and no element ID it could invent.
+        If the probability is under the threshold, the bridge escalates instead of guessing.</p>
+      <div class="grid md:grid-cols-2 gap-4 mt-6">
+        <div class="glass-card-secondary rounded-xl p-5">
+          <div class="text-xs font-mono font-bold tracking-widest text-red-300 uppercase">System-1 · Laya 421M, local · why we tested it</div>
+          <p class="text-sm text-slate-300 mt-2">Runs on the laptop next to the browser: $0 per call, no tunnel, data stays local. If it held up, the bridge would cost nothing.</p>
+          <ul class="text-sm mt-3 space-y-1 font-mono">
+            <li class="text-slate-300">38 ms on an L4 · 565 ms on an 8-thread CPU</li>
+            <li class="text-red-300">15% of page lookups right</li>
+            <li class="text-slate-300">kept 24% of benchmark field picks, 18/18 right</li>
+            <li class="text-red-300">kept 0 decisions in the live browser run</li>
+          </ul>
+        </div>
+        <div class="glass-card rounded-xl p-5 border border-blue-500/30">
+          <div class="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">System-2 · Qwen3.8-27B on Colab L4 · why it answers today</div>
+          <p class="text-sm text-slate-300 mt-2">Same idea, a larger model: SGLang <code>/v1/score</code> reads the next-token scores of each option, 0 generated tokens, through a Cloudflare tunnel.</p>
+          <ul class="text-sm mt-3 space-y-1 font-mono">
+            <li class="text-blue-300">100% of page lookups right · MRR 0.738 → 1.000</li>
+            <li class="text-blue-300">tasks fully right: 0% → 91.7% (keyword → hybrid)</li>
+            <li class="text-blue-300">reworded live form: 3/6 → 6/6 fields</li>
+            <li class="text-slate-300">296 ms per lookup · 4.6–6.0 s to match one form</li>
+          </ul>
+        </div>
+      </div>
+      <p class="text-sm text-slate-300 mt-5"><strong class="text-white">Decision:</strong> the bridge's contract (closed options, a probability, a threshold of 0.44 fitted on ground truth) stays.
+        The model behind it is Qwen on Colab today. Laya stays wired in as the first tier, and it starts answering for real once it clears the threshold on these tasks.
+        Open costs: Colab compute units rather than $0, and a few seconds per form. Stall recovery hasn't been tested, because no stall happened in any run.
+        Synthetic letters, small set · <a class="underline" href="https://github.com/itw-code/arc-cua/tree/master/results/benchmark_runs">results/benchmark_runs</a></p>
+    </div>
+
     <div class="grid sm:grid-cols-2 gap-6 mt-8">
+        <figure class="glass-card rounded-2xl overflow-hidden">
+          <video class="w-full block" src="artifacts/hybrid-decision-index-showreel.mp4" poster="artifacts/hybrid-decision-index-showreel-poster.jpg" controls preload="none" playsinline></video>
+          <figcaption class="p-4"><div class="font-bold text-white text-sm">The bridge, ARC Index side: which page holds the field</div>
+            <div class="text-xs text-muted mt-1">Local Laya vs Qwen on Colab, same question: 15% vs 100% of pages right</div></figcaption>
+        </figure>
+        <figure class="glass-card rounded-2xl overflow-hidden">
+          <video class="w-full block" src="artifacts/hybrid-decision-arc-showreel.mp4" poster="artifacts/hybrid-decision-arc-showreel-poster.jpg" controls preload="none" playsinline></video>
+          <figcaption class="p-4"><div class="font-bold text-white text-sm">The bridge, ARC side: which [#N] field takes the value</div>
+            <div class="text-xs text-muted mt-1">Reworded live form: 3/6 → 6/6 fields, every decision escalated to Colab</div></figcaption>
+        </figure>
         <figure class="glass-card rounded-2xl overflow-hidden">
           <video class="w-full block" src="artifacts/arc-index-economics-showreel.mp4" poster="artifacts/arc-index-economics-showreel-poster.jpg" controls preload="none" playsinline></video>
           <figcaption class="p-4"><div class="font-bold text-white text-sm">Economics: traditional agent vs ARC Index</div>
@@ -361,16 +407,6 @@
           <video class="w-full block" src="artifacts/gemini-harness-showreel.mp4" poster="artifacts/gemini-harness-showreel-poster.jpg" controls preload="none" playsinline></video>
           <figcaption class="p-4"><div class="font-bold text-white text-sm">Same model, two harnesses</div>
             <div class="text-xs text-muted mt-1">Gemini 3.8 Flash on Solari's MCP vs on ARC</div></figcaption>
-        </figure>
-        <figure class="glass-card rounded-2xl overflow-hidden">
-          <video class="w-full block" src="artifacts/hybrid-decision-index-showreel.mp4" poster="artifacts/hybrid-decision-index-showreel-poster.jpg" controls preload="none" playsinline></video>
-          <figcaption class="p-4"><div class="font-bold text-white text-sm">Which page holds the field?</div>
-            <div class="text-xs text-muted mt-1">Keyword overlap 56.9% vs the Colab model 100% right page first; local Laya 15%</div></figcaption>
-        </figure>
-        <figure class="glass-card rounded-2xl overflow-hidden">
-          <video class="w-full block" src="artifacts/hybrid-decision-arc-showreel.mp4" poster="artifacts/hybrid-decision-arc-showreel-poster.jpg" controls preload="none" playsinline></video>
-          <figcaption class="p-4"><div class="font-bold text-white text-sm">Reworded labels, live portal</div>
-            <div class="text-xs text-muted mt-1">Label hints 3/6 fields vs the hybrid binder 6/6; right, but 4.6–6.0 s per form</div></figcaption>
         </figure>
     </div>
   </section>
