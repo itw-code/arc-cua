@@ -87,6 +87,17 @@ CASES = [
                    "from_date": "Service From Date", "thru_date": "Service Through Date",
                    "reason_code": "Claim Adjustment Reason Code", "remark_code": "Remittance Remark Code"},
     },
+    {
+        # Same letter; labels share no word with the schema's label hints.
+        "id": "SYN-DENIAL-PARA",
+        "pdf": "synthetic_denial_letter.pdf",
+        "schema": "healthcare_denial_appeal",
+        "title": "Reconsideration Request",
+        "labels": {"claim_id": "Reference #", "patient_name": "Member",
+                   "date_of_service": "Visit on", "billed_amount": "Charges",
+                   "denial_code": "Reason", "cpt_code": "Service line",
+                   "notes": "Why should we reconsider?"},
+    },
 ]
 
 
@@ -116,7 +127,33 @@ def portal_html(case: Dict[str, Any]) -> str:
     return PORTAL.format(title=case["title"], inputs=inputs)
 
 
-def run_case(case: Dict[str, Any], browser: BrowserSession, index: Any) -> Dict[str, Any]:
+def hybrid_rebind(steps: List[Any], fields: List[Any], action_map: Dict[Any, Dict[str, Any]],
+                  client: Any) -> tuple:
+    """Re-target each field step with HybridDecisionClient. Fields the label-hint binder
+    dropped are added back; a choice outside the form's textboxes drops the step."""
+    from arc_index.index_bridge import CompiledActionStep
+
+    affs = [{"index": int(k), **v} for k, v in action_map.items()]
+    grounded = {f.field_name: f for f in fields if f.validation_status and f.value}
+    t0 = time.perf_counter()
+    binds = {b.field_name: b for b in client.match_form_fields({k: f.value for k, f in grounded.items()}, affs)}
+    bind_ms = (time.perf_counter() - t0) * 1000
+    by_field = {s.source_field: s for s in steps}
+    textboxes = {a["index"] for a in affs if "button" not in str(a.get("role", "")).lower()}
+    out = [s for s in steps if s.source_field not in grounded]  # submit and ungrounded untouched
+    for name, f in grounded.items():
+        b = binds.get(name)
+        if b is None or b.action_index not in textboxes:
+            continue
+        base = by_field.get(name)
+        out.insert(len(out) - (1 if out and out[-1].verb == "CLICK" else 0), CompiledActionStep(
+            action_index=b.action_index, verb="FILL", value=str(f.value), source_field=name,
+            citation=base.citation if base else f.citation))
+    tiers = {n: {"index": b.action_index, "tier": b.tier.value, "p": round(b.confidence, 3)} for n, b in binds.items()}
+    return out, tiers, bind_ms
+
+
+def run_case(case: Dict[str, Any], browser: BrowserSession, index: Any, client: Any = None) -> Dict[str, Any]:
     pdf = DOCS / case["pdf"]
     truth = {k: v for k, v in json.loads(pdf.with_suffix(".truth.json").read_text(encoding="utf-8")).items()
              if not k.startswith("_")}
@@ -149,6 +186,11 @@ def run_case(case: Dict[str, Any], browser: BrowserSession, index: Any) -> Dict[
     browser.page.set_content(portal_html(case))
     inspect = browser.inspect(settle_ms=1000)
     steps = bridge.bind_to_axtree(fields, schema, inspect["text"], inspect["action_index_map"])
+    hint_bound = sorted(s.source_field for s in steps if s.verb != "CLICK")
+    hybrid = None
+    if client is not None:
+        steps, tiers, bind_ms = hybrid_rebind(steps, fields, inspect["action_index_map"], client)
+        hybrid = {"decisions": tiers, "bind_ms": round(bind_ms, 1)}
     t_bind = time.perf_counter()
     receipt = bridge.execute_and_verify(steps, schema, document_name=pdf.name)
     t_exec = time.perf_counter()
@@ -163,6 +205,8 @@ def run_case(case: Dict[str, Any], browser: BrowserSession, index: Any) -> Dict[
         "case": case["id"], "document": pdf.name, "schema": schema.schema_id,
         "backend": browser.backend, "solari_session_id": receipt.solari_session_id,
         "index": type(index).__name__,
+        "hint_binder_bound": hint_bound,
+        "hybrid": hybrid,
         "pages": _page_count(pdf),
         "extraction": extraction,
         "submission": submission,
@@ -204,9 +248,16 @@ def main() -> int:
     ap.add_argument("--model", default="gemini-3.8-flash")
     ap.add_argument("--index", choices=["blocks", "pageindex"], default="blocks")
     ap.add_argument("--out", default="artifacts/benchmarks")
+    ap.add_argument("--binder", choices=["hints", "hybrid"], default="hints",
+                    help="hybrid: re-target fields with HybridDecisionClient (Laya, escalating to "
+                         "SGLANG_DECISION_ENDPOINT below the fitted threshold)")
     args = ap.parse_args()
 
     index = make_index(args.index, args.model)
+    client = None
+    if args.binder == "hybrid":
+        from arc_cua.index_bridge import HybridDecisionClient
+        client = HybridDecisionClient()
     browser = BrowserSession()
     t0 = time.perf_counter()
     results, session_id = [], None
@@ -214,18 +265,19 @@ def main() -> int:
         browser.open("about:blank", backend=args.backend)
         session_id = getattr(getattr(browser, "_solari_session", None), "session_id", None)
         for case in CASES:
-            results.append(run_case(case, browser, index))
+            results.append(run_case(case, browser, index, client))
     finally:
         browser.shutdown()
     wall_s = time.perf_counter() - t0
 
     usage = getattr(index, "usage", None)
-    report = {"backend": args.backend, "index": args.index, "model": args.model, "solari_session_id": session_id,
+    report = {"backend": args.backend, "index": args.index, "model": args.model, "binder": args.binder,
+              "solari_session_id": session_id,
               "wall_s": round(wall_s, 1), "llm_usage": usage, "cases": results,
               "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     out = ROOT / args.out
     out.mkdir(parents=True, exist_ok=True)
-    path = out / f"arc_index_live_{args.backend}_{args.index}_{time.strftime('%Y%m%d-%H%M%S')}.json"
+    path = out / f"arc_index_live_{args.backend}_{args.index}_{args.binder}_{time.strftime('%Y%m%d-%H%M%S')}.json"
     path.write_text(redact_session_ids(json.dumps(report, indent=2, default=str)), encoding="utf-8")
 
     for r in results:
