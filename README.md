@@ -103,7 +103,7 @@ pip install -e .
 
 ### 2. Run Test Suite
 ```bash
-# 306 tests. Run with SOLARI_API_KEY unset: the 2 tests in test_phase1_remediation
+# 319 tests (316 pass, 3 skip). Run with SOLARI_API_KEY unset: 2 tests in test_image_and_cdp_discovery
 # that assert the arc_cloud/tunnel cascade outcomes expect the key to be absent.
 pytest tests/
 ```
@@ -185,6 +185,24 @@ claude mcp add --scope user arc -- arc-cua-mcp
 
 ---
 
+## Repository Layout
+
+```
+src/arc_cua/
+  perception/   CDP + AT-SPI accessibility trees, VM images
+  execution/    action payloads, Playwright executor, locators, sessions, VMs
+  reflex/       System-1 runner, reflex policy, state verifier, hybrid escalation
+  decision/     System-2 decision client and endpoint discovery (arc-cua doctor)
+  interfaces/   arc-cua CLI and arc-cua-mcp server
+  monitors/ cortex/ eval/ datasets/ cloud/
+  schemas.py, telemetry.py   shared by every layer
+src/arc_index/  document-to-action pipeline
+scripts/        benchmarks/ reports/ training/ fixtures/ tools/
+notebooks/      Colab System-2 server (SGLang + gateway + tunnel)
+tests/          one file per subject (pytest tests/)
+docs/           architecture, plans, playbook, changelog, checkpoints
+```
+
 ## Documentation Index
 
 | Section | Document | Description |
@@ -194,9 +212,9 @@ claude mcp add --scope user arc -- arc-cua-mcp
 | **Changelog** | [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) | Chronological phase history, deliverables, and metrics across all 6 phases |
 | **Checkpoints** | [`docs/checkpoints/INDEX.md`](./docs/checkpoints/INDEX.md) | Timeline index and audit record for all 11 development checkpoints |
 | **Artifacts** | [`artifacts/INDEX.md`](./artifacts/INDEX.md) | Catalog of evaluation datasets, JSONL streams, and performance scorecards |
-| **Architecture** | [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
-| **Implementation** | [`IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
-| **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./docs/DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
+| **Architecture** | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
+| **Implementation** | [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
+| **Deployment** | [`docs/DEPLOYMENT_PLAYBOOK.md`](./docs/DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
 | **Research Whitepaper**| [`artifacts/phase6/FINAL_RESEARCH_REPORT.md`](./artifacts/phase6/FINAL_RESEARCH_REPORT.md) | Final architecture whitepaper, Pareto analysis, and evaluation findings |
 | **Research References** | [`docs/REFERENCES.md`](./docs/REFERENCES.md) | All cited papers and planning references behind the design and baselines, with verification status |
 | **Interactive Showcase** | [`showcase.html`](./showcase.html) | Interactive single-page visual demo, simulator, and benchmark scorecard |

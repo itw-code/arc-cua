@@ -387,7 +387,7 @@ RVL-CDIP and EDGAR documents were never downloaded. None of those are used below
 ### 9.3 Results
 
 Result JSON in `artifacts/benchmarks/arc_index_live_*_20260929-*.json`.
-Tests: `pytest tests` 257 passed (2 pre-existing failures in `test_phase1_remediation.py`);
+Tests: `pytest tests` 257 passed (2 pre-existing failures in `test_phase1_remediation.py`, now `test_image_and_cdp_discovery.py`);
 `SOLARI_LIVE_TESTS=1 pytest tests/test_index_live.py` 2 passed.
 
 **Extraction reliability** (`eval_extraction.py`, per field, correct / wrong / rejected):

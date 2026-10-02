@@ -214,7 +214,7 @@ def run_benchmarks(sample_size: int = 1000) -> Dict[str, Any]:
     # 8. Live Browser Hybrid Step Latency Benchmark
     # ----------------------------------------------------
     try:
-        from tests.test_phase3b_live import run_live_hybrid_smoke
+        from tests.test_hybrid_live import run_live_hybrid_smoke
         t0 = time.perf_counter()
         smoke_res = run_live_hybrid_smoke(headless=True)
         total_live_time_ms = (time.perf_counter() - t0) * 1000.0

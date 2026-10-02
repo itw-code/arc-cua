@@ -23,7 +23,7 @@ sys.path.insert(0, str(repo_root / "src"))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("smoke_phase3b")
 
-from tests.test_phase3b_live import LIVE_BROWSER_SMOKE_SKIPPED, run_live_hybrid_smoke
+from tests.test_hybrid_live import LIVE_BROWSER_SMOKE_SKIPPED, run_live_hybrid_smoke
 
 
 def main():
