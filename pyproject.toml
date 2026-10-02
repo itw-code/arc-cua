@@ -21,8 +21,8 @@ mcp = ["mcp>=2.2,<3"]
 index = ["pypdf>=4", "pageindex>=0.2.20"]
 
 [project.scripts]
-arc-cua = "arc_cua.cli:main"
-arc-cua-mcp = "arc_cua.mcp_server:main"
+arc-cua = "arc_cua.interfaces.cli:main"
+arc-cua-mcp = "arc_cua.interfaces.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

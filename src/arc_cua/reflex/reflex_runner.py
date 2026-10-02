@@ -20,11 +20,11 @@ import time
 import uuid
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from .cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
-from .executor_interface import ActionPayload, ActionVerb
-from .locator_resolver import LocatorResolutionError, LocatorResolver, ResolvedLocator
-from .playwright_executor import PlaywrightExecutor
-from .schemas import (
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
+from arc_cua.execution.executor_interface import ActionPayload, ActionVerb
+from arc_cua.execution.locator_resolver import LocatorResolutionError, LocatorResolver, ResolvedLocator
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
+from arc_cua.schemas import (
     ActionResult,
     ActionStep,
     EscalationPayload,
@@ -33,11 +33,11 @@ from .schemas import (
     TelemetryRecord,
     UIState,
 )
-from .session_guard import ReadinessResult, SessionGuard
-from .state_verifier import StateVerificationResult, StateVerifier
-from .telemetry import TelemetryCollector, compute_simhash64
+from arc_cua.execution.session_guard import ReadinessResult, SessionGuard
+from arc_cua.reflex.state_verifier import StateVerificationResult, StateVerifier
+from arc_cua.telemetry import TelemetryCollector, compute_simhash64
 
-logger = logging.getLogger("arc_cua.reflex_runner")
+logger = logging.getLogger("arc_cua.reflex.reflex_runner")
 
 
 class ReflexStatus(str, enum.Enum):

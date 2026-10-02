@@ -16,7 +16,7 @@ import tempfile
 from pathlib import Path
 from typing import List, Optional
 
-logger = logging.getLogger("arc_cua.image_provider")
+logger = logging.getLogger("arc_cua.perception.image_provider")
 
 # Standard search paths for Arc MicroVM images in production environments
 DEFAULT_SEARCH_PATHS: List[Path] = [

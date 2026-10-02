@@ -60,7 +60,7 @@ from arc_cua.eval.webarena_mapper import (
     parse_webarena_jsonl,
 )
 from arc_cua.eval.webarena_runner import MockWebArenaPage, WebArenaRunner
-from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.execution.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
 
 
 # -----------------------------------------------------------------------------

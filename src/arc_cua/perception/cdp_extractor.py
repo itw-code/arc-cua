@@ -37,8 +37,8 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-logger = logging.getLogger("arc_cua.cdp_extractor")
-from .cdp_discovery import CDPDiscovery, CDPEndpointSpec
+logger = logging.getLogger("arc_cua.perception.cdp_extractor")
+from arc_cua.perception.cdp_discovery import CDPDiscovery, CDPEndpointSpec
 
 
 # Standard Chromium CDP Accessibility.AXPropertyName reasons indicating the element

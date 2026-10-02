@@ -17,14 +17,14 @@ import pathlib
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from ..cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
 from ..cortex.mock_cortex import MockCortexClient
 from ..datasets.trajectory_collector import TrajectoryCollector
-from ..hybrid_runner import HybridRunner
+from arc_cua.reflex.hybrid_runner import HybridRunner
 from ..monitors.escalation_controller import EscalationController
 from ..monitors.milestone_monitor import MilestoneMonitor
 from ..monitors.stuck_monitor import StuckMonitor
-from ..reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
+from arc_cua.reflex.reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
 from ..schemas import (
     ActionStep,
     CortexResponse,

@@ -14,7 +14,7 @@ import pathlib
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from arc_cua.reflex_policy import ChatClient
+from arc_cua.reflex.reflex_policy import ChatClient
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 

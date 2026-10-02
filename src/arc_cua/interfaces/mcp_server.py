@@ -22,9 +22,9 @@ from typing import Any, Callable, Iterable, Literal, Optional, Tuple
 from mcp.server.mcpserver import Image, MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
-from arc_cua.browser_session import BrowserSession, BrowserSessionError
+from arc_cua.execution.browser_session import BrowserSession, BrowserSessionError
 
-logger = logging.getLogger("arc_cua.mcp_server")
+logger = logging.getLogger("arc_cua.interfaces.mcp_server")
 
 INSTRUCTIONS = """\
 ARC drives one browser for you and shows it as a compact accessibility tree.

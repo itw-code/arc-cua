@@ -7,7 +7,7 @@ import pathlib
 
 import pytest
 
-from arc_cua.browser_session import BrowserSession, BrowserSessionError
+from arc_cua.execution.browser_session import BrowserSession, BrowserSessionError
 
 FIXTURE_URL = (pathlib.Path(__file__).parent / "fixtures" / "eval_site.html").resolve().as_uri()
 

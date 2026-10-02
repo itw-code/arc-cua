@@ -28,7 +28,7 @@ import sys
 import time
 from typing import Any, Dict, List
 
-from arc_cua.browser_session import BrowserSession
+from arc_cua.execution.browser_session import BrowserSession
 from arc_index.index_bridge import ArcIndexBridge, load_schema
 from arc_index.local_doc_index import LocalDocIndexClient
 
@@ -256,7 +256,7 @@ def main() -> int:
     index = make_index(args.index, args.model)
     client = None
     if args.binder == "hybrid":
-        from arc_cua.index_bridge import HybridDecisionClient
+        from arc_cua.decision.index_bridge import HybridDecisionClient
         client = HybridDecisionClient()
     browser = BrowserSession()
     t0 = time.perf_counter()

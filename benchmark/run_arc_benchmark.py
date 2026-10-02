@@ -64,7 +64,7 @@ def lexical(t: DecisionTask) -> Dict:
 class Engines:
     def __init__(self, endpoint: str, threshold: float):
         import laya
-        from arc_cua.index_bridge import LayaWireAdapter
+        from arc_cua.decision.index_bridge import LayaWireAdapter
 
         self.endpoint, self.threshold = endpoint, threshold
         self.laya = LayaWireAdapter(laya.load("convaiinnovations/laya-typed-decisions"))
@@ -136,7 +136,7 @@ def score_run(page_rows: List[Dict], pin_rows: List[Dict], build_s: Dict[str, fl
 
 
 def main() -> None:
-    from arc_cua.index_bridge import DEFAULT_CONFIDENCE_THRESHOLD
+    from arc_cua.decision.index_bridge import DEFAULT_CONFIDENCE_THRESHOLD
 
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--endpoint", required=True, help="Colab gateway /v1/systemone URL")

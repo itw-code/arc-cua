@@ -21,9 +21,9 @@ import pytest
 # Ensure src is on sys.path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor
 from arc_cua.cortex.mock_cortex import MockCortexClient
-from arc_cua.hybrid_runner import HybridRunner
+from arc_cua.reflex.hybrid_runner import HybridRunner
 from arc_cua.monitors.escalation_controller import EscalationController
 from arc_cua.monitors.milestone_monitor import MilestoneMonitor
 from arc_cua.monitors.stuck_monitor import StuckMonitor

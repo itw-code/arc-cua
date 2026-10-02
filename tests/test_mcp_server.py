@@ -9,7 +9,7 @@ pytest.importorskip("mcp")
 
 from mcp.server.mcpserver.exceptions import ToolError  # noqa: E402
 
-from arc_cua.mcp_server import build_server  # noqa: E402
+from arc_cua.interfaces.mcp_server import build_server  # noqa: E402
 
 FIXTURE_URL = (pathlib.Path(__file__).parent / "fixtures" / "eval_site.html").resolve().as_uri()
 pytestmark = pytest.mark.anyio

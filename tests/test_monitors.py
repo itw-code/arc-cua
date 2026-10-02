@@ -39,24 +39,24 @@ import pytest
 # Ensure src is in python path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from arc_cua.cdp_extractor import AXNode, SanitizedAXTree
+from arc_cua.perception.cdp_extractor import AXNode, SanitizedAXTree
 from arc_cua.cortex import (
     CortexClient,
     MockCortexClient,
     RecoveryCompilationError,
     RecoveryCompiler,
 )
-from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
-from arc_cua.hybrid_runner import HybridRunner
-from arc_cua.locator_resolver import LocatorResolver
+from arc_cua.execution.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.reflex.hybrid_runner import HybridRunner
+from arc_cua.execution.locator_resolver import LocatorResolver
 from arc_cua.monitors import (
     EscalationController,
     MilestoneMonitor,
     StepTelemetry,
     StuckMonitor,
 )
-from arc_cua.playwright_executor import PlaywrightExecutor
-from arc_cua.reflex_runner import ReflexRunner, ReflexStatus
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
+from arc_cua.reflex.reflex_runner import ReflexRunner, ReflexStatus
 from arc_cua.schemas import (
     ActionStep,
     DecisionType,
@@ -69,8 +69,8 @@ from arc_cua.schemas import (
     TelemetryRecord,
     UIState,
 )
-from arc_cua.session_guard import SessionGuard
-from arc_cua.state_verifier import StateVerifier
+from arc_cua.execution.session_guard import SessionGuard
+from arc_cua.reflex.state_verifier import StateVerifier
 from arc_cua.telemetry import TelemetryCollector, compute_simhash64
 
 
@@ -632,7 +632,7 @@ def test_18_public_playwright_api_compliance():
     cortex_dir = src_dir / "cortex"
 
     target_files = [
-        src_dir / "hybrid_runner.py",
+        src_dir / "reflex" / "hybrid_runner.py",
         src_dir / "schemas.py",
         src_dir / "telemetry.py",
         monitors_dir / "stuck_monitor.py",

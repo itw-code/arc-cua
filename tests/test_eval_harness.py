@@ -60,7 +60,7 @@ from arc_cua.eval.tasks_local import (
     get_task_by_id,
     get_tasks_by_category,
 )
-from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.execution.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
 from arc_cua.schemas import ActionStep
 
 LIVE_BROWSER_EVAL_SMOKE_SKIPPED = "LIVE_BROWSER_EVAL_SMOKE_SKIPPED"

@@ -154,8 +154,8 @@ The Arc-Native Hybrid Computer Use Agent (CUA) replaces the computationally proh
 - `src/arc_cua/monitors/escalation_controller.py` (Policy governor with hysteresis, cooldown, and budgets; $p_{95}=0.0019\,\text{ms}$)
 - `src/arc_cua/cortex/cortex_interface.py` & `mock_cortex.py` (Typed recovery plan synthesis; $p_{95}=0.0030\,\text{ms}$)
 - `src/arc_cua/cortex/recovery_compiler.py` (Strict verb & locator safety validation; $p_{95}=0.0026\,\text{ms}$)
-- `src/arc_cua/hybrid_runner.py` (Reflex/Cortex orchestration with extended telemetry; $p_{95}=0.0084\,\text{ms}$ step overhead)
-- `tests/test_phase3_monitors.py` (18/18 tests passing; public Playwright compliance verified)
+- `src/arc_cua/reflex/hybrid_runner.py` (Reflex/Cortex orchestration with extended telemetry; $p_{95}=0.0084\,\text{ms}$ step overhead)
+- `tests/test_monitors.py` (18/18 tests passing; public Playwright compliance verified)
 
 
 **Phase 3B Status: COMPLETED (Verified via 15/15 Phase 3B Tests, Live Headless Chromium E2E, and Empirical Benchmarks)**  
@@ -167,9 +167,9 @@ The Arc-Native Hybrid Computer Use Agent (CUA) replaces the computationally proh
 - `src/arc_cua/monitors/transformer_adapter.py` & `scripts/training/train_monitors.py` (Optional learned monitor support with graceful `LEARNED_MONITOR_UNAVAILABLE` fallback)
 - `src/arc_cua/monitors/semantic_progress.py` (Pluggable goal advancement with dense embedding & silent heuristic fallback)
 - `src/arc_cua/cortex/http_cortex.py` (Production HTTP client with mock, dry_run, and real modes, exponential backoff, and RecoveryCompiler validation)
-- `tests/test_phase3b_live.py` & `scripts/tools/smoke_phase3b.py` (Real headless Chromium hybrid smoke test validating live stuck detection and recovery)
+- `tests/test_hybrid_live.py` & `scripts/tools/smoke_phase3b.py` (Real headless Chromium hybrid smoke test validating live stuck detection and recovery)
 - `scripts/benchmarks/benchmark_phase3b.py` (Comprehensive metric benchmarking confirming 100% of architectural targets met)
-- `tests/test_phase3b_components.py` (14 unit/integration tests) & `tests/test_phase3b_live.py` (1 live browser integration test)
+- `tests/test_trajectory_datasets.py` (14 unit/integration tests) & `tests/test_hybrid_live.py` (1 live browser integration test)
 **Benchmark Target:** Cascading Precision, Loop Detection Recall, and Trajectory Cost Allocation.  
 **Baseline to Beat:** Monolithic per-step frontier LLM execution (100% cloud model invocations, 0% local autonomy).
 ---
@@ -348,7 +348,7 @@ Phase 4B connects the Arc evaluation harness to real-world benchmark tasks from 
 3. **WebArena Assertion Adapter (`src/arc_cua/eval/webarena_assertions.py`)**: Comprehensive assertion engine supporting `url_match` (exact, prefix, regex, query-order normalization), `string_match` (fuzzy, exact, must_include), and `program_html` (SQL querying and table diff verification).
 4. **Curated Subset Task Suite (`src/arc_cua/eval/tasks_webarena.py`)**: 12 representative tasks spanning Reddit, Shopping, and GitLab domains with all primary evaluation modalities.
 5. **WebArena Eval Runner (`src/arc_cua/eval/webarena_runner.py`)**: End-to-end integration runner uniting `WebArenaEnv`, `MockWebArenaPage`, `HybridRunner`, and `WebArenaAssertionAdapter`.
-6. **Comprehensive Test Suite (`tests/test_phase4b_webarena.py`)**: 12 automated unit and integration tests covering mapper, assertion adapter, runner, mock database reset, diff engine, zero external network calls, and public Playwright API compliance.
+6. **Comprehensive Test Suite (`tests/test_eval_webarena.py`)**: 12 automated unit and integration tests covering mapper, assertion adapter, runner, mock database reset, diff engine, zero external network calls, and public Playwright API compliance.
 
 #### Empirical Results:
 * **Subset Task Success Rate:** **100% (12/12 tasks passed)** in mock evaluation mode.
@@ -367,12 +367,12 @@ Phase 4B connects the Arc evaluation harness to real-world benchmark tasks from 
 Phase 4C connects the Arc evaluation harness to real-world desktop benchmark tasks from OSWorld (Xie et al., 2024), focusing on OS file operations, terminal command execution, and desktop application accessibility without requiring live multi-gigabyte VM infrastructure.
 
 #### Components Delivered:
-1. **OSWorld Environment Adapter (`src/arc_cua/eval/osworld_env.py`)**: Dual-mode environment manager supporting offline in-memory POSIX file system, simulated shell command execution, and AT-SPI accessibility hierarchy integration with `src/arc_cua/at_spi_bridge.py`.
+1. **OSWorld Environment Adapter (`src/arc_cua/eval/osworld_env.py`)**: Dual-mode environment manager supporting offline in-memory POSIX file system, simulated shell command execution, and AT-SPI accessibility hierarchy integration with `src/arc_cua/perception/at_spi_bridge.py`.
 2. **OSWorld Task Schema Mapper (`src/arc_cua/eval/osworld_mapper.py`)**: Ingests and maps OSWorld JSON/JSONL benchmark definitions into `EvalTask` and `EvalAssertion` schemas with graceful `SKIP` handling for unsupported evaluation types.
 3. **OSWorld Assertion Adapter (`src/arc_cua/eval/osworld_assertions.py`)**: Comprehensive desktop assertion engine supporting `file_exist` (positive and negative deletion checks), `file_content_match` (substring, regex, exact, lines_include), `terminal_output_match` (stdout/stderr and command history), and `at_spi_state_match` (widget role, name, and accessibility state flags).
 4. **Curated Desktop Subset Task Suite (`src/arc_cua/eval/tasks_osworld.py`)**: 12 representative tasks spanning OS File System (`os_fs`), Terminal (`terminal`), and Desktop Apps (`desktop` - VS Code, GNOME Terminal) with all primary desktop evaluation modalities.
 5. **OSWorld Eval Runner (`src/arc_cua/eval/osworld_runner.py`)**: End-to-end integration runner uniting `OSWorldEnv`, `MockOSWorldPage`, `HybridRunner`, and `OSWorldAssertionAdapter`.
-6. **Comprehensive Test Suite (`tests/test_phase4c_osworld.py`)**: 13 automated unit and integration tests covering mapper, assertion adapter, runner, environment reset, zero external network calls, and public Playwright API compliance.
+6. **Comprehensive Test Suite (`tests/test_eval_osworld.py`)**: 13 automated unit and integration tests covering mapper, assertion adapter, runner, environment reset, zero external network calls, and public Playwright API compliance.
 
 #### Empirical Results:
 * **Subset Task Success Rate:** **100% (12/12 tasks passed)** in mock evaluation mode.
@@ -395,7 +395,7 @@ Phase 5 connects the fully tested offline architecture to real-world production 
 2. **Real Cortex LLM Adapter (`src/arc_cua/cortex/real_llm_cortex.py`)**: Frontier reasoning adapter supporting TypeSafe Jev, OpenAI GPT-4o, and Anthropic Claude. Enforces strict `CORTEX_MODE=real` safety gate, formats structured JSON prompt schemas, validates output through `RecoveryCompiler`, and computes exact token costs via provider pricing tables.
 3. **Live Environment Orchestrator (`src/arc_cua/eval/live_orchestrator.py`)**: Virtualization and container lifecycle manager supporting WebArena `docker-compose` and OSWorld QEMU/KVM. Implements `wait_for_healthy()` polling and `reset_state()` database/snapshot restores, logging `LIVE_ORCHESTRATION_SKIPPED` when host virtualization is absent.
 4. **Production Scorecard Generator (`scripts/reports/report_production.py`)**: End-to-end benchmark reporting pipeline quantifying Arc MicroVM compute costs, LLM token costs, proxy/storage expenses, wall-clock latencies, and Step Efficiency Ratio (SER) vs. human gold paths.
-5. **Production Test Suite (`tests/test_phase5_production.py`)**: 18 automated unit and integration tests covering missing API key handling, prompt formatting, JSON parsing, token cost calculations, live orchestrator skips, and scorecard artifact generation.
+5. **Production Test Suite (`tests/test_production_integration.py`)**: 18 automated unit and integration tests covering missing API key handling, prompt formatting, JSON parsing, token cost calculations, live orchestrator skips, and scorecard artifact generation.
 6. **Production Artifacts (`artifacts/production/`)**: Generated `final_scorecard.json`, `production_report.md`, and `live_trajectory_logs.jsonl`.
 
 #### Empirical Production Results:
@@ -441,7 +441,7 @@ Phase 6 transitions the ARC project from the base architecture into full-scale r
      5. Monitor Efficacy (local escalation prevention breakdown).
      6. Conclusion & Future Work (cloud deployment roadmap).
    - Automatically flags offline evaluated metrics as `PROJECTED_BASED_ON_MOCK_EXECUTION`.
-5. **Full-Scale Test Suite (`tests/test_phase6_full_scale.py`)**:
+5. **Full-Scale Test Suite (`tests/test_full_scale_runners.py`)**:
    - 9 comprehensive tests covering WebArena chunking and resumption, OSWorld state and AT-SPI capture, ModernBERT skip handling and dataset preparation, and final report generation.
 
 #### Empirical Phase 6 Results:

@@ -1,6 +1,6 @@
 """ARC Index's MCP tools: index a document, query it with citations, and turn it into a verified form fill.
 
-A plugin for ARC CUA's MCP server (`arc_cua.mcp_server.build_server`), which loads it when
+A plugin for ARC CUA's MCP server (`arc_cua.interfaces.mcp_server.build_server`), which loads it when
 `arc_index` is importable. The tools share the server's browser worker, so `arc_doc_to_action`
 fills the page `arc_open` opened.
 """
@@ -14,8 +14,8 @@ from typing import Any, Callable, Literal, Optional
 
 from mcp.server.mcpserver.exceptions import ToolError
 
-from arc_cua.browser_session import BrowserSession
-from arc_cua.mcp_server import _json
+from arc_cua.execution.browser_session import BrowserSession
+from arc_cua.interfaces.mcp_server import _json
 from arc_index.index_bridge import ArcIndexBridge, load_schema
 
 

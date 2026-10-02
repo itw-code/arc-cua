@@ -19,8 +19,8 @@ import logging
 import time
 from typing import Any, Dict, List, Optional, Protocol, Tuple, Union, runtime_checkable
 
-from .schemas import ActionResult
-logger = logging.getLogger("arc_cua.executor_interface")
+from arc_cua.schemas import ActionResult
+logger = logging.getLogger("arc_cua.execution.executor_interface")
 
 # Forbidden Playwright private member names
 FORBIDDEN_PRIVATE_INTERNALS = {

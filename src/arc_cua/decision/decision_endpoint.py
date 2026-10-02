@@ -44,7 +44,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger("arc_cua.decision_endpoint")
+logger = logging.getLogger("arc_cua.decision.decision_endpoint")
 
 # Gateway port in notebooks/sglang_decision_server.ipynb (Daemon B).
 DEFAULT_GATEWAY_PORT = 8001

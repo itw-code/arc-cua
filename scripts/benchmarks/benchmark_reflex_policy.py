@@ -2,7 +2,7 @@
 
 Same 7 tasks as the head-to-head plus Google Flights (the task Browser Use's Jev demo
 times at 7.1 s). Each step is one direct chat-completions call (goal + tree + last actions
--> one JSON action) and one ARC action; see `arc_cua.reflex_policy`.
+-> one JSON action) and one ARC action; see `arc_cua.reflex.reflex_policy`.
 
 The browser is local headless Chromium, launched once and kept warm across tasks, so task
 time excludes browser start-up. Success is judged from ARC's final page (URL or tree text).
@@ -30,8 +30,8 @@ from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import parse_qs, urlparse
 
-from arc_cua.browser_session import BrowserSession
-from arc_cua.reflex_policy import ChatClient, run_episode
+from arc_cua.execution.browser_session import BrowserSession
+from arc_cua.reflex.reflex_policy import ChatClient, run_episode
 
 TASKS = [
     ("hn_click_new", "https://news.ycombinator.com", "Click the 'new' link in the top bar.",

@@ -20,11 +20,11 @@ import logging
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from .cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
-from .schemas import ActionResult, UIState
-from .telemetry import compute_simhash64
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
+from arc_cua.schemas import ActionResult, UIState
+from arc_cua.telemetry import compute_simhash64
 
-logger = logging.getLogger("arc_cua.state_verifier")
+logger = logging.getLogger("arc_cua.reflex.state_verifier")
 
 
 @dataclasses.dataclass

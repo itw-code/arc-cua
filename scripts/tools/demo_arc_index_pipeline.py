@@ -16,7 +16,7 @@ import sys
 import tempfile
 import time
 
-from arc_cua.browser_session import BrowserSession
+from arc_cua.execution.browser_session import BrowserSession
 from arc_index.index_bridge import (
     ArcIndexBridge,
     CitationAnchor,

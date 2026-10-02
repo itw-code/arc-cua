@@ -57,7 +57,7 @@ from arc_cua.eval.tasks_osworld import (
     get_osworld_task_by_id,
     get_osworld_tasks_by_domain,
 )
-from arc_cua.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
+from arc_cua.execution.executor_interface import FORBIDDEN_PRIVATE_INTERNALS
 
 
 # -----------------------------------------------------------------------------

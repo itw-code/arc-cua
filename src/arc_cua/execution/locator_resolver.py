@@ -22,9 +22,9 @@ import re
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from .cdp_extractor import AXNode, SanitizedAXTree
+from arc_cua.perception.cdp_extractor import AXNode, SanitizedAXTree
 
-logger = logging.getLogger("arc_cua.locator_resolver")
+logger = logging.getLogger("arc_cua.execution.locator_resolver")
 
 
 class LocatorResolutionError(Exception):

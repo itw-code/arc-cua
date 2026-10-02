@@ -227,7 +227,7 @@ To ensure tests run fast and hermetically on any environment without GPU/PyTorch
 * **Compilation & Safety Invariant**: All responses MUST validate through `RecoveryCompiler`. API keys and credentials are never logged.
 
 ### 5.7.8 Live Browser Hybrid Smoke Testing
-* `tests/test_phase3b_live.py` and `scripts/tools/smoke_phase3b.py` execute end-to-end against real headless Chromium.
+* `tests/test_hybrid_live.py` and `scripts/tools/smoke_phase3b.py` execute end-to-end against real headless Chromium.
 * Validates typing, intentional stalling (repeated no-op actions), stuck detection, escalation to mock Cortex, recovery compilation, recovery execution in DOM, and telemetry persistence.
 * If Chromium binary is missing, gracefully records `LIVE_BROWSER_SMOKE_SKIPPED`.
 

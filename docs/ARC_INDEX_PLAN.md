@@ -160,7 +160,7 @@ class VerificationReceipt:
 
 ## 4. Bridge Implementation (`src/arc_index/index_bridge.py`)
 
-The bridge connects `pageindex.client.PageIndexClient` with `arc_cua.browser_session.BrowserSession`.
+The bridge connects `pageindex.client.PageIndexClient` with `arc_cua.execution.browser_session.BrowserSession`.
 
 ```python
 class ArcIndexBridge:
@@ -255,7 +255,7 @@ class ArcIndexBridge:
 
 ## 5. New MCP Tool Surface (`arc-cua-mcp`)
 
-To expose ARC Index to coding agents (Claude Code, Oh My Pi, Cursor), `src/arc_cua/mcp_server.py` is extended with 3 complementary tools:
+To expose ARC Index to coding agents (Claude Code, Oh My Pi, Cursor), `src/arc_cua/interfaces/mcp_server.py` is extended with 3 complementary tools:
 
 ```yaml
 # New MCP Tools in arc-cua-mcp
@@ -300,7 +300,7 @@ To expose ARC Index to coding agents (Claude Code, Oh My Pi, Cursor), `src/arc_c
 - Build unit tests validating `_parse_extracted_fields` using synthetic PageIndex citation outputs.
 
 ### Phase 2: ARC MCP Tool Suite Expansion (Hours 08–16)
-- Register `arc_index_document`, `arc_index_query`, and `arc_doc_to_action` in `src/arc_cua/mcp_server.py`.
+- Register `arc_index_document`, `arc_index_query`, and `arc_doc_to_action` in `src/arc_cua/interfaces/mcp_server.py`.
 - Thread-affine worker dispatch ensuring PageIndex calls and Playwright browser calls do not deadlock event loops.
 - Add `--settle-ms` support for dynamic forms rendering post-input.
 

@@ -22,13 +22,13 @@ import weakref
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from arc_cua.cdp_extractor import CDP_AXTree_Extractor
-from arc_cua.executor_interface import ActionPayload, ActionVerb
-from arc_cua.playwright_executor import PlaywrightExecutor
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.execution.executor_interface import ActionPayload, ActionVerb
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
 from arc_cua.schemas import ActionResult
-from arc_cua.state_verifier import StateVerifier
+from arc_cua.reflex.state_verifier import StateVerifier
 
-logger = logging.getLogger("arc_cua.browser_session")
+logger = logging.getLogger("arc_cua.execution.browser_session")
 
 # Consecutive mutating no-op actions on one target before a stall is reported.
 ACT_STALL_THRESHOLD = 3
@@ -93,7 +93,7 @@ class BrowserSessionError(RuntimeError):
     """A caller-facing failure with an actionable message."""
 
 
-# --- perception helpers (also re-exported by arc_cua.cli) -------------------------------------
+# --- perception helpers (also re-exported by arc_cua.interfaces.cli) -------------------------------------
 
 _CDP_SESSIONS: "weakref.WeakKeyDictionary[Any, Any]" = weakref.WeakKeyDictionary()
 

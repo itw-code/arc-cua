@@ -201,8 +201,8 @@ ARC decouples perception, execution, and semantic reasoning into two tightly cou
 ```
 
 ### Core Subsystems
-- **Reflex Runner (`src/arc_cua/reflex_runner.py`):** High-speed local execution engine interfacing directly with browser DOM via Chrome DevTools Protocol (CDP) or Linux accessibility layers via AT-SPI2 D-Bus.
-- **State Verifier (`src/arc_cua/state_verifier.py`):** Real-time image hashing and DOM diffing that detects mechanical stalls (zero state change despite action success).
+- **Reflex Runner (`src/arc_cua/reflex/reflex_runner.py`):** High-speed local execution engine interfacing directly with browser DOM via Chrome DevTools Protocol (CDP) or Linux accessibility layers via AT-SPI2 D-Bus.
+- **State Verifier (`src/arc_cua/reflex/state_verifier.py`):** Real-time image hashing and DOM diffing that detects mechanical stalls (zero state change despite action success).
 - **Local Monitors (`src/arc_cua/monitors/`):** Heuristic and learned ModernBERT monitors that classify stuck states and progress milestones without sending raw screenshots to external APIs.
 - **Cloud Cortex (`src/arc_cua/cortex/`):** Adaptive escalation client (supporting Arc Cloud, OpenAI, Anthropic, or mock endpoints) that generates minimal recovery action plans only when needed.
 

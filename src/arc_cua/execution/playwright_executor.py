@@ -21,15 +21,15 @@ except ImportError:
     PlaywrightTimeoutError = TimeoutError  # type: ignore
     PlaywrightError = RuntimeError  # type: ignore
 
-from .executor_interface import (
+from arc_cua.execution.executor_interface import (
     ActionExecutor,
     ActionPayload,
     ActionVerb,
     audit_public_api_compliance,
 )
-from .schemas import ActionResult
+from arc_cua.schemas import ActionResult
 
-logger = logging.getLogger("arc_cua.playwright_executor")
+logger = logging.getLogger("arc_cua.execution.playwright_executor")
 
 
 # Scrolls the nearest scrollable ancestor of the resolved element and reports the

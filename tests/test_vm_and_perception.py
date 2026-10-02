@@ -31,9 +31,9 @@ import pytest
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from arc_cua.vm_manager import ArcVMManager
-from arc_cua.cdp_extractor import CDP_AXTree_Extractor
-from arc_cua.at_spi_bridge import AT_SPI_Bridge, ATSPIEvent
+from arc_cua.execution.vm_manager import ArcVMManager
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.perception.at_spi_bridge import AT_SPI_Bridge, ATSPIEvent
 
 
 class TestArcVMManager:

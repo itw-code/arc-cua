@@ -34,10 +34,10 @@ TEST_FILE = "tests/test_audit_remediation.py"
 
 # source path -> git revision holding the PRE-FIX content
 PREFIX_SOURCES = {
-    "arc_cua/cdp_extractor.py": ":src/arc_cua/cdp_extractor.py",
-    "arc_cua/cli.py": ":src/arc_cua/cli.py",
-    "arc_cua/playwright_executor.py": "HEAD:src/arc_cua/playwright_executor.py",
-    "arc_cua/executor_interface.py": "HEAD:src/arc_cua/executor_interface.py",
+    "arc_cua/perception/cdp_extractor.py": ":src/arc_cua/perception/cdp_extractor.py",
+    "arc_cua/interfaces/cli.py": ":src/arc_cua/interfaces/cli.py",
+    "arc_cua/execution/playwright_executor.py": "HEAD:src/arc_cua/execution/playwright_executor.py",
+    "arc_cua/execution/executor_interface.py": "HEAD:src/arc_cua/execution/executor_interface.py",
     "arc_cua/monitors/stuck_monitor.py": "HEAD:src/arc_cua/monitors/stuck_monitor.py",
 }
 
@@ -123,7 +123,7 @@ def main() -> int:
         # fall-through to the real package cannot masquerade as a passing verdict.
         probe = subprocess.run(
             [sys.executable, "-c",
-             "import sys; sys.path.insert(0, r'%s'); import arc_cua.cdp_extractor as m; "
+             "import sys; sys.path.insert(0, r'%s'); import arc_cua.perception.cdp_extractor as m; "
              "print(m.__file__); print(hasattr(m.SanitizedAXTree, 'truncated') and "
              "'truncation_notice' in getattr(m.SanitizedAXTree, '__dataclass_fields__', {}))"
              % (mirror / "src")],

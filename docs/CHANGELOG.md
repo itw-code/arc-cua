@@ -4,6 +4,20 @@ All notable technical achievements, deliverables, and performance benchmarks acr
 
 ---
 
+## 2026-10-02: `arc_cua` split into subpackages; tests named by subject
+
+- The 20 flat modules now sit beside the existing `cloud/`, `cortex/`, `datasets/`, `eval/`, `monitors/` subpackages:
+  - `perception/`: `cdp_discovery`, `cdp_extractor`, `at_spi_bridge`, `image_provider`
+  - `execution/`: `executor_interface`, `playwright_executor`, `locator_resolver`, `browser_session`, `session_guard`, `vm_manager`
+  - `reflex/`: `reflex_runner`, `reflex_policy`, `hybrid_runner`, `state_verifier`
+  - `decision/`: `index_bridge`, `decision_endpoint`
+  - `interfaces/`: `cli`, `mcp_server`
+- `schemas` and `telemetry` stay at the package root: they are shared by every layer (`schemas` has 48 importers), and moving them would only lengthen import lines.
+- This is a clean cutover with no compatibility shims. Every import site in `src/`, `arc_index`, `tests/`, `scripts/` and `benchmark/` was rewritten, including `mock.patch` target strings and source-path lookups in tests. The top-level `arc_cua` re-exports are unchanged, so `from arc_cua import ReflexRunner` still works. Console scripts now point at `arc_cua.interfaces.cli:main` and `arc_cua.interfaces.mcp_server:main`, so an editable install must be refreshed with `pip install -e .`, and `python -m arc_cua.cli` becomes `python -m arc_cua.interfaces.cli`.
+- Phase-numbered test files were renamed for what they test: `test_phase1` → `test_vm_and_perception`, `test_phase1_remediation` → `test_image_and_cdp_discovery`, `test_phase2_reflex` → `test_reflex_runner`, `test_phase3_monitors` → `test_monitors`, `test_phase3b_components` → `test_trajectory_datasets`, `test_phase3b_live` → `test_hybrid_live`, `test_phase4a_eval` → `test_eval_harness`, `test_phase4b_webarena` → `test_eval_webarena`, `test_phase4c_osworld` → `test_eval_osworld`, `test_phase5_production` → `test_production_integration`, `test_phase6_full_scale` → `test_full_scale_runners`. Earlier entries below keep the old names.
+
+---
+
 ## 2026-10-02: Repository layout cleanup
 
 - `scripts/` grouped by purpose: `benchmarks/` (benchmark runners, `run_full_*`, `run_arc_index_live`, `eval_*`, the appeal tool server/client), `reports/`, `training/`, `fixtures/` (`make_denial_fixture`, `fetch_document_corpus`, `mock_webarena_server`), `tools/`. Each group is self-contained: every sibling import (`benchmark_reflex_policy`, `benchmark_gemini_solari_mcp`, `eval_extraction`, `run_arc_index_live`) stays inside `benchmarks/`. Repo-root lookups changed from `parent.parent` to `parents[2]`.

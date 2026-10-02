@@ -23,11 +23,11 @@ from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from arc_cua import cli
-from arc_cua.cdp_extractor import MAX_TOKENS, CDP_AXTree_Extractor
+from arc_cua.interfaces import cli
+from arc_cua.perception.cdp_extractor import MAX_TOKENS, CDP_AXTree_Extractor
 
 try:
-    from arc_cua.cdp_extractor import MANIFEST_TOKEN_RESERVE
+    from arc_cua.perception.cdp_extractor import MANIFEST_TOKEN_RESERVE
 except ImportError:
     # Pre-remediation revisions have no manifest at all, so the constant does not exist.
     # Fall back rather than aborting the import: a module-level ImportError would collapse
@@ -35,9 +35,9 @@ except ImportError:
     # sources, hiding the per-test discrimination that proves each test earns its place.
     MANIFEST_TOKEN_RESERVE = 64
 
-from arc_cua.executor_interface import ActionPayload, ActionVerb
+from arc_cua.execution.executor_interface import ActionPayload, ActionVerb
 from arc_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor
-from arc_cua.playwright_executor import PlaywrightExecutor
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
 
 
 # ============================================================================

@@ -23,14 +23,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from arc_cua.decision_endpoint import (
+from arc_cua.decision.decision_endpoint import (
     DEFAULT_GATEWAY_PORT,
     DecisionEndpointResolver,
     access_headers,
     probe_health,
     to_base_url,
 )
-from arc_cua.index_bridge import HybridDecisionClient
+from arc_cua.decision.index_bridge import HybridDecisionClient
 
 
 class _GatewayHandler(BaseHTTPRequestHandler):

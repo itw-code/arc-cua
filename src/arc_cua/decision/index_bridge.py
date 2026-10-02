@@ -26,11 +26,11 @@ import urllib.request
 import urllib.error
 from typing import Any, Dict, List, Optional, Tuple
 
-from arc_cua.executor_interface import ActionPayload, ActionVerb
-from arc_cua.playwright_executor import PlaywrightExecutor
+from arc_cua.execution.executor_interface import ActionPayload, ActionVerb
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
 from arc_cua.schemas import ActionResult
-from arc_cua.state_verifier import StateVerifier, StateVerificationResult
-from arc_cua.decision_endpoint import (
+from arc_cua.reflex.state_verifier import StateVerifier, StateVerificationResult
+from arc_cua.decision.decision_endpoint import (
     DEFAULT_GATEWAY_PORT,
     USER_AGENT,
     DecisionEndpointResolver,
@@ -38,7 +38,7 @@ from arc_cua.decision_endpoint import (
     to_base_url,
 )
 
-logger = logging.getLogger("arc_cua.index_bridge")
+logger = logging.getLogger("arc_cua.decision.index_bridge")
 
 MAX_LAYA_CANDIDATE_OPTIONS = 20
 # Fitted on ground-truth page/pin tasks (benchmark/calibrate_threshold.py,

@@ -108,7 +108,7 @@ For scale, Browser Use's Jev reports a Google Flights search in 7.1 s, with one 
 
 ## Part D — reflex policy: one model call per action
 
-Part C's agent loop paid for a general coding agent on every step: about 20k input tokens per turn, prose before each tool call, and chat history. `arc_cua.reflex_policy` is the Jev-style alternative:
+Part C's agent loop paid for a general coding agent on every step: about 20k input tokens per turn, prose before each tool call, and chat history. `arc_cua.reflex.reflex_policy` is the Jev-style alternative:
 - **Input:** each step sends one direct chat-completions request with the goal, ARC's current tree (≤ ~1,200 tokens) and the last 4 actions (each naming the element it hit and whether the page changed).
 - **Output:** exactly one JSON action, such as `{"op":"click","index":19}`, about 9 output tokens.
 - **ARC side:** `arc_act` returns the next tree, so each step is one model call plus one ARC action.

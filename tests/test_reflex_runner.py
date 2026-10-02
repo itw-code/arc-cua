@@ -25,21 +25,21 @@ import pytest
 # Ensure src is in python path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from arc_cua.cdp_extractor import AXNode, CDP_AXTree_Extractor, SanitizedAXTree
-from arc_cua.executor_interface import (
+from arc_cua.perception.cdp_extractor import AXNode, CDP_AXTree_Extractor, SanitizedAXTree
+from arc_cua.execution.executor_interface import (
     ActionPayload,
     ActionVerb,
     FORBIDDEN_PRIVATE_INTERNALS,
     audit_public_api_compliance,
 )
-from arc_cua.locator_resolver import (
+from arc_cua.execution.locator_resolver import (
     LocatorResolutionError,
     LocatorResolver,
     ResolvedLocator,
     SelectorLRUCache,
 )
-from arc_cua.playwright_executor import PlaywrightExecutor
-from arc_cua.reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
+from arc_cua.reflex.reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
 from arc_cua.schemas import (
     ActionResult,
     ActionStep,
@@ -49,8 +49,8 @@ from arc_cua.schemas import (
     TelemetryRecord,
     UIState,
 )
-from arc_cua.session_guard import ReadinessResult, SessionGuard
-from arc_cua.state_verifier import (
+from arc_cua.execution.session_guard import ReadinessResult, SessionGuard
+from arc_cua.reflex.state_verifier import (
     StateVerificationResult,
     StateVerifier,
     compute_hamming_distance,
@@ -199,7 +199,7 @@ class TestPublicAPICompliance:
 
     def test_static_source_code_scan_playwright_executor(self):
         """Parse playwright_executor.py AST to guarantee no forbidden private attributes are used."""
-        executor_path = pathlib.Path("src/arc_cua/playwright_executor.py")
+        executor_path = pathlib.Path("src/arc_cua/execution/playwright_executor.py")
         assert executor_path.exists(), "playwright_executor.py must exist"
 
         source = executor_path.read_text(encoding="utf-8")
@@ -217,7 +217,7 @@ class TestPublicAPICompliance:
 
     def test_static_string_ban_in_source(self):
         """Direct string check for forbidden words."""
-        source = pathlib.Path("src/arc_cua/playwright_executor.py").read_text(encoding="utf-8")
+        source = pathlib.Path("src/arc_cua/execution/playwright_executor.py").read_text(encoding="utf-8")
         for forbidden in FORBIDDEN_PRIVATE_INTERNALS:
             assert forbidden not in source, f"Forbidden attribute string '{forbidden}' found in source"
 

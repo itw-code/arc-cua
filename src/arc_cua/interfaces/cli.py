@@ -30,12 +30,12 @@ from pathlib import Path
 from typing import Any
 
 
-from arc_cua.browser_session import (
+from arc_cua.execution.browser_session import (
     extract_page_tree as _extract_page_tree,
     resolve_target,
     settle_and_extract as _settle_and_extract,
 )
-from arc_cua.cdp_discovery import is_cdp_alive
+from arc_cua.perception.cdp_discovery import is_cdp_alive
 
 # Persistent config and session paths in user home
 USER_DIR = Path.home() / ".omp"
@@ -48,7 +48,7 @@ ACT_STREAK_PATH = USER_DIR / "cua-act-streak.json"
 # Consecutive mutating no-op actions on one target before the CLI reports a stall.
 ACT_STALL_THRESHOLD = 3
 
-logger = logging.getLogger("arc_cua.cli")
+logger = logging.getLogger("arc_cua.interfaces.cli")
 
 
 def get_current_mode() -> str:
@@ -162,7 +162,7 @@ def ensure_cdp_session(explicit_cdp: str | None = None, visible: bool = False, d
     # discovered endpoint (e.g. omp's headless browser on 9224) is not known-visible and
     # silently reattaching to it would show no window. Launch our own visible browser instead.
     if not visible and discover:
-        from arc_cua.cdp_discovery import CDPDiscovery
+        from arc_cua.perception.cdp_discovery import CDPDiscovery
         discovery = CDPDiscovery()
         spec = discovery.discover()
         if spec.transport_type == "tcp_localhost" and is_cdp_alive(spec.endpoint_url):
@@ -341,7 +341,7 @@ def cmd_mode(args: argparse.Namespace) -> int:
 
 def cmd_cdp(args: argparse.Namespace) -> int:
     """Handle the 'cdp' subcommand to probe endpoints."""
-    from arc_cua.cdp_discovery import CDPDiscovery
+    from arc_cua.perception.cdp_discovery import CDPDiscovery
 
     discovery = CDPDiscovery()
     spec = discovery.discover()
@@ -362,7 +362,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     health probe passed, and what is pinned on disk) so a dead Colab runtime is
     distinguishable from a misconfigured client without a debugger.
     """
-    from arc_cua.decision_endpoint import DecisionEndpointResolver
+    from arc_cua.decision.decision_endpoint import DecisionEndpointResolver
 
     resolver = DecisionEndpointResolver(endpoint=getattr(args, "endpoint", None))
 
@@ -423,7 +423,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
 def cmd_inspect(args: argparse.Namespace) -> int:
     """Handle the 'inspect' subcommand to extract sanitized AXTree."""
-    from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+    from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor
 
     extractor = CDP_AXTree_Extractor()
 
@@ -563,10 +563,10 @@ def _update_act_noop_streak(target: str | None, verb: str, is_noop: bool) -> int
 
 def cmd_act(args: argparse.Namespace) -> int:
     """Handle the 'act' subcommand to dispatch a deterministic reflex action (per-action latency reported)."""
-    from arc_cua.playwright_executor import PlaywrightExecutor
-    from arc_cua.executor_interface import ActionPayload, ActionVerb
-    from arc_cua.state_verifier import StateVerifier
-    from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+    from arc_cua.execution.playwright_executor import PlaywrightExecutor
+    from arc_cua.execution.executor_interface import ActionPayload, ActionVerb
+    from arc_cua.reflex.state_verifier import StateVerifier
+    from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor
 
     verb_map = {
         "CLICK": ActionVerb.CLICK,
@@ -707,7 +707,7 @@ def cmd_act(args: argparse.Namespace) -> int:
 
 def cmd_run(args: argparse.Namespace) -> int:
     """Handle the 'run' subcommand to execute an autonomous hybrid task."""
-    from arc_cua.hybrid_runner import HybridRunner
+    from arc_cua.reflex.hybrid_runner import HybridRunner
     from arc_cua.monitors.stuck_monitor import StuckMonitor
     from arc_cua.monitors.milestone_monitor import MilestoneMonitor
     from arc_cua.monitors.escalation_controller import EscalationController

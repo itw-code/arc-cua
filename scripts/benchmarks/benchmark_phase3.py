@@ -25,7 +25,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parents[2] / "src"))
 
 from arc_cua.cortex.mock_cortex import MockCortexClient
 from arc_cua.cortex.recovery_compiler import RecoveryCompiler
-from arc_cua.hybrid_runner import HybridRunner
+from arc_cua.reflex.hybrid_runner import HybridRunner
 from arc_cua.monitors.escalation_controller import EscalationController
 from arc_cua.monitors.milestone_monitor import MilestoneMonitor
 from arc_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor

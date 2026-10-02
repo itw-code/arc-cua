@@ -77,7 +77,7 @@ class AdminTriageEngine:
         self.categories = categories or DEFAULT_CATEGORIES
         self.decision_spec = None
         try:
-            from arc_cua.decision_endpoint import DecisionEndpointResolver
+            from arc_cua.decision.decision_endpoint import DecisionEndpointResolver
 
             self.decision_spec = DecisionEndpointResolver(endpoint=colab_endpoint).discover()
             self.colab_endpoint = self.decision_spec.systemone_url
@@ -90,7 +90,7 @@ class AdminTriageEngine:
             else:
                 logger.info("System-2 endpoint resolved via %s: %s", self.decision_spec.source, self.decision_spec.base_url)
         except Exception as e:
-            from arc_cua.decision_endpoint import DEFAULT_GATEWAY_PORT
+            from arc_cua.decision.decision_endpoint import DEFAULT_GATEWAY_PORT
 
             logger.warning("Could not resolve System-2 endpoint (%s); using loopback default.", e)
             self.colab_endpoint = f"http://127.0.0.1:{DEFAULT_GATEWAY_PORT}/v1/systemone"
@@ -105,7 +105,7 @@ class AdminTriageEngine:
             return
         try:
             import laya  # type: ignore
-            from arc_cua.index_bridge import LayaWireAdapter
+            from arc_cua.decision.index_bridge import LayaWireAdapter
 
             model_id = "convaiinnovations/laya-typed-decisions"
             logger.info("Initializing Local System-1 Laya (%s)...", model_id)

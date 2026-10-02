@@ -22,7 +22,7 @@ import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
-logger = logging.getLogger("arc_cua.at_spi_bridge")
+logger = logging.getLogger("arc_cua.perception.at_spi_bridge")
 
 # AT-SPI2 Role Constants mapped to human-readable semantic roles
 ATSPI_ROLE_NAMES: Dict[int, str] = {

@@ -4,8 +4,8 @@ import pathlib
 
 import pytest
 
-from arc_cua.browser_session import BrowserSession
-from arc_cua.reflex_policy import parse_action, run_episode
+from arc_cua.execution.browser_session import BrowserSession
+from arc_cua.reflex.reflex_policy import parse_action, run_episode
 
 SOFT_NAV_URL = (pathlib.Path(__file__).parent / "fixtures" / "soft_nav_site.html").resolve().as_uri()
 

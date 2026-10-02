@@ -18,7 +18,7 @@ import logging
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-logger = logging.getLogger("arc_cua.session_guard")
+logger = logging.getLogger("arc_cua.execution.session_guard")
 
 
 @dataclasses.dataclass

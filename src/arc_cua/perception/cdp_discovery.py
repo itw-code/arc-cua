@@ -21,7 +21,7 @@ import urllib.request
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-logger = logging.getLogger("arc_cua.cdp_discovery")
+logger = logging.getLogger("arc_cua.perception.cdp_discovery")
 
 # Candidate Unix Domain Sockets for Chromium on Linux
 CANDIDATE_UDS_PATHS: List[str] = [

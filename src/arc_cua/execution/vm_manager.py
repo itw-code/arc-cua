@@ -24,8 +24,8 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-logger = logging.getLogger("arc_cua.vm_manager")
-from .image_provider import ArcImageProvider, VMImageSpec
+logger = logging.getLogger("arc_cua.execution.vm_manager")
+from arc_cua.perception.image_provider import ArcImageProvider, VMImageSpec
 
 
 @dataclasses.dataclass

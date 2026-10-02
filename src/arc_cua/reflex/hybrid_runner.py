@@ -22,17 +22,17 @@ import time
 import uuid
 from typing import Any, Dict, List, Optional, Union
 
-from .cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
-from .cortex.cortex_interface import CortexClient
-from .cortex.http_cortex import HttpCortexClient
-from .cortex.mock_cortex import MockCortexClient
-from .cortex.recovery_compiler import RecoveryCompiler
-from .executor_interface import ActionPayload
-from .monitors.escalation_controller import EscalationController
-from .monitors.milestone_monitor import MilestoneMonitor
-from .monitors.stuck_monitor import StepTelemetry, StuckMonitor
-from .reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
-from .schemas import (
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor, SanitizedAXTree
+from arc_cua.cortex.cortex_interface import CortexClient
+from arc_cua.cortex.http_cortex import HttpCortexClient
+from arc_cua.cortex.mock_cortex import MockCortexClient
+from arc_cua.cortex.recovery_compiler import RecoveryCompiler
+from arc_cua.execution.executor_interface import ActionPayload
+from arc_cua.monitors.escalation_controller import EscalationController
+from arc_cua.monitors.milestone_monitor import MilestoneMonitor
+from arc_cua.monitors.stuck_monitor import StepTelemetry, StuckMonitor
+from arc_cua.reflex.reflex_runner import ReflexExecutionResult, ReflexRunner, ReflexStatus
+from arc_cua.schemas import (
     ActionStep,
     DecisionType,
     EscalationPayload,
@@ -44,9 +44,9 @@ from .schemas import (
     TelemetryRecord,
     UIState,
 )
-from .telemetry import TelemetryCollector
+from arc_cua.telemetry import TelemetryCollector
 
-logger = logging.getLogger("arc_cua.hybrid_runner")
+logger = logging.getLogger("arc_cua.reflex.hybrid_runner")
 
 
 class HybridRunner:

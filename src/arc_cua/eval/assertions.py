@@ -21,7 +21,7 @@ import re
 import time
 from typing import Any, Optional, Pattern, Union
 
-from ..state_verifier import compute_hamming_distance
+from arc_cua.reflex.state_verifier import compute_hamming_distance
 from .schemas import (
     AssertionType,
     ElementState,
