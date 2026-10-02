@@ -60,6 +60,19 @@ arc-cua close
 
 The CLI drives local or `--cdp` browsers only (no Solari backend, no screenshots). `arc-cua run` is not functional; drive tasks step by step.
 
+## System-2 decisions (optional)
+
+Field-to-field and page-lookup decisions escalate to a Qwen3.8-27B instance on Google Colab. It is optional: with nothing reachable, the bridge falls back to a rule heuristic and the loop still works. To check or connect it:
+
+```bash
+arc-cua doctor                              # resolved URL, its source, health
+arc-cua doctor --endpoint "https://arc.ihsanwanda.my.id" --pin   # persist once
+```
+
+`doctor` distinguishes three failures that need different fixes: **Access denied** (missing `CF_ACCESS_CLIENT_ID`/`CF_ACCESS_CLIENT_SECRET` — the runtime is likely alive), **not healthy** (start the Colab notebook), and **connection refused** (nothing is listening). Do not recommend restarting Colab for the first case.
+
+Never hardcode the endpoint. The quick-tunnel hostname is regenerated per Colab runtime, so read it via the resolver or the pin file rather than assuming one.
+
 ## Setup
 
 When the `arc_*` tools are missing, from the ARC repo:

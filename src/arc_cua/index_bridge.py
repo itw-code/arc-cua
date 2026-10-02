@@ -30,6 +30,13 @@ from arc_cua.executor_interface import ActionPayload, ActionVerb
 from arc_cua.playwright_executor import PlaywrightExecutor
 from arc_cua.schemas import ActionResult
 from arc_cua.state_verifier import StateVerifier, StateVerificationResult
+from arc_cua.decision_endpoint import (
+    DEFAULT_GATEWAY_PORT,
+    USER_AGENT,
+    DecisionEndpointResolver,
+    DecisionEndpointSpec,
+    to_base_url,
+)
 
 logger = logging.getLogger("arc_cua.index_bridge")
 
@@ -192,14 +199,11 @@ class HybridDecisionClient:
         mock_laya: Optional[Any] = None,
     ):
         self.local_model_id = local_model_id
-        self.colab_endpoint = colab_endpoint or os.environ.get(
-            "SGLANG_DECISION_ENDPOINT",
-            "http://127.0.0.1:8000/v1/systemone",
-        )
-        self.colab_decisions_url = os.environ.get(
-            "SGLANG_DECISIONS_URL",
-            self.colab_endpoint.replace("/v1/systemone", "/v1/decisions"),
-        )
+        self.decision_endpoint_spec: Optional[DecisionEndpointSpec] = None
+        self.decision_request_headers: Dict[str, str] = {}
+        resolved = self._resolve_decision_endpoints(colab_endpoint)
+        self.colab_endpoint = resolved[0]
+        self.colab_decisions_url = resolved[1]
         self.confidence_threshold = confidence_threshold
         self.head_max_len = head_max_len
         self.prefer_local = prefer_local
@@ -209,6 +213,41 @@ class HybridDecisionClient:
 
         if self.laya_agent is None:
             self._init_local_laya()
+
+    def _resolve_decision_endpoints(
+        self, explicit: Optional[str]
+    ) -> Tuple[str, str]:
+        """Resolve the System-2 gateway and derive its /v1/systemone and /v1/decisions URLs.
+
+        Delegates to DecisionEndpointResolver so a restarted Colab runtime is found
+        through the pinned cache or loopback probe instead of requiring a hand-pasted
+        URL. An unhealthy resolve is not fatal here: the client keeps the address and
+        the bridge falls through to the rule heuristic if a call later fails, so a
+        cold Colab degrades the tier rather than breaking construction.
+        """
+        resolver = DecisionEndpointResolver(endpoint=explicit)
+        try:
+            spec = resolver.discover()
+        except ConnectionError as exc:
+            logger.warning("System-2 endpoint unresolved (%s); using loopback default.", exc)
+            base = to_base_url(explicit) if explicit else f"http://127.0.0.1:{DEFAULT_GATEWAY_PORT}"
+            return f"{base}/v1/systemone", f"{base}/v1/decisions"
+
+        self.decision_endpoint_spec = spec
+        self.decision_request_headers = dict(spec.request_headers)
+        if not spec.is_healthy:
+            logger.warning(
+                "System-2 endpoint %s did not pass the health probe (%s); "
+                "bridge calls will fall back to the rule heuristic.",
+                spec.base_url,
+                spec.health.get("error"),
+            )
+        elif spec.request_headers:
+            logger.info("System-2 endpoint %s via %s (Cloudflare Access headers attached).",
+                        spec.base_url, spec.source)
+        else:
+            logger.info("System-2 endpoint resolved via %s: %s", spec.source, spec.base_url)
+        return spec.systemone_url, spec.decisions_url
 
     def _init_local_laya(self) -> None:
         """Initialize in-memory local Laya ModernBERT decision model."""
@@ -228,31 +267,34 @@ class HybridDecisionClient:
     # Remote HTTP Keep-Alive Gateway (SGLang)
     # -------------------------------------------------------------------------
 
-    def _post_remote_systemone(self, payload: Dict[str, Any], timeout: float = 10.0) -> Dict[str, Any]:
-        """Query remote Colab SGLang /v1/systemone via HTTP keep-alive connection pool."""
+    def _post_remote(self, url: str, payload: Dict[str, Any], label: str, timeout: float = 10.0) -> Dict[str, Any]:
+        """POST a decision payload to the gateway, carrying Access credentials.
+
+        A named tunnel sits behind Cloudflare Access, so the service-token headers
+        must ride on the decision POST and not merely on the health probe. Both
+        endpoints go through here so the two cannot drift apart: a gateway that
+        passes `doctor` but 403s on every real decision is exactly that drift.
+        """
+        headers = {"Content-Type": "application/json", "Connection": "keep-alive", "User-Agent": USER_AGENT}
+        headers.update(self.decision_request_headers)
         req = urllib.request.Request(
-            self.colab_endpoint,
+            url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json", "Connection": "keep-alive"},
+            headers=headers,
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             if resp.status != 200:
-                raise RuntimeError(f"SGLang systemone error HTTP {resp.status}")
+                raise RuntimeError(f"{label} error HTTP {resp.status}")
             return json.loads(resp.read().decode("utf-8"))
 
+    def _post_remote_systemone(self, payload: Dict[str, Any], timeout: float = 10.0) -> Dict[str, Any]:
+        """Query the gateway's /v1/systemone via an HTTP keep-alive connection pool."""
+        return self._post_remote(self.colab_endpoint, payload, "SGLang systemone", timeout)
+
     def _post_remote_decisions(self, payload: Dict[str, Any], timeout: float = 10.0) -> Dict[str, Any]:
-        """Query remote Colab SGLang /v1/decisions via HTTP keep-alive connection pool."""
-        req = urllib.request.Request(
-            self.colab_decisions_url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json", "Connection": "keep-alive"},
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            if resp.status != 200:
-                raise RuntimeError(f"SGLang decisions error HTTP {resp.status}")
-            return json.loads(resp.read().decode("utf-8"))
+        """Query the gateway's /v1/decisions via an HTTP keep-alive connection pool."""
+        return self._post_remote(self.colab_decisions_url, payload, "SGLang decisions", timeout)
 
     # -------------------------------------------------------------------------
     # Fast Path: PageIndex Tree Node Traversal (<20ms)

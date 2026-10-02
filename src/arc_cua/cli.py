@@ -3,6 +3,8 @@
 Provides atomic, low-overhead browser and computer-use tools for omp agents:
 - mode: Inspect or configure the active CUA mode (default vs arc-cua).
 - cdp: Probe or resolve active Chrome DevTools Protocol endpoints.
+- doctor: Resolve, health-probe, and pin the System-2 decision gateway (Colab SGLang)
+  so a restarted runtime does not need a hand-pasted URL.
 - open: Open a URL in a persistent Chromium session.
 - inspect: Extract and print zero-copy sanitized AXTree (token-budgeted at 1200 tokens;
   waits out SPA hydration; announces any dropped nodes via truncation_notice) with
@@ -350,6 +352,72 @@ def cmd_cdp(args: argparse.Namespace) -> int:
     print(f"  Description:     {spec.description}")
     if SESSION_CONFIG_PATH.exists():
         print(f"  Persistent file: {SESSION_CONFIG_PATH}")
+    return 0
+
+
+def cmd_doctor(args: argparse.Namespace) -> int:
+    """Handle the 'doctor' subcommand: resolve and optionally pin the System-2 gateway.
+
+    Reports the full cascade (which source supplied the address, whether the
+    health probe passed, and what is pinned on disk) so a dead Colab runtime is
+    distinguishable from a misconfigured client without a debugger.
+    """
+    from arc_cua.decision_endpoint import DecisionEndpointResolver
+
+    resolver = DecisionEndpointResolver(endpoint=getattr(args, "endpoint", None))
+
+    if args.unpin:
+        removed = resolver.clear_pin()
+        print("Cleared pinned endpoint." if removed else "No pinned endpoint to clear.")
+        return 0
+
+    try:
+        spec = resolver.discover()
+    except ConnectionError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    print("System-2 Decision Endpoint:")
+    print(f"  Base URL:     {spec.base_url}")
+    print(f"  /v1/systemone: {spec.systemone_url}")
+    print(f"  /v1/decisions: {spec.decisions_url}")
+    print(f"  Source:       {spec.source}")
+    print(f"  Healthy:      {spec.is_healthy}")
+    if spec.request_headers:
+        print(f"  Auth:         Cloudflare Access headers attached")
+    elif spec.base_url.startswith("https://"):
+        print("  Auth:         none sent (needed if the host is behind Cloudflare Access)")
+    if spec.health.get("error"):
+        print(f"  Probe error:  {spec.health['error']}")
+    pin_file = resolver.pin_path
+    if pin_file.exists():
+        print(f"  Pinned file:  {pin_file}")
+    else:
+        print(f"  Pinned file:  {pin_file} (absent)")
+
+    if args.pin:
+        try:
+            pinned = resolver.pin(spec.base_url)
+        except ConnectionError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        print(f"  Pinned:       {pinned.base_url}")
+        print("\nThis endpoint is now persisted. Later sessions resolve System-2 from it")
+        print("automatically, including from this coding agent. Re-run")
+        print("`arc-cua doctor --pin` after restarting the Colab runtime.")
+        return 0
+
+    if not spec.is_healthy and spec.health.get("access_denied"):
+        print("\nThe tunnel host is reachable but Cloudflare Access refused the request.")
+        print("The Colab runtime may well be alive; you are missing credentials. Set both:")
+        print("  CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET")
+        print("from the Zero Trust > Access > Service Auth > Service Token panel.")
+        return 1
+
+    if not spec.is_healthy:
+        print("\nNot healthy. Start the Colab notebook (Runtime > Run all), then:")
+        print("  arc-cua doctor --pin")
+        return 1
     return 0
 
 
@@ -739,6 +807,12 @@ def build_parser() -> argparse.ArgumentParser:
     # cdp
     subparsers.add_parser("cdp", help="Probe and resolve active Chrome DevTools Protocol endpoints")
 
+    # doctor
+    p_doctor = subparsers.add_parser("doctor", help="Resolve, health-probe, and pin the System-2 decision gateway")
+    p_doctor.add_argument("--endpoint", help="Explicit gateway URL to probe instead of using the cascade")
+    p_doctor.add_argument("--pin", action="store_true", help="Record the resolved endpoint as last-known-good")
+    p_doctor.add_argument("--unpin", action="store_true", help="Delete the pinned endpoint")
+
     # close
     subparsers.add_parser("close", help="Close the active persistent Chromium session")
 
@@ -791,6 +865,8 @@ def main() -> int:
         return cmd_mode(args)
     elif args.command == "cdp":
         return cmd_cdp(args)
+    elif args.command == "doctor":
+        return cmd_doctor(args)
     elif args.command == "close":
         return cmd_close(args)
     elif args.command == "inspect":

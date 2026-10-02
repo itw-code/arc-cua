@@ -103,7 +103,8 @@ pip install -e .
 
 ### 2. Run Test Suite
 ```bash
-# 267 tests (2 known failures in test_phase1_remediation)
+# 306 tests. Run with SOLARI_API_KEY unset: the 2 tests in test_phase1_remediation
+# that assert the arc_cloud/tunnel cascade outcomes expect the key to be absent.
 pytest tests/
 ```
 
@@ -122,6 +123,46 @@ python scripts/eval_extraction.py -n 20
 ### 4. Interactive Showcase & ELI5 Explainer
 Open `showcase.html` for the architecture explorer. Its cost/latency simulator uses the mock-scorecard figures, not the measured results above.
 Open `explain.html` for the high-energy Bang-Motion visual explainer using the Hot Stove reflex analogy!
+
+### 5. Connect the System-2 decision model (optional)
+
+The bridge's System-1 tier is the local Laya model, already installed with the package. System-2 is a Qwen3.8-27B AWQ instance served by SGLang on Google Colab, because a 27B AWQ model does not fit this laptop's Intel Arc 140V iGPU. It is optional: with no System-2 reachable, the bridge keeps working and falls back to its rule heuristic.
+
+```bash
+# 1. In Colab: open notebooks/sglang_decision_server.ipynb, Runtime > Run all.
+# 2. The last cell prints one line. Copy it into your local terminal:
+arc-cua doctor --endpoint "https://<random>.trycloudflare.com" --pin
+```
+
+That writes `~/.omp/decision-endpoint.json`. From then on `HybridDecisionClient` finds System-2 on its own, including from this coding agent, with no `SGLANG_DECISION_ENDPOINT` export. The Cloudflare quick tunnel issues a **new random hostname on every runtime start**, so re-run `--pin` each time you restart the notebook; nothing else changes.
+
+```bash
+arc-cua doctor            # which URL resolved, from which source, healthy or not
+arc-cua doctor --unpin    # forget a stale URL
+```
+
+Note the two ports printed by the notebook: `8001` is the gateway and serves `/v1/systemone`, while `8000` is SGLang itself and does not. Pin the gateway URL.
+
+#### Optional: a stable hostname instead of the random one
+
+The quick tunnel reissues a random hostname per runtime, which is safe (unpredictable) but means re-pinning. If `ihsanwanda.my.id` is on Cloudflare (it is), a **named tunnel** gives one fixed URL that survives every restart:
+
+```bash
+# One-time, in the Cloudflare dashboard:
+#   Zero Trust > Networks > Tunnels > Create tunnel  ->  name it "arc-sglang"
+#   Public hostname:  arc.ihsanwanda.my.id  ->  http://localhost:8001   (the GATEWAY, not 8000)
+#   Zero Trust > Access > Applications > add arc.ihsanwanda.my.id,
+#       policy: Service Auth service token ONLY  (not "anyone")
+#   Zero Trust > Access > Service Auth > Service tokens > Create
+#     -> tunnel token  -> Colab secret ARC_TUNNEL_TOKEN
+#     -> access pair  -> your laptop env CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET
+arc-cua doctor --endpoint "https://arc.ihsanwanda.my.id" --pin   # once, and it sticks
+```
+
+The notebook cell [6] detects the secret and uses the named tunnel, falling back to the quick tunnel if the connector cannot register. Access matters here: a fixed hostname is **guessable**, and an unguarded gateway would let anyone who finds it spend your Colab GPU hours. With the policy above, `arc-cua doctor` reports a missing token as an Access problem rather than telling you to restart a runtime that is already serving.
+
+One caveat worth stating plainly: a stable URL is not a persistent runtime. The 12-hour cap and the 40–90 minute idle timeout in the notebook's own notes still apply, and `doctor` is how you tell "URL is fine, Colab is gone" from "all good".
+
 ---
 
 ## Use with Claude Code (MCP)

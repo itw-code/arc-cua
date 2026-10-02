@@ -75,10 +75,25 @@ class AdminTriageEngine:
         head_max_len: int = 256,
     ):
         self.categories = categories or DEFAULT_CATEGORIES
-        self.colab_endpoint = colab_endpoint or os.environ.get(
-            "SGLANG_DECISION_ENDPOINT",
-            "http://127.0.0.1:8000/v1/systemone",
-        )
+        self.decision_spec = None
+        try:
+            from arc_cua.decision_endpoint import DecisionEndpointResolver
+
+            self.decision_spec = DecisionEndpointResolver(endpoint=colab_endpoint).discover()
+            self.colab_endpoint = self.decision_spec.systemone_url
+            if not self.decision_spec.is_healthy:
+                logger.warning(
+                    "System-2 endpoint %s is not healthy (%s); triage will use the heuristic fallback.",
+                    self.decision_spec.base_url,
+                    self.decision_spec.health.get("error"),
+                )
+            else:
+                logger.info("System-2 endpoint resolved via %s: %s", self.decision_spec.source, self.decision_spec.base_url)
+        except Exception as e:
+            from arc_cua.decision_endpoint import DEFAULT_GATEWAY_PORT
+
+            logger.warning("Could not resolve System-2 endpoint (%s); using loopback default.", e)
+            self.colab_endpoint = f"http://127.0.0.1:{DEFAULT_GATEWAY_PORT}/v1/systemone"
         self.prefer_local = prefer_local
         self.head_max_len = head_max_len
         self.laya_agent = None
