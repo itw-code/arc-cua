@@ -17,12 +17,12 @@ from unittest.mock import MagicMock, patch
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
-if str(REPO_ROOT / "scripts") not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+if str(REPO_ROOT / "scripts" / "tools") not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT / "scripts" / "tools"))
 
 
-from arc_cua.executor_interface import ActionVerb
-from arc_cua.index_bridge import (
+from arc_cua.execution.executor_interface import ActionVerb
+from arc_cua.decision.index_bridge import (
     MAX_LAYA_CANDIDATE_OPTIONS,
     DecisionTier,
     FieldBinding,
@@ -31,8 +31,8 @@ from arc_cua.index_bridge import (
     TreeTraversalResult,
 )
 from arc_cua.schemas import ActionResult
-from arc_cua.state_verifier import StateVerificationResult
-from scripts.admin_organizer import (
+from arc_cua.reflex.state_verifier import StateVerificationResult
+from scripts.tools.admin_organizer import (
     AdminTriageEngine,
     FileOrganizerWatcher,
 )

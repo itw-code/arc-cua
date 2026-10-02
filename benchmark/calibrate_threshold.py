@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def run_laya(tasks: List[DecisionTask]) -> List[Dict]:
     import laya
-    from arc_cua.index_bridge import LayaWireAdapter
+    from arc_cua.decision.index_bridge import LayaWireAdapter
 
     agent = LayaWireAdapter(laya.load("convaiinnovations/laya-typed-decisions"))
     return [_record(t, lambda t=t: agent.predict(t.state, {"q": t.question()})) for t in tasks]

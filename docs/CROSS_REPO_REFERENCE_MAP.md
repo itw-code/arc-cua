@@ -13,7 +13,7 @@ This document maps architectural decisions, protocol conventions, and configurat
 | Feature / Contract | `arc-hybrid-cua` Implementation | Upstream Reference | Evidence / Notes |
 | :--- | :--- | :--- | :--- |
 | **Base Template Identifier** | `ArcImageProvider` checks `os.environ["ARC_BASE_TEMPLATE"]` defaulting to `"base"`. | `coldstart/arc-cookbook/src/arc/orchestrate.ts:30` | `const BASE_TEMPLATE = process.env.ARC_BASE_TEMPLATE ?? "base"` |
-| **Dynamic Image Resolution** | `src/arc_cua/image_provider.py` resolves kernels and ext4 rootfs without hardcoded paths. | `research-assets/arc-docs/changelog.html:266-267` | Arc supports snapshots, reusable templates, and custom images (`apt`/`pip` builds). |
+| **Dynamic Image Resolution** | `src/arc_cua/perception/image_provider.py` resolves kernels and ext4 rootfs without hardcoded paths. | `research-assets/arc-docs/changelog.html:266-267` | Arc supports snapshots, reusable templates, and custom images (`apt`/`pip` builds). |
 | **Kernel & Drive Overrides** | `ARC_KERNEL_PATH` and `ARC_ROOTFS_PATH` env vars override defaults. | `coldstart/arc-cookbook/src/arc/orchestrate.ts:32-33` | Follows standard configuration pattern (`COLDSTART_APP_PORT`, `COLDSTART_DB_PATH`). |
 | **Mock Fixture Fallback** | `ArcImageProvider.resolve(allow_mock=True)` creates sparse mock images in `/tmp`. | `coldstart/arc-cookbook/src/arc/driver.ts:133-145` | Mirrors `MockArc.createSandbox()` pattern for deterministic CI / local host execution. |
 

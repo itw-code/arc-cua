@@ -4,7 +4,7 @@ Every answer comes from a fixture, never from a model:
 - page tasks: `tests/fixtures/documents/<doc>.truth.json` gives each field's page;
   the state is the PDF's own text (pypdf), the options are its pages.
 - pin tasks: which [#N] form pin takes a field. Truth is the portal's own labels
-  (`scripts/demo_arc_index_pipeline.py`, `tests/test_index_bridge.py`); fields the
+  (`scripts/tools/demo_arc_index_pipeline.py`, `tests/test_index_bridge.py`); fields the
   portal has no input for map to NONE_PIN. A 20-pin portal adds hand-written
   distractors (address, NPI, ...) whose labels match none of the fields.
 Seeds only shuffle option order, which measures order sensitivity; they never pick outcomes.

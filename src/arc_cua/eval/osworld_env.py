@@ -24,7 +24,7 @@ import shlex
 import subprocess
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 
-from ..at_spi_bridge import AT_SPI_Bridge, DesktopNode, SerializedDesktopTree
+from arc_cua.perception.at_spi_bridge import AT_SPI_Bridge, DesktopNode, SerializedDesktopTree
 
 logger = logging.getLogger("arc_cua.eval.osworld_env")
 

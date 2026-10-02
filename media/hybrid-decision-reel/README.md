@@ -9,7 +9,7 @@ Every figure on screen is measured. Sources:
 
 - `results/benchmark_runs/ablation_20261001-054054.json` (`benchmark/run_arc_benchmark.py`, report in the `.md` next to it): page Recall@1 56.9% → 100%, MRR 0.738 → 1.000, Recall@2 76.4% → 100%, page lookup p50 296 ms / p95 804 ms, Pass@1 A/B/C/D 0 / 75.0 / 0 / 91.7%. Pin decisions in run C: 24% kept by Laya (18/18 right), 76% escalated.
 - `results/benchmark_runs/calibration_20261001-053044.json` (`benchmark/calibrate_threshold.py`): Laya 15% right on page lookups; threshold 0.44 fitted there.
-- `artifacts/benchmarks/arc_index_live_local_blocks_hints_20261001-054124.json` and `…_hybrid_20261001-055818.json` (`scripts/run_arc_index_live.py --binder hints|hybrid`): reworded-label form 3/6 → 6/6 fields received; every live pin decision escalated to Colab; field matching 4.6–6.0 s per form; fill + submit 1.1 s.
+- `artifacts/benchmarks/arc_index_live_local_blocks_hints_20261001-054124.json` and `…_hybrid_20261001-055818.json` (`scripts/benchmarks/run_arc_index_live.py --binder hints|hybrid`): reworded-label form 3/6 → 6/6 fields received; every live pin decision escalated to Colab; field matching 4.6–6.0 s per form; fill + submit 1.1 s.
 
 Caveats, also on screen: synthetic letters and a small task set; Laya timed on an 8-thread CPU (~38 ms on an L4); no stall occurred in any run, so stall recovery is untested; "Colab model" is Qwen3.8-27B AWQ scored through SGLang `/v1/score` behind a Cloudflare quick tunnel.
 

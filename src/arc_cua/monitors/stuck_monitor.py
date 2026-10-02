@@ -24,7 +24,7 @@ import logging
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ..schemas import ActionResult, ActionStep, StuckSignal
-from ..state_verifier import StateVerificationResult
+from arc_cua.reflex.state_verifier import StateVerificationResult
 
 logger = logging.getLogger("arc_cua.monitors.stuck_monitor")
 

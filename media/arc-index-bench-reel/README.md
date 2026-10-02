@@ -6,7 +6,7 @@ Every figure on screen is measured (`docs/ARC_INDEX_PLAN.md` §9.3, §10.5, §10
 
 - **The dangerous case.** The page-2 table of the two-denied-lines letter (`synthetic_denial_letter_two_denied.pdf`). A model told to "give the one that fits best" picks CPT 99214. The presence check and the evidence check both accept it. The uniqueness rule rejects it with `2 rows fit: 93000 / 99214`, the error the bridge actually returns. Table rows are shortened on screen; the PDF wraps rows 2 and 3 over two lines.
 - **Gemini 3.8 Flash, n=20, 5 letters:** presence 77 → evidence 0. That is 40 + 37 in the block-index columns, with and without descriptions (§10.5).
-- **Claude Sonnet 5.5, two-denied letter, forced pick, n=8:** presence 16, evidence 16, + uniqueness rule 0. The same 8 answers are graded by all three checks (`scripts/eval_offline.py`, `artifacts/benchmarks/offline/sonnet-5.5_grades.json`). No field with a right answer was lost: 8/8 on every one.
+- **Claude Sonnet 5.5, two-denied letter, forced pick, n=8:** presence 16, evidence 16, + uniqueness rule 0. The same 8 answers are graded by all three checks (`scripts/benchmarks/eval_offline.py`, `artifacts/benchmarks/offline/sonnet-5.5_grades.json`). No field with a right answer was lost: 8/8 on every one.
 - **Solari:** fill + submit 20.5 s → 6.1 s (−70.2%), with 386 ms for the batched fill of 7 fields (§9.3).
 
 Caveats: the Sonnet runs were Claude Code subagents, not bare API calls, so they give no latency or cost figures. The letters are synthetic. The rows are found with a regex in the schema.

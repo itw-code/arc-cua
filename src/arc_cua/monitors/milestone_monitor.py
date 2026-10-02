@@ -24,7 +24,7 @@ import logging
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 from ..schemas import ActionResult, ActionStep, MilestoneSignal
-from ..state_verifier import StateVerificationResult
+from arc_cua.reflex.state_verifier import StateVerificationResult
 from .stuck_monitor import StepTelemetry
 
 logger = logging.getLogger("arc_cua.monitors.milestone_monitor")

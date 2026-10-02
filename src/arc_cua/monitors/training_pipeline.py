@@ -89,7 +89,7 @@ def write_training_skipped_notice(output_dir: Path, reason: str) -> Path:
 - To execute live model training:
   1. Deploy to a Linux host equipped with an NVIDIA GPU and CUDA drivers.
   2. Install deep learning dependencies: `pip install torch transformers datasets accelerate scikit-learn`
-  3. Re-run: `python scripts/train_monitors_full.py`
+  3. Re-run: `python scripts/training/train_monitors_full.py`
 """
     with open(notice_path, "w", encoding="utf-8") as f:
         f.write(content)

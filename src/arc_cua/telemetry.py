@@ -2,7 +2,7 @@
 
 Remediates Task 6:
 - Records execution telemetry (perception latency, serialization latency, action latency).
-- Implements 64-bit SimHash state fingerprinting per ARCHITECTURE.md §4.1.
+- Implements 64-bit SimHash state fingerprinting per docs/ARCHITECTURE.md §4.1.
 - Computes empirical p50, p95, and p99 percentile distributions.
 - Exports structured telemetry to JSONL and Parquet-compatible tabular formats.
 """

@@ -9,8 +9,8 @@ import pathlib
 
 import pytest
 
-from arc_cua.browser_session import BrowserSession
-from arc_cua.cdp_extractor import CDP_AXTree_Extractor
+from arc_cua.execution.browser_session import BrowserSession
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor
 
 FIXTURE_URL = (pathlib.Path(__file__).parent / "fixtures" / "layout_table_site.html").resolve().as_uri()
 

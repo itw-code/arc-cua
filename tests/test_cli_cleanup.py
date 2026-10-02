@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from arc_cua import cli
+from arc_cua.interfaces import cli
 
 
 def pid_alive(pid: int) -> bool:

@@ -103,25 +103,66 @@ pip install -e .
 
 ### 2. Run Test Suite
 ```bash
-# 267 tests (2 known failures in test_phase1_remediation)
+# 319 tests (316 pass, 3 skip). Run with SOLARI_API_KEY unset: 2 tests in test_image_and_cdp_discovery
+# that assert the arc_cloud/tunnel cascade outcomes expect the key to be absent.
 pytest tests/
 ```
 
 ### 3. Run the measured benchmarks
 ```bash
 # ARC Index vs a traditional agent on Solari (needs GEMINI_API_KEY, SOLARI_API_KEY)
-python scripts/appeal_tool_server.py &
-python scripts/benchmark_appeal_baseline.py baseline-gemini -n 5
-python scripts/benchmark_appeal_baseline.py arc-gemini -n 5
-python scripts/benchmark_appeal_baseline.py report
+python scripts/benchmarks/appeal_tool_server.py &
+python scripts/benchmarks/benchmark_appeal_baseline.py baseline-gemini -n 5
+python scripts/benchmarks/benchmark_appeal_baseline.py arc-gemini -n 5
+python scripts/benchmarks/benchmark_appeal_baseline.py report
 # Grounding under decoys (block index, n runs per letter)
-python scripts/eval_extraction.py -n 20
-# The older mock scorecard: python scripts/report_production.py
+python scripts/benchmarks/eval_extraction.py -n 20
+# The older mock scorecard: python scripts/reports/report_production.py
 ```
 
 ### 4. Interactive Showcase & ELI5 Explainer
 Open `showcase.html` for the architecture explorer. Its cost/latency simulator uses the mock-scorecard figures, not the measured results above.
 Open `explain.html` for the high-energy Bang-Motion visual explainer using the Hot Stove reflex analogy!
+
+### 5. Connect the System-2 decision model (optional)
+
+The bridge's System-1 tier is the local Laya model, already installed with the package. System-2 is a Qwen3.8-27B AWQ instance served by SGLang on Google Colab, because a 27B AWQ model does not fit this laptop's Intel Arc 140V iGPU. It is optional: with no System-2 reachable, the bridge keeps working and falls back to its rule heuristic.
+
+```bash
+# 1. In Colab: open notebooks/sglang_decision_server.ipynb, Runtime > Run all.
+# 2. The last cell prints one line. Copy it into your local terminal:
+arc-cua doctor --endpoint "https://<random>.trycloudflare.com" --pin
+```
+
+That writes `~/.omp/decision-endpoint.json`. From then on `HybridDecisionClient` finds System-2 on its own, including from this coding agent, with no `SGLANG_DECISION_ENDPOINT` export. The Cloudflare quick tunnel issues a **new random hostname on every runtime start**, so re-run `--pin` each time you restart the notebook; nothing else changes.
+
+```bash
+arc-cua doctor            # which URL resolved, from which source, healthy or not
+arc-cua doctor --unpin    # forget a stale URL
+```
+
+Note the two ports printed by the notebook: `8001` is the gateway and serves `/v1/systemone`, while `8000` is SGLang itself and does not. Pin the gateway URL.
+
+#### Optional: a stable hostname instead of the random one
+
+The quick tunnel reissues a random hostname per runtime, which is safe (unpredictable) but means re-pinning. If `ihsanwanda.my.id` is on Cloudflare (it is), a **named tunnel** gives one fixed URL that survives every restart:
+
+```bash
+# One-time, in the Cloudflare dashboard:
+#   Zero Trust > Networks > Tunnels > Create tunnel  ->  name it "arc-sglang"
+#   Public hostname:  arc.ihsanwanda.my.id  ->  http://localhost:8001   (the GATEWAY, not 8000)
+#   Zero Trust > Access > Applications > add arc.ihsanwanda.my.id,
+#       policy: Service Auth service token ONLY  (not "anyone")
+#   Zero Trust > Access > Service Auth > Service tokens > Create
+#     -> tunnel token  -> Colab secret ARC_TUNNEL_TOKEN
+#     -> access pair  -> your laptop env CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET
+arc-cua doctor --endpoint "https://arc.ihsanwanda.my.id" --pin   # once, and it sticks
+```
+
+The notebook cell [6] detects the secret and uses the named tunnel, falling back to the quick tunnel if the connector cannot register. Access matters here: a fixed hostname is **guessable**, and an unguarded gateway would let anyone who finds it spend your Colab GPU hours. With the policy above, `arc-cua doctor` reports a missing token as an Access problem rather than telling you to restart a runtime that is already serving.
+
+One caveat worth stating plainly: a stable URL is not a persistent runtime. The 12-hour cap and the 40–90 minute idle timeout in the notebook's own notes still apply, and `doctor` is how you tell "URL is fine, Colab is gone" from "all good".
+
 ---
 
 ## Use with Claude Code (MCP)
@@ -140,9 +181,27 @@ claude mcp add --scope user arc -- arc-cua-mcp
 - Agent skill: [`skills/solari-hybrid-cua/SKILL.md`](./skills/solari-hybrid-cua/SKILL.md). Benchmarks in [`docs/BENCHMARK_VS_SOLARI_MCP.md`](./docs/BENCHMARK_VS_SOLARI_MCP.md):
   - **vs Solari's MCP** (scripted policies): 7/7 vs 6/7 tasks, 3.3× fewer perception tokens, 15× fewer DevTools Protocol commands, and 70 s vs 86 s in tool calls on Solari browsers.
   - **A small, fast LLM driving ARC** through the Oh My Pi agent (see Part C of that doc).
-  - **Reflex policy** (`arc_cua.reflex_policy`, Part D): one small model call per action, Jev-style. Gemini 3.8 Flash completed 24/24 runs including Google Flights; Flash-Lite decides in 0.9 s.
+  - **Reflex policy** (`arc_cua.reflex.reflex_policy`, Part D): one small model call per action, Jev-style. Gemini 3.8 Flash completed 24/24 runs including Google Flights; Flash-Lite decides in 0.9 s.
 
 ---
+
+## Repository Layout
+
+```
+src/arc_cua/
+  perception/   CDP + AT-SPI accessibility trees, VM images
+  execution/    action payloads, Playwright executor, locators, sessions, VMs
+  reflex/       System-1 runner, reflex policy, state verifier, hybrid escalation
+  decision/     System-2 decision client and endpoint discovery (arc-cua doctor)
+  interfaces/   arc-cua CLI and arc-cua-mcp server
+  monitors/ cortex/ eval/ datasets/ cloud/
+  schemas.py, telemetry.py   shared by every layer
+src/arc_index/  document-to-action pipeline
+scripts/        benchmarks/ reports/ training/ fixtures/ tools/
+notebooks/      Colab System-2 server (SGLang + gateway + tunnel)
+tests/          one file per subject (pytest tests/)
+docs/           architecture, plans, playbook, changelog, checkpoints
+```
 
 ## Documentation Index
 
@@ -153,9 +212,9 @@ claude mcp add --scope user arc -- arc-cua-mcp
 | **Changelog** | [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) | Chronological phase history, deliverables, and metrics across all 6 phases |
 | **Checkpoints** | [`docs/checkpoints/INDEX.md`](./docs/checkpoints/INDEX.md) | Timeline index and audit record for all 11 development checkpoints |
 | **Artifacts** | [`artifacts/INDEX.md`](./artifacts/INDEX.md) | Catalog of evaluation datasets, JSONL streams, and performance scorecards |
-| **Architecture** | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
-| **Implementation** | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
-| **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
+| **Architecture** | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
+| **Implementation** | [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
+| **Deployment** | [`docs/DEPLOYMENT_PLAYBOOK.md`](./docs/DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
 | **Research Whitepaper**| [`artifacts/phase6/FINAL_RESEARCH_REPORT.md`](./artifacts/phase6/FINAL_RESEARCH_REPORT.md) | Final architecture whitepaper, Pareto analysis, and evaluation findings |
 | **Research References** | [`docs/REFERENCES.md`](./docs/REFERENCES.md) | All cited papers and planning references behind the design and baselines, with verification status |
 | **Interactive Showcase** | [`showcase.html`](./showcase.html) | Interactive single-page visual demo, simulator, and benchmark scorecard |

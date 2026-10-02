@@ -11,12 +11,12 @@ Provides:
 - TelemetryCollector, MetricDistribution, compute_simhash64: Telemetry & percentiles.
 """
 
-from .vm_manager import ArcVMManager, VMMetadata, SnapshotMetadata
-from .image_provider import ArcImageProvider, VMImageSpec
-from .cdp_extractor import CDP_AXTree_Extractor, AXNode, SanitizedAXTree
-from .cdp_discovery import CDPDiscovery, CDPEndpointSpec
-from .at_spi_bridge import AT_SPI_Bridge, DesktopNode, ATSPIEvent
-from .executor_interface import (
+from arc_cua.execution.vm_manager import ArcVMManager, VMMetadata, SnapshotMetadata
+from arc_cua.perception.image_provider import ArcImageProvider, VMImageSpec
+from arc_cua.perception.cdp_extractor import CDP_AXTree_Extractor, AXNode, SanitizedAXTree
+from arc_cua.perception.cdp_discovery import CDPDiscovery, CDPEndpointSpec
+from arc_cua.perception.at_spi_bridge import AT_SPI_Bridge, DesktopNode, ATSPIEvent
+from arc_cua.execution.executor_interface import (
     ActionExecutor,
     PlaywrightActionExecutorInterface,
     BasePlaywrightExecutor,
@@ -25,20 +25,20 @@ from .executor_interface import (
     ExecutionOutcome,
     audit_public_api_compliance,
 )
-from .playwright_executor import PlaywrightExecutor
-from .locator_resolver import (
+from arc_cua.execution.playwright_executor import PlaywrightExecutor
+from arc_cua.execution.locator_resolver import (
     LocatorResolver,
     ResolvedLocator,
     LocatorResolutionError,
     SelectorLRUCache,
 )
-from .session_guard import SessionGuard, ReadinessResult
-from .state_verifier import (
+from arc_cua.execution.session_guard import SessionGuard, ReadinessResult
+from arc_cua.reflex.state_verifier import (
     StateVerifier,
     StateVerificationResult,
     compute_hamming_distance,
 )
-from .reflex_runner import ReflexRunner, ReflexStatus, ReflexExecutionResult
+from arc_cua.reflex.reflex_runner import ReflexRunner, ReflexStatus, ReflexExecutionResult
 from .schemas import (
     PerceptionSource,
     EscalationReason,
@@ -75,7 +75,7 @@ from .cortex import (
     RecoveryCompiler,
     RecoveryCompilationError,
 )
-from .hybrid_runner import HybridRunner
+from arc_cua.reflex.hybrid_runner import HybridRunner
 
 __all__ = [
     "ArcVMManager",

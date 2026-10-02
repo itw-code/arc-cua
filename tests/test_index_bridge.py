@@ -166,14 +166,14 @@ def test_confirmation_scrape_ignores_plain_words():
 
 def test_mcp_tools_registered():
     import asyncio
-    from arc_cua.mcp_server import build_server
+    from arc_cua.interfaces.mcp_server import build_server
     server, _ = build_server(pageindex_factory=lambda mode: FakePageIndex())
     names = {t.name for t in asyncio.run(server.list_tools())}
     assert {"arc_index_document", "arc_index_query", "arc_doc_to_action"} <= names
 
 
 def test_end_to_end_local_chromium(tmp_path):
-    from arc_cua.browser_session import BrowserSession
+    from arc_cua.execution.browser_session import BrowserSession
     html = tmp_path / "portal.html"
     html.write_text(PORTAL, encoding="utf-8")
     try:
@@ -363,7 +363,7 @@ FORM = """<form>
 
 @pytest.fixture
 def form_browser():
-    from arc_cua.browser_session import BrowserSession
+    from arc_cua.execution.browser_session import BrowserSession
     browser = BrowserSession()
     try:
         browser.open("about:blank")

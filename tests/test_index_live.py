@@ -14,12 +14,12 @@ pytestmark = pytest.mark.skipif(
     reason="SOLARI_LIVE_SKIPPED: set SOLARI_LIVE_TESTS=1, SOLARI_API_KEY and GEMINI_API_KEY to run",
 )
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts" / "benchmarks"))
 
 
 @pytest.fixture(scope="module")
 def solari_browser():
-    from arc_cua.browser_session import BrowserSession
+    from arc_cua.execution.browser_session import BrowserSession
     browser = BrowserSession()
     browser.open("about:blank", backend="solari")
     yield browser
