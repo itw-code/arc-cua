@@ -337,7 +337,7 @@ To expose ARC Index to coding agents (Claude Code, Oh My Pi, Cursor), `src/arc_c
 ## 8. Immediate Action Items
 Status as of 2026-09-29:
 1. ~~Commit `docs/ARC_INDEX_PLAN.md` to repository documentation index.~~ Done.
-2. ~~Build runnable demonstration script `scripts/demo_arc_index_pipeline.py`.~~ Done.
+2. ~~Build runnable demonstration script `scripts/tools/demo_arc_index_pipeline.py`.~~ Done.
 3. ~~Verify local pipeline execution against simulated denial letter fixture.~~ Done, and run live on
    Solari with real PageIndex (Section 9).
 4. ~~Fix the grounding weakness (Section 10).~~ Done for steps 1–4: `wrong=0` on every field,
@@ -359,10 +359,10 @@ RVL-CDIP and EDGAR documents were never downloaded. None of those are used below
 
 | Case | Document | Why | Ground truth |
 |---|---|---|---|
-| `SYN-DENIAL-01` | `tests/fixtures/documents/synthetic_denial_letter.pdf`: 4-page fictitious denial notice rendered by `scripts/make_denial_fixture.py` | Facts spread across pages (claim p.1, CPT line p.2, CARC p.3, appeal ground p.4) with decoys: a second claim number and a paid CPT line on the same date | Known by construction: `synthetic_denial_letter.truth.json` |
-| `MED-CMS-01` | CMS FISS Standard Paper Remittance Advice example (public, [cms.gov](https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNGenInfo/Downloads/FISS-SPR-Example.pdf)), fetched by `scripts/fetch_document_corpus.py` | Real payer layout: fixed-width columns under numbered headers; pypdf flattens the rows | Read off the file's own text: `cms_fiss_spr_example.truth.json` (SMITH J, MBI `1EG4TE5MK72`, 10/01–10/31/2018, RC 29/N211 and RC 16/MA18) |
+| `SYN-DENIAL-01` | `tests/fixtures/documents/synthetic_denial_letter.pdf`: 4-page fictitious denial notice rendered by `scripts/fixtures/make_denial_fixture.py` | Facts spread across pages (claim p.1, CPT line p.2, CARC p.3, appeal ground p.4) with decoys: a second claim number and a paid CPT line on the same date | Known by construction: `synthetic_denial_letter.truth.json` |
+| `MED-CMS-01` | CMS FISS Standard Paper Remittance Advice example (public, [cms.gov](https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNGenInfo/Downloads/FISS-SPR-Example.pdf)), fetched by `scripts/fixtures/fetch_document_corpus.py` | Real payer layout: fixed-width columns under numbered headers; pypdf flattens the rows | Read off the file's own text: `cms_fiss_spr_example.truth.json` (SMITH J, MBI `1EG4TE5MK72`, 10/01–10/31/2018, RC 29/N211 and RC 16/MA18) |
 
-### 9.2 Method (`scripts/run_arc_index_live.py`, `scripts/eval_extraction.py`)
+### 9.2 Method (`scripts/benchmarks/run_arc_index_live.py`, `scripts/benchmarks/eval_extraction.py`)
 
 1. **Index + extract**, two interchangeable indexes (`--index`):
    - `pageindex`: the real PageIndex SDK (`pageindex==0.2.20`) in local mode through
@@ -458,9 +458,9 @@ all.** Today the only guarantee is "only if it appears at the cited place".
 
 ### 10.2 Plan
 
-1. **Reproduce first (red).** Add a `--no-descriptions` flag to `scripts/eval_extraction.py` that
+1. **Reproduce first (red).** Add a `--no-descriptions` flag to `scripts/benchmarks/eval_extraction.py` that
    strips `description` from the schema, which restores the prompt that produced 7/10 wrong. Add
-   decoy variants of the synthetic letter to `scripts/make_denial_fixture.py`:
+   decoy variants of the synthetic letter to `scripts/fixtures/make_denial_fixture.py`:
    - paid and denied lines in swapped order;
    - two denied lines with different CPT codes (the schema must then say which one, or extraction must fail);
    - the decoy claim number moved to page 1 above the real one.
@@ -497,13 +497,13 @@ all.** Today the only guarantee is "only if it appears at the cited place".
 - Check: `src/arc_index/index_bridge.py` → `verify_grounding`, `_parse_extracted_fields`, `extract_action_fields` (prompt).
 - Indexes: `src/arc_index/local_doc_index.py` (`verify_citation`, block level), `src/arc_index/pageindex_adapter.py` (page level).
 - Schemas: `schemas/rcm_denial.json`, `schemas/medicare_redetermination.json`.
-- Measurement: `scripts/eval_extraction.py`; fixtures: `scripts/make_denial_fixture.py`, `tests/fixtures/documents/*.truth.json`.
+- Measurement: `scripts/benchmarks/eval_extraction.py`; fixtures: `scripts/fixtures/make_denial_fixture.py`, `tests/fixtures/documents/*.truth.json`.
 - PageIndex runs need the separate venv (`pageindex==0.2.20` needs `websockets` 16; see 9.4).
 
 ### 10.5 What was built and measured (2026-09-29)
 
 **Built:**
-- **Decoy variants** (`scripts/make_denial_fixture.py --variant`): `swapped` (denied line first),
+- **Decoy variants** (`scripts/fixtures/make_denial_fixture.py --variant`): `swapped` (denied line first),
   `two_denied` (two denied lines, 99214 $412.00 and 93000 $96.00; truth for `cpt_code` and
   `billed_amount` is `null`, so any accepted value counts as wrong), `decoy_first` (the unaffected
   claim number printed first, with its own "Related claim number:" label). `eval_extraction.py` runs
@@ -593,7 +593,7 @@ model answered `AMBIGUOUS`. A model that picked one denied row passed every rule
   `test_evidence_outside_a_table_row_is_rejected`, `test_a_partial_quote_is_checked_against_its_whole_row`.
   `tests/test_index_bridge.py` 24 passed; full suite 267 passed, the same 2 pre-existing failures.
 
-**Measured** (`scripts/eval_offline.py`). The model calls were made by Claude Sonnet 5.5 subagents
+**Measured** (`scripts/benchmarks/eval_offline.py`). The model calls were made by Claude Sonnet 5.5 subagents
 (Claude Code, no API key); each of 8 runs answered all 8 prompts once, in its own random order. The
 same answers are then graded three ways, so any difference between columns is the check alone. Mode
 `pick` replaces the `AMBIGUOUS` instruction with "give the one that fits best", forcing a choice.
@@ -618,13 +618,13 @@ Gemini or PageIndex; the rule does not depend on the model, and the unit tests c
 ## 11. Traditional Agent vs ARC Index: Measured Economics (2026-09-29)
 
 Section 7's cost model and the benchmark doc's baseline columns were projections. This replaces them
-with a measured head-to-head on the denial appeal (`scripts/benchmark_appeal_baseline.py`).
+with a measured head-to-head on the denial appeal (`scripts/benchmarks/benchmark_appeal_baseline.py`).
 
 **Setup.** Same two letters (`SYN-DENIAL-01`, `two_denied`), same stand-in portal, Solari cloud browsers
 on both sides.
 - **Traditional agent:** the model gets the letter's pypdf text and the goal, and drives the portal with
   Solari's page tools (`read_page`, `click`, `type`, `key`, `evaluate`), served by
-  `scripts/appeal_tool_server.py` over one `@solarisdk/mcp` session. One browser per episode, portal
+  `scripts/benchmarks/appeal_tool_server.py` over one `@solarisdk/mcp` session. One browser per episode, portal
   written in untimed. The goal says to leave a field blank when the letter lacks it or more than one
   value fits, the prompt counterpart of ARC's `AMBIGUOUS`.
 - **ARC Index:** `run_arc_index_live.run_case` on a Solari `BrowserSession`: block index, one

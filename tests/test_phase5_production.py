@@ -354,7 +354,7 @@ class TestProductionScorecard:
 
     def test_production_evaluation_generates_all_artifacts(self, tmp_path):
         """run_production_evaluation generates final_scorecard.json, production_report.md, and trajectory log."""
-        from scripts.report_production import run_production_evaluation
+        from scripts.reports.report_production import run_production_evaluation
 
         scorecard = run_production_evaluation(
             webarena_task_count=2,

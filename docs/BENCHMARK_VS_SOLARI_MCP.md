@@ -10,7 +10,7 @@
 Raw data:
 - Head-to-head: `artifacts/benchmarks/vs_solari_mcp_20260927-035501.{json,md}` (after the round-trip fix; Part A below is from `vs_solari_mcp_20260927-030500`, whose page reads the fix doesn't affect)
 - LLM agent: `artifacts/benchmarks/llm_agent_omp_20260927-032435.{json,md}` and `llm_agent_omp_20260927-033001.{json,md}`
-- Scripts: `scripts/benchmark_vs_solari_mcp.py`, `scripts/benchmark_llm_agent_omp.py`
+- Scripts: `scripts/benchmarks/benchmark_vs_solari_mcp.py`, `scripts/benchmarks/benchmark_llm_agent_omp.py`
 - Before the round-trip fix: `vs_solari_mcp_20260927-030500`. Before timing was added: `vs_solari_mcp_20260926-215606`.
 
 ## Setup
@@ -117,7 +117,7 @@ Setup and scoring:
 - **Tasks:** the same 7 tasks plus **Google Flights**: one-way Zurich → London on 2026-10-20, the task Browser Use's Jev times at 7.1 s. Flights passes only if the results URL's `tfs` parameter encodes that date and the Freebase ids of Zürich (`/m/08966`) and London (`/m/04jpl`).
 - **Browser:** local headless Chromium, kept warm across tasks.
 - **Scoring:** a run where the model itself gives up never counts.
-- **Artifacts:** `artifacts/benchmarks/reflex_policy_20260927-{044804,045518,045016}`. Script: `scripts/benchmark_reflex_policy.py`.
+- **Artifacts:** `artifacts/benchmarks/reflex_policy_20260927-{044804,045518,045016}`. Script: `scripts/benchmarks/benchmark_reflex_policy.py`.
 
 | Model (endpoint) | Success | Median s / task | Median s / decision | Google Flights |
 |---|:-:|---:|---:|---|
@@ -144,7 +144,7 @@ Setup and scoring:
 ## Part E — same model, two harnesses
 
 Part D's comparison against Opus changed the model and the harness at once. Here the model is held fixed: **Gemini 3.8 Flash** (thinking off) drives a Solari browser either through Solari's own MCP or through ARC.
-- **Solari MCP side:** a standard tool-calling agent (`scripts/benchmark_gemini_solari_mcp.py`). The model gets Solari's six page tools (`navigate`, `read_page`, `click`, `type`, `key`, `evaluate`) as functions, keeps the whole conversation, and works until it answers DONE. The harness injects the Solari `sessionId`, so the model provider never sees it.
+- **Solari MCP side:** a standard tool-calling agent (`scripts/benchmarks/benchmark_gemini_solari_mcp.py`). The model gets Solari's six page tools (`navigate`, `read_page`, `click`, `type`, `key`, `evaluate`) as functions, keeps the whole conversation, and works until it answers DONE. The harness injects the Solari `sessionId`, so the model provider never sees it.
 - **ARC side:** the reflex policy from Part D, on the Solari backend (`reflex_policy_20260927-062541`).
 - **Both:** the same 8 tasks, 3 runs each, one warm Solari browser, the start page opened by the harness inside the timed window, and the same `judge` (the `tfs` check for Flights).
 - **Artifacts:** `artifacts/benchmarks/gemini_solari_mcp_20260927-144808.json`. Video: `artifacts/gemini-harness-showreel.mp4` (`media/showreel`, variant `gemini`).

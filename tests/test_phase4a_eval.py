@@ -275,8 +275,8 @@ def test_scorecard_builder_aggregates_results():
 
 # 10. Report generator writes artifacts
 def test_report_generator_writes_artifacts(tmp_path: pathlib.Path):
-    """Verify scripts/report_phase4a.py produces all 5 required artifacts."""
-    from scripts.report_phase4a import run_evaluation
+    """Verify scripts/reports/report_phase4a.py produces all 5 required artifacts."""
+    from scripts.reports.report_phase4a import run_evaluation
 
     res = run_evaluation(mock_mode=True, output_dir=tmp_path)
     assert (tmp_path / "report.md").exists()

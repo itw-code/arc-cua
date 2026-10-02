@@ -22,12 +22,12 @@ repo_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo_root / "src"))
 sys.path.insert(0, str(repo_root))
 
-from scripts.generate_final_report import compute_dataset_stats, generate_report_markdown, load_json
-from scripts.run_full_osworld import (
+from scripts.reports.generate_final_report import compute_dataset_stats, generate_report_markdown, load_json
+from scripts.benchmarks.run_full_osworld import (
     generate_full_osworld_tasks,
     read_completed_task_ids as osworld_read_completed,
 )
-from scripts.run_full_webarena import (
+from scripts.benchmarks.run_full_webarena import (
     generate_full_webarena_tasks,
     read_completed_task_ids as webarena_read_completed,
 )
@@ -98,7 +98,7 @@ def test_webarena_runner_script_execution(tmp_path: Path):
     out_file = tmp_path / "test_webarena_run.jsonl"
     cmd = [
         sys.executable,
-        str(repo_root / "scripts" / "run_full_webarena.py"),
+        str(repo_root / "scripts" / "benchmarks" / "run_full_webarena.py"),
         "--max-tasks",
         "2",
         "--output-file",
@@ -163,7 +163,7 @@ def test_osworld_runner_captures_fs_and_at_spi(tmp_path: Path):
     out_file = tmp_path / "test_osworld_run.jsonl"
     cmd = [
         sys.executable,
-        str(repo_root / "scripts" / "run_full_osworld.py"),
+        str(repo_root / "scripts" / "benchmarks" / "run_full_osworld.py"),
         "--max-tasks",
         "2",
         "--output-file",
@@ -254,7 +254,7 @@ def test_final_report_generator(tmp_path: Path):
     out_md = tmp_path / "FINAL_REPORT.md"
     cmd = [
         sys.executable,
-        str(repo_root / "scripts" / "generate_final_report.py"),
+        str(repo_root / "scripts" / "reports" / "generate_final_report.py"),
         "--scorecard",
         "artifacts/production/final_scorecard.json",
         "--webarena-results",

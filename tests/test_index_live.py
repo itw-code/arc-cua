@@ -14,7 +14,7 @@ pytestmark = pytest.mark.skipif(
     reason="SOLARI_LIVE_SKIPPED: set SOLARI_LIVE_TESTS=1, SOLARI_API_KEY and GEMINI_API_KEY to run",
 )
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts" / "benchmarks"))
 
 
 @pytest.fixture(scope="module")

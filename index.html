@@ -1495,7 +1495,7 @@
           </div>
           <h3 class="text-lg font-bold text-white mb-2">ModernBERT Fine-Tuning</h3>
           <p class="text-xs text-slate-300 leading-relaxed">
-            Execute <code class="text-blue-300 font-mono">scripts/train_monitors_full.py</code> on NVIDIA CUDA GPUs using empirical trajectory windows captured during Phases 3B and 4A to train learned sequence monitors.
+            Execute <code class="text-blue-300 font-mono">scripts/training/train_monitors_full.py</code> on NVIDIA CUDA GPUs using empirical trajectory windows captured during Phases 3B and 4A to train learned sequence monitors.
           </p>
         </div>
         <div class="mt-6 pt-4 border-t border-white/10 text-[11px] font-mono text-muted flex items-center justify-between">
@@ -1536,7 +1536,7 @@
         <div><span class="text-slate-500"># Verify all 234 unit and integration tests</span></div>
         <div>pytest tests/</div>
         <div><span class="text-slate-500"># Run the mock scorecard (live benchmarks: see README)</span></div>
-        <div>python scripts/report_production.py</div>
+        <div>python scripts/reports/report_production.py</div>
         <div><span class="text-slate-500"># Use it from Claude Code</span></div>
         <div>claude mcp add --scope user arc -- arc-cua-mcp</div>
       </div>

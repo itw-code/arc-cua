@@ -111,13 +111,13 @@ pytest tests/
 ### 3. Run the measured benchmarks
 ```bash
 # ARC Index vs a traditional agent on Solari (needs GEMINI_API_KEY, SOLARI_API_KEY)
-python scripts/appeal_tool_server.py &
-python scripts/benchmark_appeal_baseline.py baseline-gemini -n 5
-python scripts/benchmark_appeal_baseline.py arc-gemini -n 5
-python scripts/benchmark_appeal_baseline.py report
+python scripts/benchmarks/appeal_tool_server.py &
+python scripts/benchmarks/benchmark_appeal_baseline.py baseline-gemini -n 5
+python scripts/benchmarks/benchmark_appeal_baseline.py arc-gemini -n 5
+python scripts/benchmarks/benchmark_appeal_baseline.py report
 # Grounding under decoys (block index, n runs per letter)
-python scripts/eval_extraction.py -n 20
-# The older mock scorecard: python scripts/report_production.py
+python scripts/benchmarks/eval_extraction.py -n 20
+# The older mock scorecard: python scripts/reports/report_production.py
 ```
 
 ### 4. Interactive Showcase & ELI5 Explainer
@@ -194,9 +194,9 @@ claude mcp add --scope user arc -- arc-cua-mcp
 | **Changelog** | [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) | Chronological phase history, deliverables, and metrics across all 6 phases |
 | **Checkpoints** | [`docs/checkpoints/INDEX.md`](./docs/checkpoints/INDEX.md) | Timeline index and audit record for all 11 development checkpoints |
 | **Artifacts** | [`artifacts/INDEX.md`](./artifacts/INDEX.md) | Catalog of evaluation datasets, JSONL streams, and performance scorecards |
-| **Architecture** | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
-| **Implementation** | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
-| **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
+| **Architecture** | [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Deep-dive specification covering perception pipelines, monitors, and microVMs |
+| **Implementation** | [`IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md) | Multi-phase development roadmap, milestone gates, and risk controls |
+| **Deployment** | [`DEPLOYMENT_PLAYBOOK.md`](./docs/DEPLOYMENT_PLAYBOOK.md) | Step-by-step guide for deploying on Linux KVM hosts and Arc Cloud |
 | **Research Whitepaper**| [`artifacts/phase6/FINAL_RESEARCH_REPORT.md`](./artifacts/phase6/FINAL_RESEARCH_REPORT.md) | Final architecture whitepaper, Pareto analysis, and evaluation findings |
 | **Research References** | [`docs/REFERENCES.md`](./docs/REFERENCES.md) | All cited papers and planning references behind the design and baselines, with verification status |
 | **Interactive Showcase** | [`showcase.html`](./showcase.html) | Interactive single-page visual demo, simulator, and benchmark scorecard |

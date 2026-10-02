@@ -2,7 +2,7 @@
 
 A 15-second piece comparing a traditional browser agent with ARC Index on the same denial appeal: the same letters, the same stand-in portal, and Solari cloud browsers on both sides. Output: `artifacts/arc-index-economics-showreel.mp4`.
 
-Every figure is measured (`scripts/benchmark_appeal_baseline.py`, `artifacts/benchmarks/appeal/summary.json`, `docs/ARC_INDEX_PLAN.md` §11). Gemini 3.8 Flash, API usage, n=10 appeals per harness (2 letters × 5):
+Every figure is measured (`scripts/benchmarks/benchmark_appeal_baseline.py`, `artifacts/benchmarks/appeal/summary.json`, `docs/ARC_INDEX_PLAN.md` §11). Gemini 3.8 Flash, API usage, n=10 appeals per harness (2 letters × 5):
 
 | Per appeal | Traditional agent | ARC Index | |
 |---|---|---|---|

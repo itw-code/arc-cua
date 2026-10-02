@@ -4,6 +4,14 @@ All notable technical achievements, deliverables, and performance benchmarks acr
 
 ---
 
+## 2026-10-02: Repository layout cleanup
+
+- `scripts/` grouped by purpose: `benchmarks/` (benchmark runners, `run_full_*`, `run_arc_index_live`, `eval_*`, the appeal tool server/client), `reports/`, `training/`, `fixtures/` (`make_denial_fixture`, `fetch_document_corpus`, `mock_webarena_server`), `tools/`. Each group is self-contained: every sibling import (`benchmark_reflex_policy`, `benchmark_gemini_solari_mcp`, `eval_extraction`, `run_arc_index_live`) stays inside `benchmarks/`. Repo-root lookups changed from `parent.parent` to `parents[2]`.
+- `ARCHITECTURE.md`, `DEPLOYMENT_PLAYBOOK.md`, `IMPLEMENTATION_PLAN.md` moved into `docs/`. `README.md`, `index.html`, `.nojekyll` stay at the root because GitHub Pages serves them from there.
+- Every live reference was rewritten (README, docs, `docker-compose.webarena.yml`, HTML pages, tests, script docstrings). Checkpoints, instructions and older entries in this changelog keep their original paths, since they record the layout as it was at the time.
+
+---
+
 ## 2026-10-01: Persistent System-2 endpoint (no more hand-pasted Colab URL)
 
 - `src/arc_cua/decision_endpoint.py`: `DecisionEndpointResolver` discovers the System-2 gateway through the same cascade idiom as `CDPDiscovery` — explicit → `SGLANG_DECISION_ENDPOINT`/`SGLANG_BASE_URL` → pinned `~/.omp/decision-endpoint.json` → loopback `127.0.0.1:8001`. Every candidate is health-probed, and a pin left over from a dead Colab runtime is reported stale rather than trusted. A pin file is written only after the gateway answers, and `ARC_DECISION_PIN_PATH` isolates tests from the operator's real pin.
